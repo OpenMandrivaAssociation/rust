@@ -2,11 +2,13 @@
 # libpthread.so.0(GLIBC_PRIVATE)
 %global __requires_exclude libpthread.so.0
 
+%define oname	rustc
+
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	0.10
-Release:	%mkrel 4
-Source0:	http://static.rust-lang.org/dist/%{name}-%{version}.tar.gz
+Version:	1.0.0
+Release:	1
+Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 License:	MIT
 Group:		Development/Other
 Url:		http://www.rust-lang.org/
@@ -43,7 +45,7 @@ The kate-rust package provides filetype detection and syntax highlighting for
 the rust programming language.
 
 %prep
-%setup -q
+%setup -q -n %{oname}-%{version}
 
 %build
 # enable better rust debug messages during build
