@@ -1,3 +1,4 @@
 sources:
   rustc-1.0.0-src.tar.gz: c5a02ede9f0ff8814e0ca3aca1cf47ae61aecdca
   rustc-1.2.0-src.tar.gz: 3433ba9b8494097431415a120ab5b9645f469cb1
+  rustc-1.6.0-src.tar.gz: fadca2ef0f632b25e6a4dd4e2d8ab8ea218dd4a6
