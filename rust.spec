@@ -7,7 +7,7 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.6.0
+Version:	1.9.0
 Release:	1
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
