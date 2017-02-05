@@ -38,7 +38,7 @@ generic programming and metaprogramming, in both static and dynamic
 styles.
 
 %prep
-%setup -q -n %{oname}-%{version}
+%setup -q -n %{oname}-%{version}-src
 
 #(tpg) not needed
 rm -rf src/jemalloc/
