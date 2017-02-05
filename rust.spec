@@ -15,6 +15,7 @@ Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
 BuildRequires:	python < 3.0
+BuildRequires:	cmake
 # (tpg) LLVM support 4.0+ is not yet ready
 # https://github.com/rust-lang/rust/issues/37609
 #BuildRequires:	llvm-devel
