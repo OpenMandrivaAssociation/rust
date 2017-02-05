@@ -15,9 +15,13 @@ Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
 BuildRequires:	python < 3.0
-BuildRequires:	llvm-devel
+# (tpg) LLVM support 4.0+ is not yet ready
+# https://github.com/rust-lang/rust/issues/37609
+#BuildRequires:	llvm-devel
 BuildRequires:	curl
 BuildRequires:	procps-ng
+BuildRequires:	flex
+BuildRequires:	bison
 Provides:	%{oname} = %{EVRD}
 # The C compiler is needed at runtime just for linking.  Someday rustc might
 # invoke the linker directly, and then we'll only need binutils.
@@ -40,9 +44,10 @@ styles.
 %prep
 %setup -q -n %{oname}-%{version}-src
 
-#(tpg) not needed
+# (tpg) not needed
 rm -rf src/jemalloc/
-rm -rf src/llvm/
+# (tpg) not yet ready
+# rm -rf src/llvm/
 
 %build
 %setup_compile_flags
@@ -59,8 +64,9 @@ export RUST_LOG=rustc=1;
         --mandir=%{_mandir} \
         --infodir=%{_infodir} \
         --disable-rpath \
-        --disable-jemalloc \
-        --llvm-root=%{_prefix}
+        --disable-jemalloc
+# (tpg) not yet ready
+#        --llvm-root=%{_prefix}
 
 #       --build=%{_target_platform} \
 #       --exec-prefix=%{_exec_prefix} \
