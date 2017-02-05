@@ -1,2 +1,2 @@
 sources:
-  rustc-1.9.0-src.tar.gz: a698496c5244bbb5b2332b70f239f5af93752cce
+  rustc-1.15.0-src.tar.gz: https://static.rust-lang.org/dist/rustc-1.15.0-src.tar.gz

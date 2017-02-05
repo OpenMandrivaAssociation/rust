@@ -7,16 +7,22 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.9.0
+Version:	1.15.0
 Release:	1
+Group:		Development/Other
+License:	MIT
+Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
-License:	MIT
-Group:		Development/Other
-Url:		http://www.rust-lang.org/
-Provides:	%{oname}
-
-BuildRequires:  python < 3.0
+BuildRequires:	python < 3.0
+BuildRequires:	llvm-devel
+BuildRequires:	curl
+BuildRequires:	procps-ng
+Provides:	%{oname} = %{EVRD}
+# The C compiler is needed at runtime just for linking.  Someday rustc might
+# invoke the linker directly, and then we'll only need binutils.
+# https://github.com/rust-lang/rust/issues/11937
+Requires:	gcc
 
 %description
 Rust is a curly-brace, block-structured expression language. It
@@ -29,12 +35,17 @@ preserve large-system integrity, availability and concurrency.
 It supports a mixture of imperative procedural, concurrent actor,
 object-oriented and pure functional styles. Rust also supports
 generic programming and metaprogramming, in both static and dynamic
-styles. 
+styles.
 
 %prep
 %setup -q -n %{oname}-%{version}
 
+#(tpg) not needed
+rm -rf src/jemalloc/
+rm -rf src/llvm/
+
 %build
+%setup_compile_flags
 # enable better rust debug messages during build
 export RUST_LOG=rustc=1;
 
@@ -46,7 +57,10 @@ export RUST_LOG=rustc=1;
         --datadir=%{_datadir} \
         --localstatedir=%{_localstatedir} \
         --mandir=%{_mandir} \
-        --infodir=%{_infodir}
+        --infodir=%{_infodir} \
+        --disable-rpath \
+        --disable-jemalloc \
+        --llvm-root=%{_prefix}
 
 #       --build=%{_target_platform} \
 #       --exec-prefix=%{_exec_prefix} \
