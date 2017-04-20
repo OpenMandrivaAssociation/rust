@@ -2,12 +2,14 @@
 # libpthread.so.0(GLIBC_PRIVATE)
 %global __requires_exclude libpthread.so.0
 %define debug_package %{nil}
+%define _disable_lto 1
+%define _disable_ld_no_undefined 1
 
 %define oname	rustc
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.15.0
+Version:	1.16.0
 Release:	1
 Group:		Development/Other
 License:	MIT
@@ -52,8 +54,9 @@ rm -rf src/jemalloc/
 
 %build
 %setup_compile_flags
-# enable better rust debug messages during build
-export RUST_LOG=rustc=1;
+export CC=gcc
+export CXX=g++
+export RUST_BACKTRACE=1
 
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
@@ -92,6 +95,7 @@ mv %{buildroot}/%{_prefix}/lib %{buildroot}/%{_libdir}
 %{_bindir}/rustc
 %{_bindir}/rustdoc
 %{_bindir}/rust-gdb
+%{_bindir}/rust-lldb
 %{_libdir}/rustlib
 %{_libdir}/lib*
 %{_mandir}/man*/*
