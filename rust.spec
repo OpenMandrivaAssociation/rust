@@ -58,6 +58,12 @@ export CC=gcc
 export CXX=g++
 export RUST_BACKTRACE=1
 
+# for some reason parts of the code still use cc call rather than the environment
+# which results in a mixture
+mkdir omv_build_comp
+ln -s `which gcc` omv_build_comp/cc
+export PATH=$PWD/omv_build_comp:$PATH
+
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
 ./configure \
@@ -82,7 +88,8 @@ export RUST_BACKTRACE=1
 #       --libexecdir=%{_libexecdir} \
 #       --sharedstatedir=%{_sharedstatedir} \
 
-%make
+# cb strange results with parallel
+make
 
 %install
 %makeinstall_std
