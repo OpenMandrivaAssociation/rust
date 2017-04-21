@@ -10,7 +10,7 @@
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
 Version:	1.16.0
-Release:	1
+Release:	2
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
