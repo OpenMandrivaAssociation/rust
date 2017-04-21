@@ -68,7 +68,8 @@ export RUST_BACKTRACE=1
         --mandir=%{_mandir} \
         --infodir=%{_infodir} \
         --disable-rpath \
-        --disable-jemalloc
+        --disable-jemalloc \
+        --default-linker=gcc \
 # (tpg) not yet ready
 #        --llvm-root=%{_prefix}
 
