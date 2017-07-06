@@ -20,9 +20,6 @@ BuildRequires:	python < 3.0
 BuildRequires:	cmake
 # (tpg) LLVM support 4.0+ is not yet ready
 # https://github.com/rust-lang/rust/issues/37609
-%if %mdvver <= 201400
-BuildRequires:	llvm-devel
-%endif
 BuildRequires:	curl
 BuildRequires:	procps-ng
 BuildRequires:	flex
@@ -80,9 +77,6 @@ export PATH=$PWD/omv_build_comp:$PATH
         --disable-rpath \
         --disable-jemalloc \
         --default-linker=gcc \
-%if %mdvver <= 201400
-        --llvm-root=%{_prefix}
-%endif
 #       --build=%{_target_platform} \
 #       --exec-prefix=%{_exec_prefix} \
 #       --bindir=%{_bindir} \
