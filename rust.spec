@@ -9,7 +9,7 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.18.0
+Version:	1.20.0
 Release:	1
 Group:		Development/Other
 License:	MIT
