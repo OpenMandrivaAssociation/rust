@@ -51,6 +51,7 @@ styles.
 
 # (tpg) not needed
 rm -rf src/llvm/
+rm -rf src/jemalloc/
 
 %build
 %global optflags %optflags -Qunused-arguments
@@ -75,6 +76,7 @@ export PATH=$PWD/omv_build_comp:$PATH
         --localstatedir=%{_localstatedir} \
         --mandir=%{_mandir} \
         --infodir=%{_infodir} \
+	--disable-jemalloc \
         --disable-rpath \
         --default-linker=gcc \
         --enable-llvm-link-shared \
