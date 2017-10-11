@@ -62,6 +62,7 @@ export RUST_BACKTRACE=1
 # which results in a mixture
 mkdir omv_build_comp
 ln -s `which gcc` omv_build_comp/cc
+ln -s `which g++` omv_build_comp/g++
 export PATH=$PWD/omv_build_comp:$PATH
 
 # Unable to use standard configure as rust's configure is missing
