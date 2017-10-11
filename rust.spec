@@ -53,6 +53,7 @@ styles.
 rm -rf src/llvm/
 
 %build
+%global optflags %optflags -Qunused-arguments
 %setup_compile_flags
 export CC=gcc
 export CXX=g++
