@@ -54,10 +54,9 @@ rm -rf src/llvm/
 rm -rf src/jemalloc/
 
 %build
-%global optflags %optflags -Qunused-arguments
 %setup_compile_flags
-export CC=gcc
-export CXX=g++
+export CC=/usr/bin/gcc
+export CXX=/usr/bin/g++
 export RUST_BACKTRACE=1
 
 # for some reason parts of the code still use cc call rather than the environment
@@ -84,10 +83,7 @@ export PATH=$PWD/omv_build_comp:$PATH
         --enable-vendor
 
 # cb strange results with parallel
-make ||:
-
-cat config.log
-exit 1
+make
 
 %install
 %makeinstall_std
