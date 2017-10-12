@@ -84,7 +84,10 @@ export PATH=$PWD/omv_build_comp:$PATH
         --enable-vendor
 
 # cb strange results with parallel
-make
+make ||:
+
+cat config.log
+exit 1
 
 %install
 %makeinstall_std
