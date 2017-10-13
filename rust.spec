@@ -7,7 +7,7 @@
 # To avoid undefined symbols
 %define _find_debuginfo_opts -g
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 %define oname	rustc
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
