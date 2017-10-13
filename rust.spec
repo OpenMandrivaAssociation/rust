@@ -79,8 +79,11 @@ styles.
 %prep
 %setup -q -n %{oname}-%{version}-src
 
-# (tpg) not needed
+%if %{with llvm}
 rm -rf src/llvm/
+%endif
+
+# (tpg) not needed
 rm -rf src/jemalloc/
 
 %build
