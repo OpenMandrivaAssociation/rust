@@ -116,6 +116,8 @@ export PATH=$PWD/omv_build_comp:$PATH
         --enable-llvm-link-shared \
         --llvm-root=%{_prefix} \
 	--enable-optimize \
+	--disable-libcpp \
+	--enable-clang \
 %if !%{with bootstrap}
 	--enable-local-rust \
 	--local-rust-root=%{_prefix} \
