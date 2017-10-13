@@ -55,16 +55,20 @@ rm -rf src/jemalloc/
 
 %build
 %setup_compile_flags
+%if 0
 export CC=/usr/bin/gcc
 export CXX=/usr/bin/g++
+%endif
 export RUST_BACKTRACE=1
 
 # for some reason parts of the code still use cc call rather than the environment
 # which results in a mixture
+%if 0
 mkdir omv_build_comp
 ln -s `which gcc` omv_build_comp/cc
 ln -s `which g++` omv_build_comp/g++
 export PATH=$PWD/omv_build_comp:$PATH
+%endif
 
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
