@@ -7,7 +7,12 @@
 # To avoid undefined symbols
 %define _find_debuginfo_opts -g
 
+%bcond_with bootstrap
 %define oname	rustc
+
+# Only x86_64 and i686 are Tier 1 platforms at this time.
+# https://forge.rust-lang.org/platform-support.html
+%global rust_arches x86_64 %ix86 armv7hl aarch64
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
@@ -27,13 +32,33 @@ BuildRequires:	bison
 BuildRequires:	gdb
 BuildRequires:	git
 BuildRequires:	llvm-devel
+%if !%{with bootsrap}
 BuildRequires:	rust
 BuildRequires:	cargo
+%endif
 Provides:	%{oname} = %{EVRD}
 # The C compiler is needed at runtime just for linking.  Someday rustc might
 # invoke the linker directly, and then we'll only need binutils.
 # https://github.com/rust-lang/rust/issues/11937
 Requires:	gcc
+
+# Get the Rust triple for any arch.
+%{lua: function rust_triple(arch)
+  local abi = "gnu"
+  if arch == "armv7hl" then
+    arch = "armv7"
+    abi = "gnueabihf"
+  elseif arch == "ppc64" then
+    arch = "powerpc64"
+  elseif arch == "ppc64le" then
+    arch = "powerpc64le"
+  elseif arch == "i586" then
+    arch = "i686"
+  end
+  return arch.."-unknown-linux-"..abi
+end}
+
+%global rust_triple %{lua: print(rust_triple(rpm.expand("%{_target_cpu}")))}
 
 %description
 Rust is a curly-brace, block-structured expression language. It
@@ -81,13 +106,20 @@ export PATH=$PWD/omv_build_comp:$PATH
         --localstatedir=%{_localstatedir} \
         --mandir=%{_mandir} \
         --infodir=%{_infodir} \
+	--libdir=%{_prefix}/lib \
 	--disable-jemalloc \
         --disable-rpath \
+	--build=%{rust_triple} \
+	--host=%{rust_triple} \
+	--target=%{rust_triple} \
         --default-linker=gcc \
         --enable-llvm-link-shared \
         --llvm-root=%{_prefix} \
 	--enable-optimize \
+%if !%{with bootsrap}
 	--enable-local-rust \
+	--local-rust-root=%{_prefix}
+%endif
         --enable-vendor
 
 # cb strange results with parallel
