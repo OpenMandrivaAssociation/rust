@@ -84,10 +84,13 @@ export PATH=$PWD/omv_build_comp:$PATH
         --default-linker=gcc \
         --enable-llvm-link-shared \
         --llvm-root=%{_prefix} \
+	--enable-optimize \
+	--enable-local-rust \
         --enable-vendor
 
 # cb strange results with parallel
-make
+#make
+./x.py build --verbose
 
 %install
 %makeinstall_std
