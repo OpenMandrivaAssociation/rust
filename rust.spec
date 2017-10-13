@@ -28,6 +28,7 @@ BuildRequires:	gdb
 BuildRequires:	git
 BuildRequires:	llvm-devel
 BuildRequires:	rust
+BuildRequires:	cargo
 Provides:	%{oname} = %{EVRD}
 # The C compiler is needed at runtime just for linking.  Someday rustc might
 # invoke the linker directly, and then we'll only need binutils.
