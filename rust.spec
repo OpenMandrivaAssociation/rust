@@ -81,7 +81,7 @@ rm -rf src/llvm/
 rm -rf src/jemalloc/
 
 %build
-%global optflags %optflags -fno-freestanding
+%global optflags %optflags -fhosted
 %setup_compile_flags
 %if 0
 export CC=/usr/bin/gcc
