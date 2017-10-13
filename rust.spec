@@ -32,7 +32,7 @@ BuildRequires:	bison
 BuildRequires:	gdb
 BuildRequires:	git
 BuildRequires:	llvm-devel
-%if !%{with bootsrap}
+%if !%{with bootstrap}
 BuildRequires:	rust
 BuildRequires:	cargo
 %endif
@@ -116,7 +116,7 @@ export PATH=$PWD/omv_build_comp:$PATH
         --enable-llvm-link-shared \
         --llvm-root=%{_prefix} \
 	--enable-optimize \
-%if !%{with bootsrap}
+%if !%{with bootstrap}
 	--enable-local-rust \
 	--local-rust-root=%{_prefix} \
 %endif
