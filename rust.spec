@@ -118,7 +118,7 @@ export PATH=$PWD/omv_build_comp:$PATH
 	--enable-optimize \
 %if !%{with bootsrap}
 	--enable-local-rust \
-	--local-rust-root=%{_prefix}
+	--local-rust-root=%{_prefix} \
 %endif
         --enable-vendor
 
