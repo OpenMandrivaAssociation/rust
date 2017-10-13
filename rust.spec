@@ -8,8 +8,9 @@
 %define _find_debuginfo_opts -g
 
 %bcond_without bootstrap
+# (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
-%define oname	rustc
+%define oname rustc
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
@@ -83,75 +84,94 @@ styles.
 rm -rf src/llvm/
 %endif
 
-# (tpg) not needed
-rm -rf src/jemalloc/
-
 %build
 %setup_compile_flags
+
+# We're going to override --libdir when configuring to get rustlib into a
+# common path, but we'll fix the shared libraries during install.
+%global common_libdir %{_prefix}/lib
+%global rustlibdir %{common_libdir}/rustlib
+
 %if !%{with llvm}
 export CC=gcc
 export CXX=g++
-%endif
-export RUST_BACKTRACE=1
-
 # for some reason parts of the code still use cc call rather than the environment
 # which results in a mixture
-%if 1
 mkdir omv_build_comp
 ln -s `which gcc` omv_build_comp/cc
 ln -s `which g++` omv_build_comp/g++
 export PATH=$PWD/omv_build_comp:$PATH
 %endif
 
+export RUST_BACKTRACE=1
+export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
+
+
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
 ./configure \
-        --prefix=%{_prefix} \
-        --sysconfdir=%{_sysconfdir} \
-        --datadir=%{_datadir} \
-        --localstatedir=%{_localstatedir} \
-        --mandir=%{_mandir} \
-        --infodir=%{_infodir} \
-	--libdir=%{_prefix}/lib \
+	--prefix=%{_prefix} \
+	--sysconfdir=%{_sysconfdir} \
+	--datadir=%{_datadir} \
+	--localstatedir=%{_localstatedir} \
+	--mandir=%{_mandir} \
+	--infodir=%{_infodir} \
+	--libdir=%{common_libdir} \
 	--disable-jemalloc \
-        --disable-rpath \
+	--disable-rpath \
 	--build=%{rust_triple} \
 	--host=%{rust_triple} \
 	--target=%{rust_triple} \
-        --default-linker=gcc \
+	--default-linker=gcc \
 %if %{with llvm}
-        --enable-llvm-link-shared \
-        --llvm-root=%{_prefix} \
+	--enable-llvm-link-shared \
+	--llvm-root=%{_prefix} \
 	--enable-clang \
+%else
+	--disable-clang \
+	--disable-llvm-link-shared \
 %endif
 	--enable-optimize \
-%if !%{with llvm}
-	--disable-clang \
-%endif
 %if !%{with bootstrap}
 	--enable-local-rust \
 	--local-rust-root=%{_prefix} \
 %endif
-        --enable-vendor
+	--enable-vendor
 
-# cb strange results with parallel
-#make
-./x.py build --verbose
+# (tpg) build it
+./x.py build
 
 %install
-%makeinstall_std
+DESTDIR=%{buildroot} ./x.py install
+DESTDIR=%{buildroot} ./x.py install src
 
-# fix broken libdir on 64-bit
-%if "%{_lib}" != "lib"
-mv %{buildroot}/%{_prefix}/lib %{buildroot}/%{_libdir}
+# Make sure the shared libraries are in the proper libdir
+%if "%{_libdir}" != "%{common_libdir}"
+mkdir -p %{buildroot}%{_libdir}
+find %{buildroot}%{common_libdir} -maxdepth 1 -type f -name '*.so' \
+  -exec mv -v -t %{buildroot}%{_libdir} '{}' '+'
 %endif
+
+# The shared libraries should be executable for debuginfo extraction.
+find %{buildroot}%{_libdir} -maxdepth 1 -type f -name '*.so' \
+  -exec chmod -v +x '{}' '+'
+
+# The libdir libraries are identical to those under rustlib/.  It's easier on
+# library loading if we keep them in libdir, but we do need them in rustlib/
+# to support dynamic linking for compiler plugins, so we'll symlink.
+(cd "%{buildroot}%{rustlibdir}/%{rust_triple}/lib" &&
+ find ../../../../%{_lib} -maxdepth 1 -name '*.so' \
+   -exec ln -v -f -s -t . '{}' '+')
+
+# Remove installer artifacts (manifests, uninstall scripts, etc.)
+find %{buildroot}%{rustlibdir} -maxdepth 1 -type f -exec rm -v '{}' '+'
 
 # Turn libraries into symlinks to avoid duplicate Provides
 pushd %{buildroot}%{_libdir}/rustlib/*/lib/
 rm lib*.so
 for lib in ../../../*.so
 do
-	ln -s $lib `basename $lib`
+    ln -s $lib `basename $lib`
 done
 popd
 
