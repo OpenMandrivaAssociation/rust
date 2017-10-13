@@ -8,6 +8,7 @@
 %define _find_debuginfo_opts -g
 
 %bcond_without bootstrap
+%bcond_with llvm
 %define oname	rustc
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
@@ -31,7 +32,9 @@ BuildRequires:	flex
 BuildRequires:	bison
 BuildRequires:	gdb
 BuildRequires:	git
+%if %{with llvm}
 BuildRequires:	llvm-devel
+%endif
 %if !%{with bootstrap}
 BuildRequires:	rust
 BuildRequires:	cargo
@@ -82,9 +85,9 @@ rm -rf src/jemalloc/
 
 %build
 %setup_compile_flags
-%if 1
-export CC=/usr/bin/gcc
-export CXX=/usr/bin/g++
+%if !%{with llvm}
+export CC=gcc
+export CXX=g++
 %endif
 export RUST_BACKTRACE=1
 
@@ -113,10 +116,15 @@ export PATH=$PWD/omv_build_comp:$PATH
 	--host=%{rust_triple} \
 	--target=%{rust_triple} \
         --default-linker=gcc \
+%if %{with llvm}
         --enable-llvm-link-shared \
         --llvm-root=%{_prefix} \
+	--enable-clang \
+%endif
 	--enable-optimize \
+%if !%{with llvm}
 	--disable-clang \
+%endif
 %if !%{with bootstrap}
 	--enable-local-rust \
 	--local-rust-root=%{_prefix} \
