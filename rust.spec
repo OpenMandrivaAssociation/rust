@@ -81,9 +81,8 @@ rm -rf src/llvm/
 rm -rf src/jemalloc/
 
 %build
-%global optflags %optflags -fhosted
 %setup_compile_flags
-%if 0
+%if 1
 export CC=/usr/bin/gcc
 export CXX=/usr/bin/g++
 %endif
@@ -91,7 +90,7 @@ export RUST_BACKTRACE=1
 
 # for some reason parts of the code still use cc call rather than the environment
 # which results in a mixture
-%if 0
+%if 1
 mkdir omv_build_comp
 ln -s `which gcc` omv_build_comp/cc
 ln -s `which g++` omv_build_comp/g++
@@ -117,8 +116,7 @@ export PATH=$PWD/omv_build_comp:$PATH
         --enable-llvm-link-shared \
         --llvm-root=%{_prefix} \
 	--enable-optimize \
-	--disable-libcpp \
-	--enable-clang \
+	--disable-clang \
 %if !%{with bootstrap}
 	--enable-local-rust \
 	--local-rust-root=%{_prefix} \
