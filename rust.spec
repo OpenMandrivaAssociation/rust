@@ -166,30 +166,15 @@ find %{buildroot}%{_libdir} -maxdepth 1 -type f -name '*.so' \
 # Remove installer artifacts (manifests, uninstall scripts, etc.)
 find %{buildroot}%{rustlibdir} -maxdepth 1 -type f -exec rm -v '{}' '+'
 
-# Turn libraries into symlinks to avoid duplicate Provides
-pushd %{buildroot}%{_libdir}/rustlib/*/lib/
-rm lib*.so
-for lib in ../../../*.so
-do
-    ln -s $lib `basename $lib`
-done
-popd
-
-# Manually strip them because auto-strip damages files
-pushd %{buildroot}%{_libdir}
-strip *.so
-popd
-pushd %{buildroot}%{_bindir}
-strip rustc
-strip rustdoc
-popd
-
 %files
+%doc README.md
 %{_bindir}/rustc
 %{_bindir}/rustdoc
 %{_bindir}/rust-gdb
 %{_bindir}/rust-lldb
-%{_libdir}/rustlib
-%{_libdir}/lib*
+%{_libdir}/*.so
+%dir %{rustlibdir}
+%dir %{rustlibdir}/%{rust_triple}
+%dir %{rustlibdir}/%{rust_triple}/lib
+%{rustlibdir}/%{rust_triple}/lib/*.so
 %{_mandir}/man*/*
-%{_docdir}/%{name}
