@@ -175,6 +175,15 @@ find %{buildroot}%{_libdir} -maxdepth 1 -type f -name '*.so' \
 # Remove installer artifacts (manifests, uninstall scripts, etc.)
 find %{buildroot}%{rustlibdir} -maxdepth 1 -type f -exec rm -v '{}' '+'
 
+# Manually strip them because auto-strip damages files
+pushd %{buildroot}%{_libdir}
+strip *.so
+popd
+pushd %{buildroot}%{_bindir}
+strip rustc
+strip rustdoc
+popd
+
 %files
 %doc README.md
 %{_bindir}/rustc

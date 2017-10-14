@@ -1,2 +1,6 @@
 addFilter("E: zero-length")
 addFilter("E: devel-file-in-non-devel-package")
+addFilter("E: wrong-script-interpreter")
+addFilter("E: non-executable-script")
+addFilter("E: library-not-linked-against-libc")
+addFilter("E: executable-in-library-package")
