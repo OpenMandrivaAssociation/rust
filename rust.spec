@@ -77,6 +77,15 @@ object-oriented and pure functional styles. Rust also supports
 generic programming and metaprogramming, in both static and dynamic
 styles.
 
+%package src
+Summary:	Sources for the Rust standard library
+BuildArch:	noarch
+
+%description src
+This package includes source files for the Rust standard library.
+It may be useful as a reference for code completion tools in
+various editors.
+
 %prep
 %setup -q -n %{oname}-%{version}-src
 
@@ -177,4 +186,11 @@ find %{buildroot}%{rustlibdir} -maxdepth 1 -type f -exec rm -v '{}' '+'
 %dir %{rustlibdir}/%{rust_triple}
 %dir %{rustlibdir}/%{rust_triple}/lib
 %{rustlibdir}/%{rust_triple}/lib/*.so
+%{rustlibdir}/%{rust_triple}/lib/*.rlib
+%dir %{rustlibdir}/etc
+%{rustlibdir}/etc/*.py
 %{_mandir}/man*/*
+
+%files src
+%dir %{rustlibdir}/src
+%{rustlibdir}/src/*
