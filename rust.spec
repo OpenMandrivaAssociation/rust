@@ -7,7 +7,7 @@
 # To avoid undefined symbols
 %define _find_debuginfo_opts -g
 
-%bcond_without bootstrap
+%bcond_with bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
 %define oname rustc
@@ -19,7 +19,7 @@
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
 Version:	1.21.0
-Release:	1
+Release:	2
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
