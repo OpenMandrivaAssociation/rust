@@ -115,7 +115,6 @@ export PATH=$PWD/omv_build_comp:$PATH
 export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 
-
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
 ./configure \
@@ -128,6 +127,8 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 	--libdir=%{common_libdir} \
 	--disable-jemalloc \
 	--disable-rpath \
+	--disable-debuginfo-lines \
+	--disable-debuginfo-only-std \
 	--build=%{rust_triple} \
 	--host=%{rust_triple} \
 	--target=%{rust_triple} \
