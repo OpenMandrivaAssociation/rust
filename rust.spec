@@ -89,6 +89,7 @@ various editors.
 
 %prep
 %setup -q -n %{oname}-%{version}-src
+%global _default_patch_fuzz 1
 %apply_patches
 
 %if %{with llvm}
