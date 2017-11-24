@@ -137,9 +137,7 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 %if %{with llvm}
 	--enable-llvm-link-shared \
 	--llvm-root=%{_prefix} \
-	--enable-clang \
 %else
-	--disable-clang \
 	--disable-llvm-link-shared \
 %endif
 	--enable-optimize \
