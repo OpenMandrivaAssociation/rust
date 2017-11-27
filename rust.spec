@@ -7,7 +7,7 @@
 # To avoid undefined symbols
 %define _find_debuginfo_opts -g
 
-%bcond_without bootstrap
+%bcond_with bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
 %define oname rustc
@@ -18,13 +18,14 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.21.0
+Version:	1.22.1
 Release:	1
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
+Patch0:		rust-1.22.0-45566-option-checking.patch
 BuildRequires:	python < 3.0
 BuildRequires:	cmake
 BuildRequires:	curl
@@ -88,6 +89,8 @@ various editors.
 
 %prep
 %setup -q -n %{oname}-%{version}-src
+%global _default_patch_fuzz 1
+%apply_patches
 
 %if %{with llvm}
 rm -rf src/llvm/
@@ -115,7 +118,6 @@ export PATH=$PWD/omv_build_comp:$PATH
 export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 
-
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
 ./configure \
@@ -128,6 +130,9 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 	--libdir=%{common_libdir} \
 	--disable-jemalloc \
 	--disable-rpath \
+	--disable-debuginfo \
+	--disable-debuginfo-lines \
+	--disable-debuginfo-only-std \
 	--build=%{rust_triple} \
 	--host=%{rust_triple} \
 	--target=%{rust_triple} \
@@ -135,9 +140,7 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 %if %{with llvm}
 	--enable-llvm-link-shared \
 	--llvm-root=%{_prefix} \
-	--enable-clang \
 %else
-	--disable-clang \
 	--disable-llvm-link-shared \
 %endif
 	--enable-optimize \
