@@ -7,7 +7,7 @@
 # To avoid undefined symbols
 %define _find_debuginfo_opts -g
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
 %define oname rustc
