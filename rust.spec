@@ -9,7 +9,7 @@
 
 %bcond_without bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
-%bcond_with llvm
+%bcond_without llvm
 %define oname rustc
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
@@ -37,7 +37,7 @@ BuildRequires:	git
 %if %{with llvm}
 BuildRequires:	llvm-devel
 %endif
-%if !%{with bootstrap}
+%if %{with bootstrap}
 BuildRequires:	rust
 BuildRequires:	cargo
 %endif
@@ -144,7 +144,7 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 	--disable-llvm-link-shared \
 %endif
 	--enable-optimize \
-%if !%{with bootstrap}
+%if %{with bootstrap}
 	--enable-local-rust \
 	--local-rust-root=%{_prefix} \
 %endif
