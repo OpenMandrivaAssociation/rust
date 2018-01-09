@@ -7,6 +7,7 @@
 # To avoid undefined symbols
 %define _find_debuginfo_opts -g
 
+# (tpg) enable it if you want to build without system-wide rust and cargo
 %bcond_with bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
@@ -18,7 +19,7 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.22.1
+Version:	1.23.0
 Release:	1
 Group:		Development/Other
 License:	MIT
@@ -37,7 +38,7 @@ BuildRequires:	git
 %if %{with llvm}
 BuildRequires:	llvm-devel
 %endif
-%if !%{with bootstrap}
+%if %{without bootstrap}
 BuildRequires:	rust
 BuildRequires:	cargo
 %endif
@@ -144,7 +145,7 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 	--disable-llvm-link-shared \
 %endif
 	--enable-optimize \
-%if !%{with bootstrap}
+%if %{without bootstrap}
 	--enable-local-rust \
 	--local-rust-root=%{_prefix} \
 %endif
