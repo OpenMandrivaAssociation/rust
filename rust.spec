@@ -26,7 +26,6 @@ License:	MIT
 Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
-Patch0:		rust-1.22.0-45566-option-checking.patch
 BuildRequires:	python < 3.0
 BuildRequires:	cmake
 BuildRequires:	curl
@@ -90,7 +89,6 @@ various editors.
 
 %prep
 %setup -q -n %{oname}-%{version}-src
-%global _default_patch_fuzz 1
 %apply_patches
 
 %if %{with llvm}
