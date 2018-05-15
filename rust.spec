@@ -1,6 +1,8 @@
 # Fix to work around missing (not required) dependency
 # libpthread.so.0(GLIBC_PRIVATE)
 %global __requires_exclude libpthread.so.0
+# Don't bytecompile python bits -- they're python2
+%global _python_bytecompile_build 0
 %define debug_package %{nil}
 %define _disable_lto 1
 %define _disable_ld_no_undefined 1
@@ -187,7 +189,7 @@ strip rustdoc
 popd
 
 %files
-%doc README.md
+%doc %{_docdir}/%{name}
 %{_bindir}/rustc
 %{_bindir}/rustdoc
 %{_bindir}/rust-gdb
@@ -198,6 +200,7 @@ popd
 %dir %{rustlibdir}/%{rust_triple}/lib
 %{rustlibdir}/%{rust_triple}/lib/*.so
 %{rustlibdir}/%{rust_triple}/lib/*.rlib
+%{rustlibdir}/%{rust_triple}/codegen-backends
 %dir %{rustlibdir}/etc
 %{rustlibdir}/etc/*.py
 %{_mandir}/man*/*
