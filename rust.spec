@@ -10,7 +10,7 @@
 %define _find_debuginfo_opts -g
 
 # (tpg) enable it if you want to build without system-wide rust and cargo
-%bcond_without bootstrap
+%bcond_with bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
 %define oname rustc
@@ -105,10 +105,6 @@ rm -rf src/llvm/
 %global common_libdir %{_prefix}/lib
 %global rustlibdir %{common_libdir}/rustlib
 
-mkdir omv_build_comp
-ln -s `which ld.bfd` omv_build_comp/ld
-ln -s `which ld.bfd` omv_build_comp/%{_target_platform}-ld
-export LD=`pwd`/omv_build_comp/ld
 %ifarch %{ix86} %{arm}
 # On 32-bit platforms, the linker barfs because the symbol table doesn't fit
 # into the available address space -- so we use -g0 for now
@@ -122,14 +118,15 @@ export LDFLAGS="%{optflags}"
 %endif
 
 %if !%{with llvm}
+mkdir omv_build_comp
 export CC=gcc
 export CXX=g++
 # for some reason parts of the code still use cc call rather than the environment
 # which results in a mixture
 ln -s `which gcc` omv_build_comp/cc
 ln -s `which g++` omv_build_comp/g++
-%endif
 export PATH=$PWD/omv_build_comp:$PATH
+%endif
 
 export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
