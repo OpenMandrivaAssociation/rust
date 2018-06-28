@@ -101,7 +101,12 @@ various editors.
 
 %prep
 %setup -q -n %{oname}-%{version}-src
-%apply_patches
+
+%patch1 -p1
+
+cd src/vendor/error-chain
+%patch2 -p1
+cd -
 
 %if %{with llvm}
 rm -rf src/llvm/
