@@ -17,7 +17,7 @@
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
-%global rust_arches x86_64 %ix86 armv7hnl aarch64
+%global rust_arches x86_64 %ix86 armv7hnl armv7hl aarch64
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
@@ -28,6 +28,13 @@ License:	MIT
 Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
+# https://github.com/rust-lang/rust/pull/50789/
+Patch1:		0001-Ensure-libraries-built-in-stage0-have-unique-metadat.patch
+
+# https://github.com/rust-lang/rust/issues/51650
+# https://github.com/rust-lang-nursery/error-chain/pull/247
+Patch2:		0001-Fix-new-renamed_and_removed_lints-warning-247.patch
+
 BuildRequires:	python < 3.0
 BuildRequires:	cmake
 BuildRequires:	curl
@@ -52,7 +59,10 @@ Requires:	gcc
 # Get the Rust triple for any arch.
 %{lua: function rust_triple(arch)
   local abi = "gnu"
-  if arch == "armv7hl" then
+  if arch == "armv7hnl" then
+    arch = "armv7"
+    abi = "gnueabihf"
+  elseif arch == "armv7hl" then
     arch = "armv7"
     abi = "gnueabihf"
   elseif arch == "ppc64" then
@@ -143,8 +153,10 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 	--libdir=%{common_libdir} \
 	--disable-jemalloc \
 	--disable-rpath \
+	--disable-codegen-tests \
 	--disable-debuginfo \
 	--disable-debuginfo-lines \
+	--disable-debuginfo-tools \
 	--disable-debuginfo-only-std \
 	--build=%{rust_triple} \
 	--host=%{rust_triple} \
