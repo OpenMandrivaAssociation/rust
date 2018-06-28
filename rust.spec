@@ -17,11 +17,11 @@
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
-%global rust_arches x86_64 %ix86 armv7hl aarch64
+%global rust_arches x86_64 %ix86 armv7hnl aarch64
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.26.0
+Version:	1.27.0
 Release:	1
 Group:		Development/Other
 License:	MIT
@@ -123,8 +123,8 @@ export CC=gcc
 export CXX=g++
 # for some reason parts of the code still use cc call rather than the environment
 # which results in a mixture
-ln -s `which gcc` omv_build_comp/cc
-ln -s `which g++` omv_build_comp/g++
+ln -s $(which gcc) omv_build_comp/cc
+ln -s $(which g++) omv_build_comp/g++
 export PATH=$PWD/omv_build_comp:$PATH
 %endif
 
