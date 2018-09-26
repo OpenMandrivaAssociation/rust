@@ -148,6 +148,9 @@ export PATH=$PWD/omv_build_comp:$PATH
 export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 
+# Fix up checksums for patched files
+sed -i -e 's,0adc37e316f45d57d56d76245c76942d2a894643c4d2da744639d33c3cd99099,d70375a92fe18313f6a36dbd5bf2d4cb7540816a12a63d59a1ec97fbbf4923a7,;s,2382d555f809c4d7f33e739dff7aa75b2fb3c1629ca2afaa38ff4279,557902a0662f21e8842bd721eb93eec3160b66ed0005245b0bdcf4b044b2b7ac,' src/vendor/error-chain/.cargo-checksum.json
+
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
 ./configure \
