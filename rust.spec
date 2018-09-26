@@ -1,6 +1,10 @@
-# Fix to work around missing (not required) dependency
-# libpthread.so.0(GLIBC_PRIVATE)
-%global __requires_exclude libpthread.so.0
+# ALL Rust libraries are private, because they don't keep an ABI.
+%global _privatelibs lib(.*-[[:xdigit:]]{16}*|rustc.*)[.]so.*
+%global __provides_exclude ^(%{_privatelibs})$
+%global __requires_exclude ^(%{_privatelibs})$
+%global __provides_exclude_from ^(%{_docdir}|%{rustlibdir}/src)/.*$
+%global __requires_exclude_from ^(%{_docdir}|%{rustlibdir}/src)/.*$
+
 # Don't bytecompile python bits -- they're python2
 %global _python_bytecompile_build 0
 %define debug_package %{nil}
@@ -21,19 +25,21 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.27.0
+Version:	1.29.1
 Release:	1
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
-# https://github.com/rust-lang/rust/pull/50789/
-Patch1:		0001-Ensure-libraries-built-in-stage0-have-unique-metadat.patch
+# https://github.com/rust-lang/rust/pull/52876
+Patch1:         rust-52876-const-endianess.patch
 
-# https://github.com/rust-lang/rust/issues/51650
-# https://github.com/rust-lang-nursery/error-chain/pull/247
-Patch2:		0001-Fix-new-renamed_and_removed_lints-warning-247.patch
+# https://github.com/rust-lang/rust/pull/53436
+Patch2:         0001-std-stop-backtracing-when-the-frames-are-full.patch
+
+# https://github.com/rust-lang/rust/pull/53437
+Patch3:         0001-Set-more-llvm-function-attributes-for-__rust_try.patch
 
 BuildRequires:	python < 3.0
 BuildRequires:	cmake
@@ -43,6 +49,11 @@ BuildRequires:	flex
 BuildRequires:	bison
 BuildRequires:	gdb
 BuildRequires:	git
+BuildRequires:	pkgconfig(openssl)
+BuildRequires:	pkgconfig(zlib)
+BuildRequires:	pkgconfig(libcurl)
+BuildRequires:	pkgconfig(libssh2)
+BuildRequires:	pkgconfig(libgit2)
 %if %{with llvm}
 BuildRequires:	llvm-devel
 %endif
@@ -94,6 +105,7 @@ styles.
 
 %package src
 Summary:	Sources for the Rust standard library
+Group:		Development/Other
 BuildArch:	noarch
 
 %description src
@@ -101,14 +113,25 @@ This package includes source files for the Rust standard library.
 It may be useful as a reference for code completion tools in
 various editors.
 
+%package -n cargo
+Summary:	Rust's package manager and build tool
+Group:		Development/Other
+Requires:	rust = %{EVRD}
+
+%description -n cargo
+Cargo is a tool that allows Rust projects to declare their various dependencies
+and ensure that you'll always get a repeatable build.
+
+%package doc
+Summary:	Sources for the Rust standard library
+Group:		Books/Computer books
+BuildArch:	noarch
+
+%description doc
+Documentation and manpages for %{name}.
+
 %prep
-%setup -q -n %{oname}-%{version}-src
-
-%patch1 -p1
-
-cd src/vendor/error-chain
-%patch2 -p1
-cd -
+%autosetup -n %{oname}-%{version}-src -p1
 
 %if %{with llvm}
 rm -rf src/llvm/
@@ -147,6 +170,8 @@ export PATH=$PWD/omv_build_comp:$PATH
 
 export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
+export LIBGIT2_SYS_USE_PKG_CONFIG=1
+export LIBSSH2_SYS_USE_PKG_CONFIG=1
 
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
@@ -210,6 +235,9 @@ find %{buildroot}%{_libdir} -maxdepth 1 -type f -name '*.so' \
 # Remove installer artifacts (manifests, uninstall scripts, etc.)
 find %{buildroot}%{rustlibdir} -maxdepth 1 -type f -exec rm -v '{}' '+'
 
+# Remove backup files from %%configure munging
+find %{buildroot}%{rustlibdir} -type f -name '*.orig' -exec rm -v '{}' '+'
+
 # Manually strip them because auto-strip damages files
 pushd %{buildroot}%{_libdir}
 strip *.so
@@ -220,7 +248,6 @@ strip rustdoc
 popd
 
 %files
-%doc %{_docdir}/%{name}
 %{_bindir}/rustc
 %{_bindir}/rustdoc
 %{_bindir}/rust-gdb
@@ -234,8 +261,17 @@ popd
 %{rustlibdir}/%{rust_triple}/codegen-backends
 %dir %{rustlibdir}/etc
 %{rustlibdir}/etc/*.py
-%{_mandir}/man*/*
 
 %files src
 %dir %{rustlibdir}/src
 %{rustlibdir}/src/*
+
+%files -n cargo
+%{_bindir}/cargo
+%{_mandir}/man1/cargo*.1*
+%{_sysconfdir}/bash_completion.d/cargo
+%{_datadir}/zsh/site-functions/_cargo
+
+%files doc
+%doc %{_docdir}/%{name}
+%{_mandir}/man*/*
