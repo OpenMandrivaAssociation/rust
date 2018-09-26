@@ -21,15 +21,13 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.27.0
+Version:	1.28.0
 Release:	1
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
-# https://github.com/rust-lang/rust/pull/50789/
-Patch1:		0001-Ensure-libraries-built-in-stage0-have-unique-metadat.patch
 
 # https://github.com/rust-lang/rust/issues/51650
 # https://github.com/rust-lang-nursery/error-chain/pull/247
@@ -103,8 +101,6 @@ various editors.
 
 %prep
 %setup -q -n %{oname}-%{version}-src
-
-%patch1 -p1
 
 cd src/vendor/error-chain
 %patch2 -p1
