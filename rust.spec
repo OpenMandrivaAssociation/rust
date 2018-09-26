@@ -30,7 +30,7 @@ Release:	1
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
-Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
+Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.xz
 Source100:	rust.rpmlintrc
 # https://github.com/rust-lang/rust/pull/52876
 Patch1:         rust-52876-const-endianess.patch
