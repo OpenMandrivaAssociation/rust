@@ -17,7 +17,7 @@
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
-%global rust_arches x86_64 %ix86 armv7hnl armv7hl aarch64
+%global rust_arches znver1 x86_64 %ix86 armv7hnl armv7hl aarch64
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
@@ -71,6 +71,8 @@ Requires:	gcc
     arch = "powerpc64le"
   elseif arch == "i586" then
     arch = "i686"
+  elseif arch == "znver1" then
+    arch = "x86_64"
   end
   return arch.."-unknown-linux-"..abi
 end}
