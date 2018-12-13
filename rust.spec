@@ -10,7 +10,7 @@
 %define _find_debuginfo_opts -g
 
 # (tpg) enable it if you want to build without system-wide rust and cargo
-%bcond_with bootstrap
+%bcond_without bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
 %define oname rustc
@@ -21,17 +21,13 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.28.0
-Release:	2
+Version:	1.31.0
+Release:	1
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
-
-# https://github.com/rust-lang/rust/issues/51650
-# https://github.com/rust-lang-nursery/error-chain/pull/247
-Patch2:		0001-Fix-new-renamed_and_removed_lints-warning-247.patch
 
 BuildRequires:	python < 3.0
 BuildRequires:	cmake
@@ -103,7 +99,6 @@ various editors.
 %setup -q -n %{oname}-%{version}-src
 
 cd src/vendor/error-chain
-%patch2 -p1
 cd -
 
 %if %{with llvm}
