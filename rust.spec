@@ -98,9 +98,6 @@ various editors.
 %prep
 %setup -q -n %{oname}-%{version}-src
 
-cd src/vendor/error-chain
-cd -
-
 %if %{with llvm}
 rm -rf src/llvm/
 %endif
@@ -138,9 +135,6 @@ export PATH=$PWD/omv_build_comp:$PATH
 
 export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
-
-# Fix up checksums for patched files
-sed -i -e 's,0adc37e316f45d57d56d76245c76942d2a894643c4d2da744639d33c3cd99099,d70375a92fe18313f6a36dbd5bf2d4cb7540816a12a63d59a1ec97fbbf4923a7,;s,2382d555f809c4d7f33e739dff7aa75b2fb3c1629ca2afaa38ff4279,557902a0662f21e8842bd721eb93eec3160b66ed0005245b0bdcf4b044b2b7ac,;s,5fc674d965746f3ea1a6ea65f82352c40b83439004480bf5a338748a90e476cc,2d498a036b400dcefd59fa8ba952577956e59dca94080e7abb8a4d5a8b592c57,;s,538c6f7a557902a0662f21e8842bd721eb93eec3160b66ed0005245b0bdcf4b044b2b7ac,557902a0662f21e8842bd721eb93eec3160b66ed0005245b0bdcf4b044b2b7ac,' src/vendor/error-chain/.cargo-checksum.json
 
 # Unable to use standard configure as rust's configure is missing
 # many of the options as commented out below from the configure2_5x macro
@@ -180,6 +174,12 @@ sed -i -e 's,0adc37e316f45d57d56d76245c76942d2a894643c4d2da744639d33c3cd99099,d7
 ./x.py build
 
 %install
+
+# needs to be set here too or rust things it needs to rebuild
+export RUST_BACKTRACE=1
+export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
+
+
 DESTDIR=%{buildroot} ./x.py install
 DESTDIR=%{buildroot} ./x.py install src
 
