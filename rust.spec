@@ -10,7 +10,7 @@
 %define _find_debuginfo_opts -g
 
 # (tpg) enable it if you want to build without system-wide rust and cargo
-%bcond_without bootstrap
+%bcond_with bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
 %define oname rustc
@@ -19,16 +19,32 @@
 # https://forge.rust-lang.org/platform-support.html
 %global rust_arches znver1 x86_64 %ix86 armv7hnl armv7hl aarch64
 
+%define dist_date 2018-10-25
+
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.31.0
+Version:	1.31.1
 Release:	1
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
+%if %{with bootstrap}
+Source1:	rustc-1.30.0-x86_64-unknown-linux-gnu.tar.gz
+Source2:	rust-std-1.30.0-x86_64-unknown-linux-gnu.tar.gz
+Source3:	cargo-0.31.0-x86_64-unknown-linux-gnu.tar.gz
+Source4:        rustc-1.30.0-i686-unknown-linux-gnu.tar.gz
+Source5:        rust-std-1.30.0-i686-unknown-linux-gnu.tar.gz
+Source6:        cargo-0.31.0-i686-unknown-linux-gnu.tar.gz
+Source7:        rustc-1.30.0-aarch64-unknown-linux-gnu.tar.gz
+Source8:        rust-std-1.30.0-aarch64-unknown-linux-gnu.tar.gz
+Source9:        cargo-0.31.0-aarch64-unknown-linux-gnu.tar.gz
+Source10:        rustc-1.30.0-armv7-unknown-linux-gnueabihf.tar.gz
+Source11:        rust-std-1.30.0-armv7-unknown-linux-gnueabihf.tar.gz
+Source12:        cargo-0.31.0-armv7-unknown-linux-gnueabihf.tar.gz
 
+%endif
 BuildRequires:	python < 3.0
 BuildRequires:	cmake
 BuildRequires:	curl
@@ -109,6 +125,14 @@ rm -rf src/llvm/
 # common path, but we'll fix the shared libraries during install.
 %global common_libdir %{_prefix}/lib
 %global rustlibdir %{common_libdir}/rustlib
+
+%if %{with bootstrap}
+mkdir -p build/cache/%{dist_date}
+cp %{SOURCE1} %{SOURCE2} %{SOURCE3} build/cache/%{dist_date}
+cp %{SOURCE4} %{SOURCE5} %{SOURCE6} build/cache/%{dist_date}
+cp %{SOURCE7} %{SOURCE8} %{SOURCE9} build/cache/%{dist_date}
+cp %{SOURCE10} %{SOURCE11} %{SOURCE12} build/cache/%{dist_date}
+%endif
 
 %ifarch %{ix86} %{arm}
 # On 32-bit platforms, the linker barfs because the symbol table doesn't fit
