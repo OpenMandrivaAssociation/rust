@@ -12,7 +12,7 @@
 # (tpg) enable it if you want to build without system-wide rust and cargo
 %bcond_with bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
-%bcond_with llvm
+%bcond_without llvm
 %define oname rustc
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
@@ -23,13 +23,17 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.31.1
+Version:	1.32.0
 Release:	1
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
+
+Patch0:		1.32.0-system-llvm-7-SIGSEGV.patch
+Patch1:		1.32.0-fix-configure-of-bundled-llvm.patch
+Patch2:		1.30.1-clippy-sysroot.patch
 %if %{with bootstrap}
 Source1:	rustc-1.30.0-x86_64-unknown-linux-gnu.tar.gz
 Source2:	rust-std-1.30.0-x86_64-unknown-linux-gnu.tar.gz
@@ -113,6 +117,7 @@ various editors.
 
 %prep
 %setup -q -n %{oname}-%{version}-src
+%apply_patches
 
 %if %{with llvm}
 rm -rf src/llvm/
@@ -170,7 +175,6 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 	--mandir=%{_mandir} \
 	--infodir=%{_infodir} \
 	--libdir=%{common_libdir} \
-	--disable-jemalloc \
 	--disable-rpath \
 	--disable-codegen-tests \
 	--disable-debuginfo \
