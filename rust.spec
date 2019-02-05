@@ -12,7 +12,7 @@
 # (tpg) enable it if you want to build without system-wide rust and cargo
 %bcond_with bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
-%bcond_without llvm
+%bcond_with llvm
 %define oname rustc
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
