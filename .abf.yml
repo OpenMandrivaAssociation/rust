@@ -1,14 +1,14 @@
 sources:
-  cargo-0.31.0-aarch64-unknown-linux-gnu.tar.gz: caf145598b2780302363e26ea3676b16a57a5497
-  cargo-0.31.0-armv7-unknown-linux-gnueabihf.tar.gz: 07b1f14ef4a3c2716a1caa17c7b7ba92f6be213c
-  cargo-0.31.0-i686-unknown-linux-gnu.tar.gz: d024bcf2e786f7910160707444ee287d11fe8603
-  cargo-0.31.0-x86_64-unknown-linux-gnu.tar.gz: 23cc0dbeabc073683e32dfd94b1004e8b59a02bb
-  rust-std-1.30.0-aarch64-unknown-linux-gnu.tar.gz: 706ca2489808bffac3af9211d1f3480b779f35c4
-  rust-std-1.30.0-armv7-unknown-linux-gnueabihf.tar.gz: 94106b2191b904cf694688950de2720a7d002507
-  rust-std-1.30.0-i686-unknown-linux-gnu.tar.gz: 4ba726485736107a121a3256e90b2cdba0e090f0
-  rust-std-1.30.0-x86_64-unknown-linux-gnu.tar.gz: 40b0ec26c18f1b1d9b660e4abeca55c79f7a5bd3
-  rustc-1.30.0-aarch64-unknown-linux-gnu.tar.gz: 9bd40b06649eee7e9a8f0a7aa46cffd547f6ab3e
-  rustc-1.30.0-armv7-unknown-linux-gnueabihf.tar.gz: cbf94368c6f026b29df756890f1a93b0086bd682
-  rustc-1.30.0-i686-unknown-linux-gnu.tar.gz: 4ccf2164ccc3027c61e2d163ed5ba6d2769b4e81
-  rustc-1.30.0-x86_64-unknown-linux-gnu.tar.gz: 11450cd2954c20ec346f1713c851590caa68d23b
+  cargo-0.33.0-aarch64-unknown-linux-gnu.tar.gz: d9cb50ad544b8cb211718b180b1c2ead0998029b
+  cargo-0.33.0-armv7-unknown-linux-gnueabihf.tar.gz: 2327718970c83f17ca780ba43a393ce002e521fd
+  cargo-0.33.0-i686-unknown-linux-gnu.tar.gz: 80594f11d39b3ca9db56d1ec5bb89df8092763aa
+  cargo-0.33.0-x86_64-unknown-linux-gnu.tar.gz: ab3d3824123fb75d104283900f0d075af8bfbc3d
+  rust-std-1.32.0-aarch64-unknown-linux-gnu.tar.gz: eca8a41f091920f29f08a9ec681801b84b640a8b
+  rust-std-1.32.0-armv7-unknown-linux-gnueabihf.tar.gz: 849b1dbd8adca46654b19c944b91e3ace7144b32
+  rust-std-1.32.0-i686-unknown-linux-gnu.tar.gz: f5ca6e7be7cf3ccf67263c7aeeee30c1633c694e
+  rust-std-1.32.0-x86_64-unknown-linux-gnu.tar.gz: d2e824fd5ee5b20fd05c4f162c7bbe3d45f63d76
+  rustc-1.32.0-aarch64-unknown-linux-gnu.tar.gz: 907b2bff9581fc3040d80822ce5a4581ed15ab9a
+  rustc-1.32.0-armv7-unknown-linux-gnueabihf.tar.gz: aa521b7cb23ca3a34b1b16c0621cad84e374905b
+  rustc-1.32.0-i686-unknown-linux-gnu.tar.gz: a37e472bdc3df8806c0c51fd13b88e776f0b5251
+  rustc-1.32.0-x86_64-unknown-linux-gnu.tar.gz: c4c82638a2d0d4f585285104e82bc95bfd0bdc65
   rustc-1.33.0-src.tar.gz: 9a1b68d7749a915d6c5ec70d89907c667a25f2f8
