@@ -31,9 +31,8 @@ Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
 
-Patch0:		1.32.0-system-llvm-7-SIGSEGV.patch
 Patch1:		1.32.0-fix-configure-of-bundled-llvm.patch
-Patch2:		1.30.1-clippy-sysroot.patch
+Patch2:		1.33.0-clippy-sysroot.patch
 %if %{with bootstrap}
 Source1:	rustc-1.30.0-x86_64-unknown-linux-gnu.tar.gz
 Source2:	rust-std-1.30.0-x86_64-unknown-linux-gnu.tar.gz
