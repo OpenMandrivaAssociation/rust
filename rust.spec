@@ -10,7 +10,7 @@
 %define _find_debuginfo_opts -g
 
 # (tpg) enable it if you want to build without system-wide rust and cargo
-%bcond_with bootstrap
+%bcond_without bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
 %define oname rustc
@@ -19,11 +19,9 @@
 # https://forge.rust-lang.org/platform-support.html
 %global rust_arches znver1 x86_64 %ix86 armv7hnl armv7hl aarch64
 
-%define dist_date 2018-10-25
-
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.32.0
+Version:	1.33.0
 Release:	1
 Group:		Development/Other
 License:	MIT
@@ -31,22 +29,24 @@ Url:		http://www.rust-lang.org/
 Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
 
-Patch0:		1.32.0-system-llvm-7-SIGSEGV.patch
 Patch1:		1.32.0-fix-configure-of-bundled-llvm.patch
-Patch2:		1.30.1-clippy-sysroot.patch
+Patch2:		1.33.0-clippy-sysroot.patch
 %if %{with bootstrap}
-Source1:	rustc-1.30.0-x86_64-unknown-linux-gnu.tar.gz
-Source2:	rust-std-1.30.0-x86_64-unknown-linux-gnu.tar.gz
-Source3:	cargo-0.31.0-x86_64-unknown-linux-gnu.tar.gz
-Source4:        rustc-1.30.0-i686-unknown-linux-gnu.tar.gz
-Source5:        rust-std-1.30.0-i686-unknown-linux-gnu.tar.gz
-Source6:        cargo-0.31.0-i686-unknown-linux-gnu.tar.gz
-Source7:        rustc-1.30.0-aarch64-unknown-linux-gnu.tar.gz
-Source8:        rust-std-1.30.0-aarch64-unknown-linux-gnu.tar.gz
-Source9:        cargo-0.31.0-aarch64-unknown-linux-gnu.tar.gz
-Source10:        rustc-1.30.0-armv7-unknown-linux-gnueabihf.tar.gz
-Source11:        rust-std-1.30.0-armv7-unknown-linux-gnueabihf.tar.gz
-Source12:        cargo-0.31.0-armv7-unknown-linux-gnueabihf.tar.gz
+%define bootstrap_date 2019-01-17
+%define bootstrap_rust 1.32.0
+%define bootstrap_cargo 0.33.0
+Source1:	https://static.rust-lang.org/dist/%{bootstrap_date}/rustc-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
+Source2:	https://static.rust-lang.org/dist/%{bootstrap_date}/rust-std-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
+Source3:	https://static.rust-lang.org/dist/%{bootstrap_date}/cargo-%{bootstrap_cargo}-x86_64-unknown-linux-gnu.tar.gz
+Source4:        https://static.rust-lang.org/dist/%{bootstrap_date}/rustc-%{bootstrap_rust}-i686-unknown-linux-gnu.tar.gz
+Source5:        https://static.rust-lang.org/dist/%{bootstrap_date}/rust-std-%{bootstrap_rust}-i686-unknown-linux-gnu.tar.gz
+Source6:        https://static.rust-lang.org/dist/%{bootstrap_date}/cargo-%{bootstrap_cargo}-i686-unknown-linux-gnu.tar.gz
+Source7:        https://static.rust-lang.org/dist/%{bootstrap_date}/rustc-%{bootstrap_rust}-aarch64-unknown-linux-gnu.tar.gz
+Source8:        https://static.rust-lang.org/dist/%{bootstrap_date}/rust-std-%{bootstrap_rust}-aarch64-unknown-linux-gnu.tar.gz
+Source9:        https://static.rust-lang.org/dist/%{bootstrap_date}/cargo-%{bootstrap_cargo}-aarch64-unknown-linux-gnu.tar.gz
+Source10:       https://static.rust-lang.org/dist/%{bootstrap_date}/rustc-%{bootstrap_rust}-armv7-unknown-linux-gnueabihf.tar.gz
+Source11:       https://static.rust-lang.org/dist/%{bootstrap_date}/rust-std-%{bootstrap_rust}-armv7-unknown-linux-gnueabihf.tar.gz
+Source12:       https://static.rust-lang.org/dist/%{bootstrap_date}/cargo-%{bootstrap_cargo}-armv7-unknown-linux-gnueabihf.tar.gz
 
 %endif
 BuildRequires:	python < 3.0
@@ -132,11 +132,11 @@ rm -rf src/llvm/
 %global rustlibdir %{common_libdir}/rustlib
 
 %if %{with bootstrap}
-mkdir -p build/cache/%{dist_date}
-cp %{SOURCE1} %{SOURCE2} %{SOURCE3} build/cache/%{dist_date}
-cp %{SOURCE4} %{SOURCE5} %{SOURCE6} build/cache/%{dist_date}
-cp %{SOURCE7} %{SOURCE8} %{SOURCE9} build/cache/%{dist_date}
-cp %{SOURCE10} %{SOURCE11} %{SOURCE12} build/cache/%{dist_date}
+mkdir -p build/cache/%{bootstrap_date}
+cp %{SOURCE1} %{SOURCE2} %{SOURCE3} build/cache/%{bootstrap_date}
+cp %{SOURCE4} %{SOURCE5} %{SOURCE6} build/cache/%{bootstrap_date}
+cp %{SOURCE7} %{SOURCE8} %{SOURCE9} build/cache/%{bootstrap_date}
+cp %{SOURCE10} %{SOURCE11} %{SOURCE12} build/cache/%{bootstrap_date}
 %endif
 
 %ifarch %{ix86} %{arm}
