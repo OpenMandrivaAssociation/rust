@@ -1,15 +1,11 @@
-Revert "[CMake] Unconditionally add .h and .td files to target sources"
-
-This reverts commit https://github.com/llvm-mirror/llvm/commit/6fb010f388bb2cb2f00fe039123092308ac4865d.
-
-Bug: https://bugs.gentoo.org/675752#c7
---- a/src/llvm/cmake/modules/LLVMProcessSources.cmake
-+++ b/src/llvm/cmake/modules/LLVMProcessSources.cmake
-@@ -52,15 +52,16 @@ function(llvm_process_sources OUT_VAR)
-   cmake_parse_arguments(ARG "" "" "ADDITIONAL_HEADERS;ADDITIONAL_HEADER_DIRS" ${ARGN})
+diff -up rustc-1.34.1-src/src/llvm-emscripten/cmake/modules/LLVMProcessSources.cmake.omv~ rustc-1.34.1-src/src/llvm-emscripten/cmake/modules/LLVMProcessSources.cmake
+diff -up rustc-1.34.1-src/src/llvm-project/llvm/cmake/modules/LLVMProcessSources.cmake.omv~ rustc-1.34.1-src/src/llvm-project/llvm/cmake/modules/LLVMProcessSources.cmake
+--- rustc-1.34.1-src/src/llvm-project/llvm/cmake/modules/LLVMProcessSources.cmake.omv~	2019-05-08 22:46:35.109544780 +0200
++++ rustc-1.34.1-src/src/llvm-project/llvm/cmake/modules/LLVMProcessSources.cmake	2019-05-08 22:47:27.468006189 +0200
+@@ -53,14 +53,16 @@ function(llvm_process_sources OUT_VAR)
    set(sources ${ARG_UNPARSED_ARGUMENTS})
    llvm_check_source_file_list( ${sources} )
--  
+   
 -  # This adds .td and .h files to the Visual Studio solution:
 -  add_td_sources(sources)
 -  find_all_header_files(hdrs "${ARG_ADDITIONAL_HEADER_DIRS}")

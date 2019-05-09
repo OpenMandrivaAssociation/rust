@@ -21,7 +21,7 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.33.0
+Version:	1.34.1
 Release:	1
 Group:		Development/Other
 License:	MIT
@@ -33,20 +33,20 @@ Patch1:		1.32.0-fix-configure-of-bundled-llvm.patch
 Patch2:		1.33.0-clippy-sysroot.patch
 %if %{with bootstrap}
 %define bootstrap_date 2019-01-17
-%define bootstrap_rust 1.32.0
+%define bootstrap_rust 1.33.0
 %define bootstrap_cargo 0.33.0
-Source1:	https://static.rust-lang.org/dist/%{bootstrap_date}/rustc-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
-Source2:	https://static.rust-lang.org/dist/%{bootstrap_date}/rust-std-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
-Source3:	https://static.rust-lang.org/dist/%{bootstrap_date}/cargo-%{bootstrap_cargo}-x86_64-unknown-linux-gnu.tar.gz
-Source4:        https://static.rust-lang.org/dist/%{bootstrap_date}/rustc-%{bootstrap_rust}-i686-unknown-linux-gnu.tar.gz
-Source5:        https://static.rust-lang.org/dist/%{bootstrap_date}/rust-std-%{bootstrap_rust}-i686-unknown-linux-gnu.tar.gz
-Source6:        https://static.rust-lang.org/dist/%{bootstrap_date}/cargo-%{bootstrap_cargo}-i686-unknown-linux-gnu.tar.gz
-Source7:        https://static.rust-lang.org/dist/%{bootstrap_date}/rustc-%{bootstrap_rust}-aarch64-unknown-linux-gnu.tar.gz
-Source8:        https://static.rust-lang.org/dist/%{bootstrap_date}/rust-std-%{bootstrap_rust}-aarch64-unknown-linux-gnu.tar.gz
-Source9:        https://static.rust-lang.org/dist/%{bootstrap_date}/cargo-%{bootstrap_cargo}-aarch64-unknown-linux-gnu.tar.gz
-Source10:       https://static.rust-lang.org/dist/%{bootstrap_date}/rustc-%{bootstrap_rust}-armv7-unknown-linux-gnueabihf.tar.gz
-Source11:       https://static.rust-lang.org/dist/%{bootstrap_date}/rust-std-%{bootstrap_rust}-armv7-unknown-linux-gnueabihf.tar.gz
-Source12:       https://static.rust-lang.org/dist/%{bootstrap_date}/cargo-%{bootstrap_cargo}-armv7-unknown-linux-gnueabihf.tar.gz
+Source1:	https://static.rust-lang.org/dist/rustc-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
+Source2:	https://static.rust-lang.org/dist/rust-std-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
+Source3:	https://static.rust-lang.org/dist/cargo-%{bootstrap_cargo}-x86_64-unknown-linux-gnu.tar.gz
+Source4:        https://static.rust-lang.org/dist/rustc-%{bootstrap_rust}-i686-unknown-linux-gnu.tar.gz
+Source5:        https://static.rust-lang.org/dist/rust-std-%{bootstrap_rust}-i686-unknown-linux-gnu.tar.gz
+Source6:        https://static.rust-lang.org/dist/cargo-%{bootstrap_cargo}-i686-unknown-linux-gnu.tar.gz
+Source7:        https://static.rust-lang.org/dist/rustc-%{bootstrap_rust}-aarch64-unknown-linux-gnu.tar.gz
+Source8:        https://static.rust-lang.org/dist/rust-std-%{bootstrap_rust}-aarch64-unknown-linux-gnu.tar.gz
+Source9:        https://static.rust-lang.org/dist/cargo-%{bootstrap_cargo}-aarch64-unknown-linux-gnu.tar.gz
+Source10:       https://static.rust-lang.org/dist/rustc-%{bootstrap_rust}-armv7-unknown-linux-gnueabihf.tar.gz
+Source11:       https://static.rust-lang.org/dist/rust-std-%{bootstrap_rust}-armv7-unknown-linux-gnueabihf.tar.gz
+Source12:       https://static.rust-lang.org/dist/cargo-%{bootstrap_cargo}-armv7-unknown-linux-gnueabihf.tar.gz
 
 %endif
 BuildRequires:	python < 3.0
@@ -246,6 +246,7 @@ popd
 %{_bindir}/rustc
 %{_bindir}/rustdoc
 %{_bindir}/rust-gdb
+%{_bindir}/rust-gdbgui
 %{_bindir}/rust-lldb
 %{_libdir}/*.so
 %dir %{rustlibdir}
