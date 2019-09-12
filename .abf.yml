@@ -3,12 +3,12 @@ sources:
   cargo-0.33.0-armv7-unknown-linux-gnueabihf.tar.gz: 2327718970c83f17ca780ba43a393ce002e521fd
   cargo-0.33.0-i686-unknown-linux-gnu.tar.gz: 80594f11d39b3ca9db56d1ec5bb89df8092763aa
   cargo-0.33.0-x86_64-unknown-linux-gnu.tar.gz: ab3d3824123fb75d104283900f0d075af8bfbc3d
-  rustc-1.33.0-aarch64-unknown-linux-gnu.tar.gz: 20b3e78a487c47669bee92220cbbbb100c54f032
-  rustc-1.33.0-armv7-unknown-linux-gnueabihf.tar.gz: 57a6ea482ec9cd8938d025c33de6e643d3b6758d
-  rustc-1.33.0-i686-unknown-linux-gnu.tar.gz: a92dd8a1ce0bb4779101edd0b0da968de6f7f860
-  rustc-1.33.0-x86_64-unknown-linux-gnu.tar.gz: 0355040505bbf8ebea0484ab8688ebbc2922ab03
   rust-std-1.33.0-aarch64-unknown-linux-gnu.tar.gz: 3c364222bd56da963d830211e1ac31bc8a81dabf
   rust-std-1.33.0-armv7-unknown-linux-gnueabihf.tar.gz: 0945d2188590c033adae28ba903baa249b6861c4
   rust-std-1.33.0-i686-unknown-linux-gnu.tar.gz: b51dd6831ad67d9d9139274a8fad5738cf8de981
   rust-std-1.33.0-x86_64-unknown-linux-gnu.tar.gz: ddacb6675f15be101b7ff3e8e035419f29f4f5f0
-  rustc-1.34.2-src.tar.gz: f7129b0ed8801eb11033d72c9a8d22ba58e3206c
+  rustc-1.33.0-aarch64-unknown-linux-gnu.tar.gz: 20b3e78a487c47669bee92220cbbbb100c54f032
+  rustc-1.33.0-armv7-unknown-linux-gnueabihf.tar.gz: 57a6ea482ec9cd8938d025c33de6e643d3b6758d
+  rustc-1.33.0-i686-unknown-linux-gnu.tar.gz: a92dd8a1ce0bb4779101edd0b0da968de6f7f860
+  rustc-1.33.0-x86_64-unknown-linux-gnu.tar.gz: 0355040505bbf8ebea0484ab8688ebbc2922ab03
+  rustc-1.35.0-src.tar.gz: f57561cd9fe8a972d3c4f34a87352c6779fc4916
