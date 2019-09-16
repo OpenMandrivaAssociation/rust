@@ -120,7 +120,7 @@ various editors.
 %apply_patches
 
 %if %{with llvm}
-rm -rf src/llvm/
+rm -rf src/llvm-project/
 %endif
 
 %build
@@ -206,6 +206,13 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 # needs to be set here too or rust things it needs to rebuild
 export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
+
+%if !%{with llvm}
+export CC=gcc
+export CXX=g++
+export PATH=$PWD/omv_build_comp:$PATH
+%endif
+
 
 
 DESTDIR=%{buildroot} ./x.py install
