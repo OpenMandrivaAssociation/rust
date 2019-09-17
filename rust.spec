@@ -208,6 +208,7 @@ export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 
 %if !%{with llvm}
+%setup_compile_flags
 export CC=gcc
 export CXX=g++
 export PATH=$PWD/omv_build_comp:$PATH
@@ -247,6 +248,9 @@ pushd %{buildroot}%{_bindir}
 strip rustc
 strip rustdoc
 popd
+
+# Remove installed llvm
+rm -Rf %{buildroot}%{buildroot}
 
 %files
 %doc %{_docdir}/%{name}
