@@ -1,14 +1,14 @@
 sources:
-  cargo-0.33.0-aarch64-unknown-linux-gnu.tar.gz: d9cb50ad544b8cb211718b180b1c2ead0998029b
-  cargo-0.33.0-armv7-unknown-linux-gnueabihf.tar.gz: 2327718970c83f17ca780ba43a393ce002e521fd
-  cargo-0.33.0-i686-unknown-linux-gnu.tar.gz: 80594f11d39b3ca9db56d1ec5bb89df8092763aa
-  cargo-0.33.0-x86_64-unknown-linux-gnu.tar.gz: ab3d3824123fb75d104283900f0d075af8bfbc3d
-  rust-std-1.33.0-aarch64-unknown-linux-gnu.tar.gz: 3c364222bd56da963d830211e1ac31bc8a81dabf
-  rust-std-1.33.0-armv7-unknown-linux-gnueabihf.tar.gz: 0945d2188590c033adae28ba903baa249b6861c4
-  rust-std-1.33.0-i686-unknown-linux-gnu.tar.gz: b51dd6831ad67d9d9139274a8fad5738cf8de981
-  rust-std-1.33.0-x86_64-unknown-linux-gnu.tar.gz: ddacb6675f15be101b7ff3e8e035419f29f4f5f0
-  rustc-1.33.0-aarch64-unknown-linux-gnu.tar.gz: 20b3e78a487c47669bee92220cbbbb100c54f032
-  rustc-1.33.0-armv7-unknown-linux-gnueabihf.tar.gz: 57a6ea482ec9cd8938d025c33de6e643d3b6758d
-  rustc-1.33.0-i686-unknown-linux-gnu.tar.gz: a92dd8a1ce0bb4779101edd0b0da968de6f7f860
-  rustc-1.33.0-x86_64-unknown-linux-gnu.tar.gz: 0355040505bbf8ebea0484ab8688ebbc2922ab03
-  rustc-1.35.0-src.tar.gz: f57561cd9fe8a972d3c4f34a87352c6779fc4916
+  cargo-0.37.0-aarch64-unknown-linux-gnu.tar.gz: 4338e83d4c8d9bd7b3fca0ba10ee3ed9ae08f564
+  cargo-0.37.0-armv7-unknown-linux-gnueabihf.tar.gz: e9883b1a0407c684714d73423abd33d22b572070
+  cargo-0.37.0-i686-unknown-linux-gnu.tar.gz: 25f318efc9761273be1b47b23870c2cd7383144d
+  cargo-0.37.0-x86_64-unknown-linux-gnu.tar.gz: b46f41d6a2d1893ec95cb91291f98f02d9427072
+  rust-std-1.36.0-aarch64-unknown-linux-gnu.tar.gz: 75cf4b6433ecb08bd0f5b7958dda907a588d3173
+  rust-std-1.36.0-armv7-unknown-linux-gnueabihf.tar.gz: 43d63f495a6de4781076b79f8dd7f3b277b9a434
+  rust-std-1.36.0-i686-unknown-linux-gnu.tar.gz: 429fe635694ffd0abfcb598c1d90215e55a68e7f
+  rust-std-1.36.0-x86_64-unknown-linux-gnu.tar.gz: 64efb24ca0e60e698de0d761f284db9430161cfb
+  rustc-1.36.0-aarch64-unknown-linux-gnu.tar.gz: b8df88303167b18423de9e83dc6aacc60e099b6d
+  rustc-1.36.0-armv7-unknown-linux-gnueabihf.tar.gz: 9b7745cb1868c1288a5fd2bed1bd07b9aa425b6b
+  rustc-1.36.0-i686-unknown-linux-gnu.tar.gz: 11d2c0963d973ae9f1f03bfe526cbcebe539f780
+  rustc-1.36.0-x86_64-unknown-linux-gnu.tar.gz: 3836b1064b7780af1303ef0b566e16f50746340d
+  rustc-1.37.0-src.tar.gz: 8613fc28896b2f0d6d8770ea52ce54804ca751df

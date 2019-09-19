@@ -10,7 +10,7 @@
 %define _find_debuginfo_opts -g
 
 # (tpg) enable it if you want to build without system-wide rust and cargo
-%bcond_with bootstrap
+%bcond_without bootstrap
 # (tpg) accordig to Rust devs a LLVM-5.0.0 is not yet supported
 %bcond_with llvm
 %define oname rustc
@@ -21,7 +21,7 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.35.0
+Version:	1.37.0
 Release:	1
 Group:		Development/Other
 License:	MIT
@@ -30,11 +30,11 @@ Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
 
 Patch1:		1.32.0-fix-configure-of-bundled-llvm.patch
-Patch2:		1.33.0-clippy-sysroot.patch
+#Patch2:		1.33.0-clippy-sysroot.patch
 %if %{with bootstrap}
-%define bootstrap_date 2019-01-17
-%define bootstrap_rust 1.33.0
-%define bootstrap_cargo 0.33.0
+%define bootstrap_date 2019-07-04
+%define bootstrap_rust 1.36.0
+%define bootstrap_cargo 0.37.0
 Source1:	https://static.rust-lang.org/dist/rustc-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
 Source2:	https://static.rust-lang.org/dist/rust-std-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
 Source3:	https://static.rust-lang.org/dist/cargo-%{bootstrap_cargo}-x86_64-unknown-linux-gnu.tar.gz
@@ -177,10 +177,7 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 	--libdir=%{common_libdir} \
 	--disable-rpath \
 	--disable-codegen-tests \
-	--disable-debuginfo \
-	--disable-debuginfo-lines \
-	--disable-debuginfo-tools \
-	--disable-debuginfo-only-std \
+	--debuginfo-level=0 \
 	--build=%{rust_triple} \
 	--host=%{rust_triple} \
 	--target=%{rust_triple} \
