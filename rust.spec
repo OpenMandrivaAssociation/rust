@@ -247,7 +247,7 @@ strip rustdoc
 popd
 
 # Remove installed llvm
-rm -Rf %{buildroot}%{buildroot}
+rm -Rf %{buildroot}%{_builddir}
 
 %files
 %doc %{_docdir}/%{name}
