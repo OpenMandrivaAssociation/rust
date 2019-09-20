@@ -200,7 +200,8 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 
 %install
 
-# needs to be set here too or rust things it needs to rebuild
+# all of this needs to be set here too or
+# rust/llvm thinks it needs to rebuild
 export RUST_BACKTRACE=1
 export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 
@@ -209,6 +210,15 @@ export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
 export CC=gcc
 export CXX=g++
 export PATH=$PWD/omv_build_comp:$PATH
+
+%ifarch %{ix86} %{arm}
+# On 32-bit platforms, the linker barfs because the symbol table doesn't fit
+# into the available address space -- so we use -g0 for now
+export CFLAGS="%{optflags} -g0"
+export CXXFLAGS="%{optflags} -g0"
+export LDFLAGS="%{optflags} -g0"
+%endif
+
 %endif
 
 
