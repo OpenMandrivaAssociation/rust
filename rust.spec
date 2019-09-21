@@ -139,7 +139,7 @@ cp %{SOURCE7} %{SOURCE8} %{SOURCE9} build/cache/%{bootstrap_date}
 cp %{SOURCE10} %{SOURCE11} %{SOURCE12} build/cache/%{bootstrap_date}
 %endif
 
-%ifarch %{ix86} %{arm}
+%ifarch %{ix86} %{armx}
 # On 32-bit platforms, the linker barfs because the symbol table doesn't fit
 # into the available address space -- so we use -g0 for now
 export CFLAGS="%{optflags} -g0"
@@ -211,7 +211,7 @@ export CC=gcc
 export CXX=g++
 export PATH=$PWD/omv_build_comp:$PATH
 
-%ifarch %{ix86} %{arm}
+%ifarch %{ix86} %{armx}
 # On 32-bit platforms, the linker barfs because the symbol table doesn't fit
 # into the available address space -- so we use -g0 for now
 export CFLAGS="%{optflags} -g0"
