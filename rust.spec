@@ -22,7 +22,7 @@
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
 Version:	1.38.0
-Release:	1
+Release:	2
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
@@ -30,7 +30,7 @@ Source0:	http://static.rust-lang.org/dist/%{oname}-%{version}-src.tar.gz
 Source100:	rust.rpmlintrc
 
 Patch1:		1.32.0-fix-configure-of-bundled-llvm.patch
-#Patch2:		1.33.0-clippy-sysroot.patch
+Patch2:		vendor_libgit2-sys_lib.patch
 %if %{with bootstrap}
 %define bootstrap_date 2019-07-04
 %define bootstrap_rust 1.36.0
