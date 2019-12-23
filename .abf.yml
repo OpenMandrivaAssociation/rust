@@ -11,4 +11,4 @@ sources:
   rustc-1.36.0-armv7-unknown-linux-gnueabihf.tar.gz: 9b7745cb1868c1288a5fd2bed1bd07b9aa425b6b
   rustc-1.36.0-i686-unknown-linux-gnu.tar.gz: 11d2c0963d973ae9f1f03bfe526cbcebe539f780
   rustc-1.36.0-x86_64-unknown-linux-gnu.tar.gz: 3836b1064b7780af1303ef0b566e16f50746340d
-  rustc-1.37.0-src.tar.gz: 8613fc28896b2f0d6d8770ea52ce54804ca751df
+  rustc-1.38.0-src.tar.gz: 6ad0f778882c73a689c88e1ecdaab8e7b9ceb27b

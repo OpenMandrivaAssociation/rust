@@ -21,8 +21,8 @@
 
 Summary:	A safe, concurrent, practical programming language
 Name:		rust
-Version:	1.37.0
-Release:	2
+Version:	1.38.0
+Release:	1
 Group:		Development/Other
 License:	MIT
 Url:		http://www.rust-lang.org/
@@ -117,7 +117,7 @@ various editors.
 
 %prep
 %setup -q -n %{oname}-%{version}-src
-%apply_patches
+%autopatch -p1
 
 %if %{with llvm}
 rm -rf src/llvm-project/
