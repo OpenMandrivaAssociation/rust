@@ -57,6 +57,7 @@ BuildRequires:	flex
 BuildRequires:	bison
 BuildRequires:	gdb
 BuildRequires:	git
+BuildRequires:	openssl-devel
 %if %{with llvm}
 BuildRequires:	llvm-devel
 %endif
