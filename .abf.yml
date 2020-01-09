@@ -3,12 +3,12 @@ sources:
   cargo-0.37.0-armv7-unknown-linux-gnueabihf.tar.gz: e9883b1a0407c684714d73423abd33d22b572070
   cargo-0.37.0-i686-unknown-linux-gnu.tar.gz: 25f318efc9761273be1b47b23870c2cd7383144d
   cargo-0.37.0-x86_64-unknown-linux-gnu.tar.gz: b46f41d6a2d1893ec95cb91291f98f02d9427072
-  rust-std-1.36.0-aarch64-unknown-linux-gnu.tar.gz: 75cf4b6433ecb08bd0f5b7958dda907a588d3173
-  rust-std-1.36.0-armv7-unknown-linux-gnueabihf.tar.gz: 43d63f495a6de4781076b79f8dd7f3b277b9a434
-  rust-std-1.36.0-i686-unknown-linux-gnu.tar.gz: 429fe635694ffd0abfcb598c1d90215e55a68e7f
-  rust-std-1.36.0-x86_64-unknown-linux-gnu.tar.gz: 64efb24ca0e60e698de0d761f284db9430161cfb
-  rustc-1.36.0-aarch64-unknown-linux-gnu.tar.gz: b8df88303167b18423de9e83dc6aacc60e099b6d
-  rustc-1.36.0-armv7-unknown-linux-gnueabihf.tar.gz: 9b7745cb1868c1288a5fd2bed1bd07b9aa425b6b
-  rustc-1.36.0-i686-unknown-linux-gnu.tar.gz: 11d2c0963d973ae9f1f03bfe526cbcebe539f780
-  rustc-1.36.0-x86_64-unknown-linux-gnu.tar.gz: 3836b1064b7780af1303ef0b566e16f50746340d
+  rust-std-1.39.0-aarch64-unknown-linux-gnu.tar.gz: 1f8aa30a18dae23851fa852082587f05cbc10f8e
+  rust-std-1.39.0-armv7-unknown-linux-gnueabihf.tar.gz: 27ed72c0f4972367bec6b17317b797599006a371
+  rust-std-1.39.0-i686-unknown-linux-gnu.tar.gz: 60d9b7b710eb4179dfbff1bac3becc0ae7b18b7a
+  rust-std-1.39.0-x86_64-unknown-linux-gnu.tar.gz: 0c0a8a6762943e7583053c545da90350d81eb51a
+  rustc-1.39.0-aarch64-unknown-linux-gnu.tar.gz: b94b52ae4c9a1290037681f3696662ecb101047f
+  rustc-1.39.0-armv7-unknown-linux-gnueabihf.tar.gz: 9db6e06ed262e8e9703631abfc459ee53bf3efc9
+  rustc-1.39.0-i686-unknown-linux-gnu.tar.gz: 849f44e6b1fc7de08c5f9a3e6e82ed7cb5da1960
+  rustc-1.39.0-x86_64-unknown-linux-gnu.tar.gz: f59bc9ce466b441cc02aaa1631812a3e77e9fb6d
   rustc-1.40.0-src.tar.gz: 6d706deb2c54e31cf02996ef4909600fa7ed092f
