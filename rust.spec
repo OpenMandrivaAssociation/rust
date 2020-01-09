@@ -31,9 +31,23 @@ Source100:	rust.rpmlintrc
 
 Patch1:		1.32.0-fix-configure-of-bundled-llvm.patch
 Patch2:		vendor_libgit2-sys_lib.patch
+
+Patch3:		u-riscv64-65953.patch
+Patch4:		u-riscv64-66661.patch
+Patch5:		u-riscv64-format-1.patch
+Patch6:		u-riscv64-format-2.patch
+Patch7:		u-riscv64-66899.patch
+Patch8:		u-riscv64-libc-1606.patch
+Patch9:		u-riscv64-cc-428.patch
+Patch10:	u-riscv64-cc-429.patch
+Patch11:	u-riscv64-cc-430.patch
+Patch12:	u-riscv64-cc-460.patch
+Patch13:	u-riscv64-cc-461.patch
+Patch14:	u-riscv64-cc-465.patch
+
 %if %{with bootstrap}
 %define bootstrap_date 2019-07-04
-%define bootstrap_rust 1.36.0
+%define bootstrap_rust 1.39.0
 %define bootstrap_cargo 0.37.0
 Source1:	https://static.rust-lang.org/dist/rustc-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz
 Source2:	https://static.rust-lang.org/dist/rust-std-%{bootstrap_rust}-x86_64-unknown-linux-gnu.tar.gz

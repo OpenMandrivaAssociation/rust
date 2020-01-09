@@ -1,0 +1,111 @@
+From 539de439ad6f32e9a9a8a593299072a106786890 Mon Sep 17 00:00:00 2001
+From: Gui Andrade <gh@archshift.com>
+Date: Tue, 29 Oct 2019 21:12:05 -0700
+Subject: [PATCH] Allow specifying key "llvm-abiname" in target specification
+
+This addresses #65024, as it allows RISC-V target specification
+files to set "llvm-abiname": "lp64d". In general, it is useful
+for the programmer to be able to set this codegen parameter,
+which other languages usually expose under a compiler argument
+like "-mabi=<XYZ>".
+---
+ src/librustc_codegen_llvm/back/write.rs | 3 ++-
+ src/librustc_codegen_llvm/llvm/ffi.rs   | 1 +
+ src/librustc_target/spec/mod.rs         | 8 +++++++-
+ src/rustllvm/PassWrapper.cpp            | 3 ++-
+ 4 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/src/librustc_codegen_llvm/back/write.rs b/src/librustc_codegen_llvm/back/write.rs
+index 52f3a1cbb5c3..fa14ce7b03c8 100644
+--- a/src/librustc_codegen_llvm/back/write.rs
++++ b/src/librustc_codegen_llvm/back/write.rs
+@@ -161,6 +161,7 @@ pub fn target_machine_factory(sess: &Session, optlvl: config::OptLevel, find_fea
+     let cpu = SmallCStr::new(llvm_util::target_cpu(sess));
+     let features = features.join(",");
+     let features = CString::new(features).unwrap();
++    let abi = SmallCStr::new(&sess.target.target.options.llvm_abiname);
+     let is_pie_binary = !find_features && is_pie_binary(sess);
+     let trap_unreachable = sess.target.target.options.trap_unreachable;
+     let emit_stack_size_section = sess.opts.debugging_opts.emit_stack_sizes;
+@@ -170,7 +171,7 @@ pub fn target_machine_factory(sess: &Session, optlvl: config::OptLevel, find_fea
+     Arc::new(move || {
+         let tm = unsafe {
+             llvm::LLVMRustCreateTargetMachine(
+-                triple.as_ptr(), cpu.as_ptr(), features.as_ptr(),
++                triple.as_ptr(), cpu.as_ptr(), features.as_ptr(), abi.as_ptr(),
+                 code_model,
+                 reloc_model,
+                 opt_level,
+diff --git a/src/librustc_codegen_llvm/llvm/ffi.rs b/src/librustc_codegen_llvm/llvm/ffi.rs
+index c69942ef3f2d..85c181ba2f31 100644
+--- a/src/librustc_codegen_llvm/llvm/ffi.rs
++++ b/src/librustc_codegen_llvm/llvm/ffi.rs
+@@ -1684,6 +1684,7 @@ extern "C" {
+     pub fn LLVMRustCreateTargetMachine(Triple: *const c_char,
+                                        CPU: *const c_char,
+                                        Features: *const c_char,
++                                       Abi: *const c_char,
+                                        Model: CodeModel,
+                                        Reloc: RelocMode,
+                                        Level: CodeGenOptLevel,
+diff --git a/src/librustc_target/spec/mod.rs b/src/librustc_target/spec/mod.rs
+index 6033d52c4411..e51772220b73 100644
+--- a/src/librustc_target/spec/mod.rs
++++ b/src/librustc_target/spec/mod.rs
+@@ -793,7 +793,10 @@ pub struct TargetOptions {
+     pub merge_functions: MergeFunctions,
+ 
+     /// Use platform dependent mcount function
+-    pub target_mcount: String
++    pub target_mcount: String,
++
++    /// LLVM ABI name, corresponds to the '-mabi' parameter available in multilib C compilers
++    pub llvm_abiname: String,
+ }
+ 
+ impl Default for TargetOptions {
+@@ -880,6 +883,7 @@ impl Default for TargetOptions {
+             override_export_symbols: None,
+             merge_functions: MergeFunctions::Aliases,
+             target_mcount: "mcount".to_string(),
++            llvm_abiname: "".to_string(),
+         }
+     }
+ }
+@@ -1196,6 +1200,7 @@ impl Target {
+         key!(override_export_symbols, opt_list);
+         key!(merge_functions, MergeFunctions)?;
+         key!(target_mcount);
++        key!(llvm_abiname);
+ 
+         if let Some(array) = obj.find("abi-blacklist").and_then(Json::as_array) {
+             for name in array.iter().filter_map(|abi| abi.as_string()) {
+@@ -1414,6 +1419,7 @@ impl ToJson for Target {
+         target_option_val!(override_export_symbols);
+         target_option_val!(merge_functions);
+         target_option_val!(target_mcount);
++        target_option_val!(llvm_abiname);
+ 
+         if default.abi_blacklist != self.options.abi_blacklist {
+             d.insert("abi-blacklist".to_string(), self.options.abi_blacklist.iter()
+diff --git a/src/rustllvm/PassWrapper.cpp b/src/rustllvm/PassWrapper.cpp
+index 0cda3465dc09..5b3900ab4961 100644
+--- a/src/rustllvm/PassWrapper.cpp
++++ b/src/rustllvm/PassWrapper.cpp
+@@ -343,7 +343,7 @@ extern "C" const char* LLVMRustGetHostCPUName(size_t *len) {
+ 
+ extern "C" LLVMTargetMachineRef LLVMRustCreateTargetMachine(
+     const char *TripleStr, const char *CPU, const char *Feature,
+-    LLVMRustCodeModel RustCM, LLVMRustRelocMode RustReloc,
++    const char *ABIStr, LLVMRustCodeModel RustCM, LLVMRustRelocMode RustReloc,
+     LLVMRustCodeGenOptLevel RustOptLevel, bool UseSoftFloat,
+     bool PositionIndependentExecutable, bool FunctionSections,
+     bool DataSections,
+@@ -374,6 +374,7 @@ extern "C" LLVMTargetMachineRef LLVMRustCreateTargetMachine(
+   Options.FunctionSections = FunctionSections;
+   Options.MCOptions.AsmVerbose = AsmComments;
+   Options.MCOptions.PreserveAsmComments = AsmComments;
++  Options.MCOptions.ABIName = ABIStr;
+ 
+   if (TrapUnreachable) {
+     // Tell LLVM to codegen `unreachable` into an explicit trap instruction.

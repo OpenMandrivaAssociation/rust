@@ -1,0 +1,143 @@
+From b830b673e7369fc67ffa57e9a5140185315549d3 Mon Sep 17 00:00:00 2001
+From: msizanoen1 <qtmlabs@protonmail.com>
+Date: Sat, 23 Nov 2019 14:22:05 +0700
+Subject: [PATCH 1/2] Add support for RISC-V 64-bit GNU/Linux
+
+---
+ src/libpanic_unwind/gcc.rs     | 3 +++
+ src/libstd/env.rs              | 6 ++++++
+ src/libstd/os/linux/raw.rs     | 7 ++++++-
+ src/libstd/os/raw/mod.rs       | 6 ++++--
+ src/libstd/sys/unix/fs.rs      | 2 ++
+ src/libstd/sys_common/alloc.rs | 3 ++-
+ src/libunwind/libunwind.rs     | 3 +++
+ 7 files changed, 26 insertions(+), 4 deletions(-)
+
+diff --git a/src/libpanic_unwind/gcc.rs b/src/libpanic_unwind/gcc.rs
+index e5e8e805b6e8..fc90d103ec64 100644
+--- a/src/libpanic_unwind/gcc.rs
++++ b/src/libpanic_unwind/gcc.rs
+@@ -130,6 +130,9 @@ const UNWIND_DATA_REG: (i32, i32) = (24, 25); // I0, I1
+ #[cfg(target_arch = "hexagon")]
+ const UNWIND_DATA_REG: (i32, i32) = (0, 1); // R0, R1
+ 
++#[cfg(target_arch = "riscv64")]
++const UNWIND_DATA_REG: (i32, i32) = (10, 11); // x10, x11
++
+ // The following code is based on GCC's C and C++ personality routines.  For reference, see:
+ // https://github.com/gcc-mirror/gcc/blob/master/libstdc++-v3/libsupc++/eh_personality.cc
+ // https://github.com/gcc-mirror/gcc/blob/trunk/libgcc/unwind-c.c
+diff --git a/src/libstd/env.rs b/src/libstd/env.rs
+index 13fe3bda525a..af35a5d9b7c4 100644
+--- a/src/libstd/env.rs
++++ b/src/libstd/env.rs
+@@ -878,6 +878,7 @@ pub mod consts {
+     /// - mips64
+     /// - powerpc
+     /// - powerpc64
++    /// - riscv64
+     /// - s390x
+     /// - sparc64
+     #[stable(feature = "env", since = "1.0.0")]
+@@ -1035,6 +1036,11 @@ mod arch {
+     pub const ARCH: &'static str = "hexagon";
+ }
+ 
++#[cfg(target_arch = "riscv64")]
++mod arch {
++    pub const ARCH: &'static str = "riscv64";
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+diff --git a/src/libstd/os/linux/raw.rs b/src/libstd/os/linux/raw.rs
+index d9b2236047bd..0caec97bb7b9 100644
+--- a/src/libstd/os/linux/raw.rs
++++ b/src/libstd/os/linux/raw.rs
+@@ -230,7 +230,12 @@ mod arch {
+     }
+ }
+ 
+-#[cfg(any(target_arch = "mips64", target_arch = "s390x", target_arch = "sparc64"))]
++#[cfg(any(
++    target_arch = "mips64",
++    target_arch = "s390x",
++    target_arch = "sparc64",
++    target_arch = "riscv64"
++))]
+ mod arch {
+     pub use libc::{blkcnt_t, blksize_t, ino_t, nlink_t, off_t, stat, time_t};
+ }
+diff --git a/src/libstd/os/raw/mod.rs b/src/libstd/os/raw/mod.rs
+index e09012007f2d..47daf0cce1b3 100644
+--- a/src/libstd/os/raw/mod.rs
++++ b/src/libstd/os/raw/mod.rs
+@@ -18,7 +18,8 @@
+             target_arch = "hexagon",
+             target_arch = "powerpc",
+             target_arch = "powerpc64",
+-            target_arch = "s390x"
++            target_arch = "s390x",
++            target_arch = "riscv64"
+         )
+     ),
+     all(target_os = "android", any(target_arch = "aarch64", target_arch = "arm")),
+@@ -60,7 +61,8 @@ pub type c_char = u8;
+             target_arch = "hexagon",
+             target_arch = "powerpc",
+             target_arch = "powerpc64",
+-            target_arch = "s390x"
++            target_arch = "s390x",
++            target_arch = "riscv64"
+         )
+     ),
+     all(target_os = "android", any(target_arch = "aarch64", target_arch = "arm")),
+diff --git a/src/libstd/sys/unix/fs.rs b/src/libstd/sys/unix/fs.rs
+index 26fb0bf10fe3..1cb6a9d37a98 100644
+--- a/src/libstd/sys/unix/fs.rs
++++ b/src/libstd/sys/unix/fs.rs
+@@ -67,6 +67,7 @@ macro_rules! cfg_has_statx {
+                 // target_arch = "mips64",
+                 // target_arch = "s390x",
+                 target_arch = "sparc64",
++                target_arch = "riscv64",
+             )))] {
+                 $($then_tt)*
+             } else {
+@@ -86,6 +87,7 @@ macro_rules! cfg_has_statx {
+             // target_arch = "mips64",
+             // target_arch = "s390x",
+             target_arch = "sparc64",
++            target_arch = "riscv64",
+         )))]
+         {
+             $($block_inner)*
+diff --git a/src/libstd/sys_common/alloc.rs b/src/libstd/sys_common/alloc.rs
+index 713b9949f646..c66941007859 100644
+--- a/src/libstd/sys_common/alloc.rs
++++ b/src/libstd/sys_common/alloc.rs
+@@ -22,7 +22,8 @@ pub const MIN_ALIGN: usize = 8;
+     target_arch = "aarch64",
+     target_arch = "mips64",
+     target_arch = "s390x",
+-    target_arch = "sparc64"
++    target_arch = "sparc64",
++    target_arch = "riscv64"
+ )))]
+ pub const MIN_ALIGN: usize = 16;
+ 
+diff --git a/src/libunwind/libunwind.rs b/src/libunwind/libunwind.rs
+index c03b6bf416cb..dccaf6fd24ca 100644
+--- a/src/libunwind/libunwind.rs
++++ b/src/libunwind/libunwind.rs
+@@ -53,6 +53,9 @@ pub const unwinder_private_data_size: usize = 2;
+ #[cfg(target_arch = "sparc64")]
+ pub const unwinder_private_data_size: usize = 2;
+ 
++#[cfg(target_arch = "riscv64")]
++pub const unwinder_private_data_size: usize = 2;
++
+ #[cfg(target_os = "emscripten")]
+ pub const unwinder_private_data_size: usize = 20;
+ 
