@@ -1,6 +1,6 @@
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
-%global rust_arches x86_64 znver1 i686 armv7hl aarch64 ppc64 ppc64le s390x
+%global rust_arches x86_64 znver1 i686 armv7hl armv7hnl aarch64 ppc64 ppc64le s390x
 
 # The channel can be stable, beta, or nightly
 %{!?channel: %global channel stable}
@@ -572,9 +572,6 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %{python} ./x.py test --no-fail-fast clippy || :
 %{python} ./x.py test --no-fail-fast rls || :
 %{python} ./x.py test --no-fail-fast rustfmt || :
-
-
-%ldconfig_scriptlets
 
 
 %files
