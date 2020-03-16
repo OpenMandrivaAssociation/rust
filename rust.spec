@@ -236,11 +236,6 @@ programs.
 Summary:        LLDB pretty printers for Rust
 BuildArch:      noarch
 Requires:       lldb
-%if 0%{?fedora} >= 31
-Requires:       python3-lldb
-%else
-Requires:       python2-lldb
-%endif
 Requires:       %{name}-debugger-common = %{version}-%{release}
 
 %description lldb
