@@ -9,10 +9,10 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.41.0
-%global bootstrap_cargo 1.41.0
-%global bootstrap_channel 1.41.1
-%global bootstrap_date 2020-02-27
+%global bootstrap_rust 1.42.0
+%global bootstrap_cargo 1.42.0
+%global bootstrap_channel 1.42.0
+%global bootstrap_date 2020-03-12
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -35,7 +35,7 @@
 %bcond_without lldb
 
 Name:           rust
-Version:        1.42.0
+Version:        1.43.0
 Release:        1%{?dist}
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -52,10 +52,7 @@ Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
 # Revert https://github.com/rust-lang/rust/pull/57840
 # We do have the necessary fix in our LLVM 7.
 Patch1:         rust-pr57840-llvm7-debuginfo-variants.patch
-# Fix 1.42 bootstrapping itself
-# https://github.com/rust-lang/rust/issues/69953
-Patch2:         0001-Drop-cfg-bootstrap-code.patch
-# Get the Rust triple for any arch.
+Patch2:		rust-pr70163-prepare-for-llvm-10-upgrade.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
@@ -133,7 +130,7 @@ BuildRequires:  pkgconfig(libssh2) >= 1.6.0
 BuildRequires:  %{python}
 
 %if %with bundled_llvm
-BuildRequires:  cmake3 >= 3.4.3
+BuildRequires:  cmake >= 3.4.3
 Provides:       bundled(llvm) = 9.0.0
 %else
 BuildRequires:  cmake >= 2.8.11
