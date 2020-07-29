@@ -24,6 +24,9 @@
 # is insufficient.  Rust currently requires LLVM 7.0+.
 %bcond_with bundled_llvm
 
+# Rust does not yet build against openssl 3
+%bcond_without bundled_openssl
+
 # libgit2-sys expects to use its bundled library, which is sometimes just a
 # snapshot of libgit2's master branch.  This can mean the FFI declarations
 # won't match our released libgit2.so, e.g. having changed struct fields.
@@ -114,7 +117,9 @@ BuildRequires:  ncurses-devel
 BuildRequires:  curl
 BuildRequires:  pkgconfig(libcurl)
 BuildRequires:  pkgconfig(liblzma)
+%if %without bundled_openssl
 BuildRequires:  pkgconfig(openssl)
+%endif
 BuildRequires:  pkgconfig(zlib)
 
 %if %without bundled_libgit2
@@ -384,7 +389,9 @@ rm -rf vendor/curl-sys/curl/
 rm -rf vendor/jemalloc-sys/jemalloc/
 rm -rf vendor/libz-sys/src/zlib/
 rm -rf vendor/lzma-sys/xz-*/
+%if %without bundled_openssl
 rm -rf vendor/openssl-src/openssl/
+%endif
 
 %if %without bundled_libgit2
 rm -rf vendor/libgit2-sys/libgit2/
