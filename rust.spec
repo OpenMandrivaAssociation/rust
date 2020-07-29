@@ -9,10 +9,10 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.42.0
-%global bootstrap_cargo 1.42.0
-%global bootstrap_channel 1.42.0
-%global bootstrap_date 2020-03-12
+%global bootstrap_rust 1.44.0
+%global bootstrap_cargo 1.44.0
+%global bootstrap_channel 1.44.0
+%global bootstrap_date 2020-06-04
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -35,7 +35,7 @@
 %bcond_without lldb
 
 Name:           rust
-Version:        1.43.0
+Version:        1.45.0
 Release:        1%{?dist}
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -368,8 +368,8 @@ test -f '%{local_rust_root}/bin/rustc'
 
 %setup -q -n %{rustc_package}
 
-%patch1 -p1 -R
-%patch2 -p1
+#patch1 -p1 -R
+#patch2 -p1
 
 %if "%{python}" == "python3"
 sed -i.try-py3 -e '/try python2.7/i try python3 "$@"' ./configure
