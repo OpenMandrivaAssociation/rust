@@ -1,12 +1,5 @@
 sources:
   openssl3.tar.gz: e5acd9655392b194eb7540ef0c106fed32253ca5
-  rust-1.42.0-aarch64-unknown-linux-gnu.tar.xz: 985d3b7d2a2ebcd09415f2d2702d8b18b9d038f1
-  rust-1.42.0-armv7-unknown-linux-gnueabihf.tar.xz: e39ef9f8ee45f8fe5588d94a01886af52195eb74
-  rust-1.42.0-i686-unknown-linux-gnu.tar.xz: 3b740f05be16327820b64f4b4ff9ec3d0f005e54
-  rust-1.42.0-powerpc64-unknown-linux-gnu.tar.xz: ca57ffbc8526b783d9f044aff212c09251ee43c1
-  rust-1.42.0-powerpc64le-unknown-linux-gnu.tar.xz: aac8bab9053ee12fa7cc81f1108879fd8cc36ca9
-  rust-1.42.0-s390x-unknown-linux-gnu.tar.xz: 0b7df8c39d5ea4cdcc51e84a3a29d079150acbb9
-  rust-1.42.0-x86_64-unknown-linux-gnu.tar.xz: ebb8fe2ac0459229f8aa89e153e831bd2d506018
   rust-1.44.0-aarch64-unknown-linux-gnu.tar.xz: 99735e094f28ae168907c902385f6df09c9545ac
   rust-1.44.0-armv7-unknown-linux-gnueabihf.tar.xz: b2b17448384bc9e972bb275e0a40afc4128fde1e
   rust-1.44.0-i686-unknown-linux-gnu.tar.xz: 96287d119e8008e13c09e421490a90cd8ed994ab
@@ -14,5 +7,4 @@ sources:
   rust-1.44.0-powerpc64le-unknown-linux-gnu.tar.xz: d7a6dc0bc6712132dafa3802959e9275467872f4
   rust-1.44.0-s390x-unknown-linux-gnu.tar.xz: b2cdfe4da94877f9d1d4e84861cecb0f4aae8743
   rust-1.44.0-x86_64-unknown-linux-gnu.tar.xz: 5bb798e722c7758454def598daec56362be0525c
-  rustc-1.43.0-src.tar.xz: 685cb48f76a47cda65d0a0c1da85bfe61e1a8cc0
-  rustc-1.45.0-src.tar.xz: 7447f361432a8c569eb5b5ab85b784a898dd61d2
+  rustc-1.45.2-src.tar.xz: ef2e4d6a728918cc78dd535a3d6d842fa485e8c7

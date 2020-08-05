@@ -1,3 +1,5 @@
+%define _disable_lto 1
+
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
 %global rust_arches x86_64 znver1 i686 armv7hl armv7hnl aarch64 ppc64 ppc64le s390x
@@ -35,7 +37,7 @@
 %bcond_without lldb
 
 Name:           rust
-Version:        1.45.0
+Version:        1.45.2
 Release:        1%{?dist}
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -481,6 +483,7 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
   --disable-rpath \
   %{enable_debuginfo} \
   --enable-extended \
+  --tools=analysis,cargo,clippy,rls,rustfmt,src \
   --enable-vendor \
   --enable-verbose-tests \
   %{?codegen_units_std} \
@@ -585,7 +588,6 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %dir %{rustlibdir}/%{rust_triple}
 %dir %{rustlibdir}/%{rust_triple}/lib
 %{rustlibdir}/%{rust_triple}/lib/*.so
-%exclude %{_bindir}/*miri
 
 
 %files std-static
