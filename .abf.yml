@@ -1,4 +1,5 @@
 sources:
+  openssl3.tar.gz: e47ca14d7ada67535a9c87066c52519334deb8f9
   rust-1.42.0-aarch64-unknown-linux-gnu.tar.xz: 985d3b7d2a2ebcd09415f2d2702d8b18b9d038f1
   rust-1.42.0-armv7-unknown-linux-gnueabihf.tar.xz: e39ef9f8ee45f8fe5588d94a01886af52195eb74
   rust-1.42.0-i686-unknown-linux-gnu.tar.xz: 3b740f05be16327820b64f4b4ff9ec3d0f005e54

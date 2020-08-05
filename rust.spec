@@ -24,9 +24,6 @@
 # is insufficient.  Rust currently requires LLVM 7.0+.
 %bcond_with bundled_llvm
 
-# Rust does not yet build against openssl 3
-%bcond_without bundled_openssl
-
 # libgit2-sys expects to use its bundled library, which is sometimes just a
 # snapshot of libgit2's master branch.  This can mean the FFI declarations
 # won't match our released libgit2.so, e.g. having changed struct fields.
@@ -52,11 +49,13 @@ ExclusiveArch:  %{rust_arches}
 %global rustc_package rustc-%{channel}-src
 %endif
 Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
+# update from openssl-300 branch at https://github.com/sfackler/rust-openssl
+Source100:	openssl3.tar.gz
 # Revert https://github.com/rust-lang/rust/pull/57840
 # We do have the necessary fix in our LLVM 7.
 Patch1:         rust-pr57840-llvm7-debuginfo-variants.patch
 Patch2:		rust-pr70163-prepare-for-llvm-10-upgrade.patch
-
+Patch3:		openssl3.patch
 %{lua: function rust_triple(arch)
   local abi = "gnu"
   if arch == "armv7hnl" then
@@ -117,9 +116,7 @@ BuildRequires:  ncurses-devel
 BuildRequires:  curl
 BuildRequires:  pkgconfig(libcurl)
 BuildRequires:  pkgconfig(liblzma)
-%if %without bundled_openssl
 BuildRequires:  pkgconfig(openssl)
-%endif
 BuildRequires:  pkgconfig(zlib)
 
 %if %without bundled_libgit2
@@ -375,6 +372,11 @@ test -f '%{local_rust_root}/bin/rustc'
 
 #patch1 -p1 -R
 #patch2 -p1
+pushd vendor
+rm -Rf openssl openssl-sys
+tar xvf %SOURCE100
+sed -i -e 's/0.10.25/0.10.30/' -e 's/0.9.54/0.9.58/' ../Cargo.lock
+popd
 
 %if "%{python}" == "python3"
 sed -i.try-py3 -e '/try python2.7/i try python3 "$@"' ./configure
@@ -389,9 +391,7 @@ rm -rf vendor/curl-sys/curl/
 rm -rf vendor/jemalloc-sys/jemalloc/
 rm -rf vendor/libz-sys/src/zlib/
 rm -rf vendor/lzma-sys/xz-*/
-%if %without bundled_openssl
 rm -rf vendor/openssl-src/openssl/
-%endif
 
 %if %without bundled_libgit2
 rm -rf vendor/libgit2-sys/libgit2/
