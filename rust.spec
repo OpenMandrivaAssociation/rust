@@ -55,7 +55,6 @@ Source100:	openssl3.tar.gz
 # We do have the necessary fix in our LLVM 7.
 Patch1:         rust-pr57840-llvm7-debuginfo-variants.patch
 Patch2:		rust-pr70163-prepare-for-llvm-10-upgrade.patch
-Patch3:		openssl3.patch
 %{lua: function rust_triple(arch)
   local abi = "gnu"
   if arch == "armv7hnl" then
