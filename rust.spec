@@ -11,10 +11,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.44.0
-%global bootstrap_cargo 1.44.0
-%global bootstrap_channel 1.44.0
-%global bootstrap_date 2020-06-04
+%global bootstrap_rust 1.46.0
+%global bootstrap_cargo 1.46.0
+%global bootstrap_channel 1.46.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -37,8 +36,8 @@
 %bcond_without lldb
 
 Name:           rust
-Version:        1.45.2
-Release:        1%{?dist}
+Version:        1.46.0
+Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -87,11 +86,11 @@ end}
   for arch in string.gmatch(rpm.expand("%{bootstrap_arches}"), "%S+") do
     table.insert(bootstrap_arches, arch)
   end
-  local base = rpm.expand("https://static.rust-lang.org/dist/%{bootstrap_date}"
+  local base = rpm.expand("https://static.rust-lang.org/dist"
                           .."/rust-%{bootstrap_channel}")
   local target_arch = rpm.expand("%{_target_cpu}")
   for i, arch in ipairs(bootstrap_arches) do
-    print(string.format("Source%d: %s-%s.tar.xz\n",
+    print(string.format("Source%d: %s-%s.tar.gz\n",
                         i, base, rust_triple(arch)))
     if arch == target_arch then
       rpm.define("bootstrap_source "..i)
@@ -175,17 +174,9 @@ Requires:       /usr/bin/cc
 %global __provides_exclude_from ^(%{_docdir}|%{rustlibdir}/src)/.*$
 %global __requires_exclude_from ^(%{_docdir}|%{rustlibdir}/src)/.*$
 
-# While we don't want to encourage dynamic linking to Rust shared libraries, as
-# there's no stable ABI, we still need the unallocated metadata (.rustc) to
-# support custom-derive plugins like #[proc_macro_derive(Foo)].  But eu-strip is
-# very eager by default, so we have to limit it to -g, only debugging symbols.
-%if 0%{?fedora} >= 27
-# Newer find-debuginfo.sh supports --keep-section, which is preferable. rhbz1465997
+# We need the unallocated metadata (.rustc) to
+# support custom-derive plugins like #[proc_macro_derive(Foo)].
 %global _find_debuginfo_opts --keep-section .rustc
-%else
-%global _find_debuginfo_opts -g
-%undefine _include_minidebuginfo
-%endif
 
 # Use hardening ldflags.
 %global rustflags -Clink-arg=-Wl,-z,relro,-z,now
@@ -454,13 +445,7 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 %ifarch %{arm} %{ix86} s390x
 # full debuginfo is exhausting memory; just do libstd for now
 # https://github.com/rust-lang/rust/issues/45854
-%if (0%{?fedora} && 0%{?fedora} < 27) || (0%{?rhel} && 0%{?rhel} <= 7)
-# Older rpmbuild didn't work with partial debuginfo coverage.
-%global debug_package %{nil}
-%define enable_debuginfo --debuginfo-level=0
-%else
 %define enable_debuginfo --debuginfo-level=0 --debuginfo-level-std=2
-%endif
 %else
 %define enable_debuginfo --debuginfo-level=2
 %endif
