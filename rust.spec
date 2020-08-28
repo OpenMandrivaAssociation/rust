@@ -585,7 +585,6 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %files debugger-common
 %dir %{rustlibdir}
 %dir %{rustlibdir}/etc
-%{rustlibdir}/etc/debugger_*.py*
 
 
 %files gdb
