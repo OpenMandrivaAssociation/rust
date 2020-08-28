@@ -35,6 +35,10 @@
 # LLDB isn't available everywhere...
 %bcond_without lldb
 
+# Running the tests uses loads of diskspace -- causing various abf buildroots
+# to run out of space
+%bcond_with tests
+
 Name:           rust
 Version:        1.46.0
 Release:        1
@@ -548,6 +552,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %endif
 
 
+%if %{with tests}
 %check
 %{?cmake_path:export PATH=%{cmake_path}:$PATH}
 %{?rustflags:export RUSTFLAGS="%{rustflags}"}
@@ -558,6 +563,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %{python} ./x.py test --no-fail-fast clippy || :
 %{python} ./x.py test --no-fail-fast rls || :
 %{python} ./x.py test --no-fail-fast rustfmt || :
+%endif
 
 
 %files
