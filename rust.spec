@@ -11,9 +11,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.46.0
-%global bootstrap_cargo 1.46.0
-%global bootstrap_channel 1.46.0
+%global bootstrap_rust 1.48.0
+%global bootstrap_cargo 1.48.0
+%global bootstrap_channel 1.48.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -40,7 +40,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.46.0
+Version:        1.49.0
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -60,6 +60,7 @@ Source100:	openssl3.tar.gz
 # We do have the necessary fix in our LLVM 7.
 Patch1:         rust-pr57840-llvm7-debuginfo-variants.patch
 Patch2:		rust-pr70163-prepare-for-llvm-10-upgrade.patch
+Patch3:		rust-1.49-lock.patch
 %{lua: function rust_triple(arch)
   local abi = "gnu"
   if arch == "armv7hnl" then
@@ -368,10 +369,11 @@ test -f '%{local_rust_root}/bin/rustc'
 
 #patch1 -p1 -R
 #patch2 -p1
+%patch3 -p1
 pushd vendor
 rm -Rf openssl openssl-sys
 tar xvf %SOURCE100
-sed -i -e 's/0.10.25/0.10.30/' -e 's/0.9.54/0.9.58/' ../Cargo.lock
+#sed -i -e 's/0.10.30/0.10.30-omv/' -e 's/0.9.58/0.9.58-omv/' ../Cargo.lock
 popd
 
 %if "%{python}" == "python3"
@@ -399,9 +401,6 @@ rm -rf vendor/libssh2-sys/libssh2/
 
 # This only affects the transient rust-installer, but let it use our dynamic xz-libs
 sed -i.lzma -e '/LZMA_API_STATIC/d' src/bootstrap/tool.rs
-
-# rename bundled license for packaging
-cp -a vendor/backtrace-sys/src/libbacktrace/LICENSE{,-libbacktrace}
 
 %if %{with bundled_llvm} && 0%{?epel}
 mkdir -p cmake-bin
@@ -568,7 +567,6 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 
 %files
 %license COPYRIGHT LICENSE-APACHE LICENSE-MIT
-%license vendor/backtrace-sys/src/libbacktrace/LICENSE-libbacktrace
 %doc README.md
 %{_bindir}/rustc
 %{_bindir}/rustdoc
