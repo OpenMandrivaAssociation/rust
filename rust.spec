@@ -477,8 +477,8 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
   %{?codegen_units_std} \
   --release-channel=%{channel}
 
-%{python} ./x.py build
-%{python} ./x.py doc
+%{python} ./x.py build -j "$(nproc)" --stage 2
+%{python} ./x.py doc --stage 2
 
 
 %install
