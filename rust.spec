@@ -629,7 +629,6 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
 %{_docdir}/%{name}/html/*/
 %{_docdir}/%{name}/html/*.html
 %{_docdir}/%{name}/html/*.css
-%{_docdir}/%{name}/html/*.ico
 %{_docdir}/%{name}/html/*.js
 %{_docdir}/%{name}/html/*.png
 %{_docdir}/%{name}/html/*.svg
