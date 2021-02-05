@@ -618,7 +618,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %if %with lldb
 %files lldb
 %{_bindir}/rust-lldb
-%{rustlibdir}/etc/lldb_*.py*
+%{rustlibdir}/etc/lldb_*
 %endif
 
 
