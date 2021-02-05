@@ -382,6 +382,7 @@ sed -i.try-py3 -e '/try python2.7/i try python3 "$@"' ./configure
 
 %if %without bundled_llvm
 rm -rf src/llvm-project/
+mkdir -p src/llvm-project/libunwind/
 %endif
 
 # Remove other unused vendored libraries
