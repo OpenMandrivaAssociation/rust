@@ -477,7 +477,13 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
   %{?codegen_units_std} \
   --release-channel=%{channel}
 
-%{python} ./x.py build -j "$(nproc)" --stage 2
+cpus=$(nproc)
+
+if [[ $cpus > 4 ]]; then
+  cpus=4
+fi
+
+%{python} ./x.py build -j "$cpus" --stage 2
 %{python} ./x.py doc --stage 2
 
 
