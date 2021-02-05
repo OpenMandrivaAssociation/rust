@@ -480,7 +480,7 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 
 cpus=$(nproc)
 
-if [[ $cpus > 4 ]]; then
+if [[ $cpus -gt 4 ]]; then
   cpus=4
 fi
 
