@@ -564,7 +564,7 @@ ln -sT ../rust/html/cargo/ %{buildroot}%{_docdir}/cargo/html
 
 %if %without lldb
 rm -f %{buildroot}%{_bindir}/rust-lldb
-rm -f %{buildroot}%{rustlibdir}/etc/lldb_*.py*
+rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %endif
 
 
