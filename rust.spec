@@ -482,6 +482,16 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 
 
 %install
+%if %without bundled_libgit2
+# convince libgit2-sys to use the distro libgit2
+export LIBGIT2_SYS_USE_PKG_CONFIG=1
+%endif
+
+%if %without bundled_libssh2
+# convince libssh2-sys to use the distro libssh2
+export LIBSSH2_SYS_USE_PKG_CONFIG=1
+%endif
+
 %{?cmake_path:export PATH=%{cmake_path}:$PATH}
 %{?rustflags:export RUSTFLAGS="%{rustflags}"}
 
