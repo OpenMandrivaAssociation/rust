@@ -2,7 +2,7 @@
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
-%global rust_arches x86_64 znver1 i686 armv7hl armv7hnl aarch64 ppc64 ppc64le s390x
+%global rust_arches x86_64 znver1 i686 armv7hl armv7hnl aarch64 ppc64 ppc64le riscv64
 
 # The channel can be stable, beta, or nightly
 %{!?channel: %global channel stable}
@@ -73,6 +73,8 @@ Patch3:		rust-1.49-lock.patch
     arch = "powerpc64"
   elseif arch == "ppc64le" then
     arch = "powerpc64le"
+  elseif arch == "riscv64" then
+    arch = "riscv64gc"
   elseif arch == "i586" then
     arch = "i686"
   elseif arch == "znver1" then

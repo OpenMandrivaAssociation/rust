@@ -1,10 +1,10 @@
 sources:
-  openssl3.tar.gz: a1013a371be71cd498c14e700e97d6dfc3b57dfd
   rust-1.48.0-aarch64-unknown-linux-gnu.tar.gz: f638f580ad74ca0b4fa81ede68f781afb99208a6
   rust-1.48.0-armv7-unknown-linux-gnueabihf.tar.gz: f1ec5d46b0c6efb93af0de4e6aa05b8b2a8b222f
   rust-1.48.0-i686-unknown-linux-gnu.tar.gz: cb4e5168c67dec2b76f02b1e8353bd5105b4ef0c
-  rust-1.48.0-powerpc64-unknown-linux-gnu.tar.gz: 11bbc2f236dbaca71fbcd792ed87a56dc8307216
   rust-1.48.0-powerpc64le-unknown-linux-gnu.tar.gz: e83936c6ee96eb7ee0d542d291c193093f96a885
-  rust-1.48.0-s390x-unknown-linux-gnu.tar.gz: dddf1371a25a96a7ef5a5dba1bc2b7798dab0690
+  rust-1.48.0-powerpc64-unknown-linux-gnu.tar.gz: 11bbc2f236dbaca71fbcd792ed87a56dc8307216
+  rust-1.48.0-riscv64gc-unknown-linux-gnu.tar.gz: 239bdb7bbd4ba99bd7b36ff6f1e4a9542eaefc51
   rust-1.48.0-x86_64-unknown-linux-gnu.tar.gz: f0615a346a5db786a05b3e9ea45ef3ce5c86e5fb
   rustc-1.49.0-src.tar.xz: f6f4d4e41694935511097c3913d9f720d5e606f8
+  openssl3.tar.gz: e5acd9655392b194eb7540ef0c106fed32253ca5
