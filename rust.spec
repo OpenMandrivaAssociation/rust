@@ -61,6 +61,12 @@ Source100:	openssl3.tar.gz
 Patch1:         rust-pr57840-llvm7-debuginfo-variants.patch
 Patch2:		rust-pr70163-prepare-for-llvm-10-upgrade.patch
 Patch3:		rust-1.49-lock.patch
+# LLVM 12 support
+Patch4:		https://github.com/rust-lang/rust/commit/55f345f32505c2095966a5dc46c4ae3290dbf7a1.patch
+Patch5:		https://github.com/rust-lang/rust/commit/9a8acea78355b604dbeb29bc38bd4dbf7bfce95f.patch
+Patch6:		https://github.com/rust-lang/rust/commit/65ed23c2827a5771718fe72762bca345dde6ec79.patch
+Patch7:		https://github.com/rust-lang/rust/commit/8357e573466d583991edd28e52433417b49dc4ae.patch
+Patch8:		https://github.com/rust-lang/rust/commit/84c08f82b46986fcd5cbd1a637582bd1325fa970.patch
 %{lua: function rust_triple(arch)
   local abi = "gnu"
   if arch == "armv7hnl" then
