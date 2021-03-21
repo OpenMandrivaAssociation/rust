@@ -11,9 +11,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.48.0
-%global bootstrap_cargo 1.48.0
-%global bootstrap_channel 1.48.0
+%global bootstrap_rust 1.49.0
+%global bootstrap_cargo 1.49.0
+%global bootstrap_channel 1.49.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -40,7 +40,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.49.0
+Version:        1.50.0
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -589,6 +589,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %doc README.md
 %{_bindir}/rustc
 %{_bindir}/rustdoc
+%{_prefix}/lib/rustlib/*/bin/rust-llvm-dwp
 %{_libdir}/*.so
 %{_mandir}/man1/rustc.1*
 %{_mandir}/man1/rustdoc.1*
@@ -645,6 +646,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %{_bindir}/cargo
 %{_mandir}/man1/cargo*.1*
 %{_sysconfdir}/bash_completion.d/cargo
+%{_libexecdir}/cargo-credential-1password
 %{_datadir}/zsh/site-functions/_cargo
 %dir %{_datadir}/cargo
 %dir %{_datadir}/cargo/registry
