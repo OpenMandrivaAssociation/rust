@@ -66,7 +66,8 @@ Patch4:		https://github.com/rust-lang/rust/commit/55f345f32505c2095966a5dc46c4ae
 Patch5:		https://github.com/rust-lang/rust/commit/9a8acea78355b604dbeb29bc38bd4dbf7bfce95f.patch
 Patch6:		https://github.com/rust-lang/rust/commit/65ed23c2827a5771718fe72762bca345dde6ec79.patch
 Patch7:		https://github.com/rust-lang/rust/commit/8357e573466d583991edd28e52433417b49dc4ae.patch
-Patch8:		https://github.com/rust-lang/rust/commit/84c08f82b46986fcd5cbd1a637582bd1325fa970.patch
+# Used by patches 4 to 7
+Patch8:		rustc-1.50.0-llvm_util-add-get_version.patch
 %{lua: function rust_triple(arch)
   local abi = "gnu"
   if arch == "armv7hnl" then
@@ -378,6 +379,13 @@ test -f '%{local_rust_root}/bin/rustc'
 #patch1 -p1 -R
 #patch2 -p1
 %patch3 -p1
+
+%patch4 -p1 -b .llvm12_1~
+%patch5 -p1 -b .llvm12_2~
+%patch6 -p1 -b .llvm12_3~
+%patch7 -p1 -b .llvm12_4~
+%patch8 -p1 -b .llvm12_5~
+
 pushd vendor
 rm -Rf openssl openssl-sys
 tar xvf %SOURCE100

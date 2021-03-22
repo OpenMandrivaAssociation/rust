@@ -1,34 +1,7 @@
-From 55f345f32505c2095966a5dc46c4ae3290dbf7a1 Mon Sep 17 00:00:00 2001
-From: Nikita Popov <nikita.ppv@gmail.com>
-Date: Tue, 3 Nov 2020 22:47:16 +0100
-Subject: [PATCH] Support LLVM 12 in rustc
-
----
- compiler/rustc_codegen_llvm/src/abi.rs        |  17 ++-
- compiler/rustc_codegen_llvm/src/context.rs    |   7 ++
- compiler/rustc_codegen_llvm/src/llvm/ffi.rs   |   4 +
- compiler/rustc_codegen_ssa/src/common.rs      |   1 +
- .../rustc_llvm/llvm-wrapper/PassWrapper.cpp   | 119 ++++++++++++++----
- .../rustc_llvm/llvm-wrapper/RustWrapper.cpp   |  53 +++++++-
- .../src/spec/powerpc64_unknown_linux_gnu.rs   |   2 +-
- .../src/spec/powerpc64_unknown_linux_musl.rs  |   2 +-
- .../src/spec/powerpc64_wrs_vxworks.rs         |   2 +-
- .../src/spec/powerpc64le_unknown_linux_gnu.rs |   2 +-
- .../spec/powerpc64le_unknown_linux_musl.rs    |   2 +-
- src/test/assembly/asm/riscv-types.rs          |  29 ++---
- src/test/codegen/function-arguments.rs        |   3 +-
- src/test/codegen/packed.rs                    |   4 +-
- .../codegen/repr-transparent-aggregates-1.rs  |  18 +--
- .../codegen/repr-transparent-aggregates-2.rs  |  18 +--
- .../codegen/repr-transparent-aggregates-3.rs  |  18 +--
- .../run-make-fulldeps/split-dwarf/Makefile    |   2 +-
- 18 files changed, 226 insertions(+), 77 deletions(-)
-
-diff --git a/compiler/rustc_codegen_llvm/src/abi.rs b/compiler/rustc_codegen_llvm/src/abi.rs
-index d714ff1fe9b4a..d9393ffe534ac 100644
---- a/compiler/rustc_codegen_llvm/src/abi.rs
-+++ b/compiler/rustc_codegen_llvm/src/abi.rs
-@@ -430,7 +430,13 @@ impl<'tcx> FnAbiLlvmExt<'tcx> for FnAbi<'tcx, Ty<'tcx>> {
+diff -up rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/abi.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/abi.rs
+--- rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/abi.rs.llvm12~	2021-02-10 18:36:43.000000000 +0100
++++ rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/abi.rs	2021-03-22 01:10:58.371213482 +0100
+@@ -430,7 +430,13 @@ impl<'tcx> FnAbiLlvmExt<'tcx> for FnAbi<
              PassMode::Indirect { ref attrs, extra_attrs: _, on_stack } => {
                  assert!(!on_stack);
                  let i = apply(attrs);
@@ -43,7 +16,7 @@ index d714ff1fe9b4a..d9393ffe534ac 100644
              }
              _ => {}
          }
-@@ -486,8 +492,13 @@ impl<'tcx> FnAbiLlvmExt<'tcx> for FnAbi<'tcx, Ty<'tcx>> {
+@@ -486,8 +492,13 @@ impl<'tcx> FnAbiLlvmExt<'tcx> for FnAbi<
              PassMode::Indirect { ref attrs, extra_attrs: _, on_stack } => {
                  assert!(!on_stack);
                  let i = apply(attrs);
@@ -59,11 +32,10 @@ index d714ff1fe9b4a..d9393ffe534ac 100644
              }
              _ => {}
          }
-diff --git a/compiler/rustc_codegen_llvm/src/context.rs b/compiler/rustc_codegen_llvm/src/context.rs
-index 3ddc742420202..9f6a2ae3ca1b7 100644
---- a/compiler/rustc_codegen_llvm/src/context.rs
-+++ b/compiler/rustc_codegen_llvm/src/context.rs
-@@ -104,6 +104,10 @@ fn strip_x86_address_spaces(data_layout: String) -> String {
+diff -up rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/context.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/context.rs
+--- rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/context.rs.llvm12~	2021-02-10 18:36:43.000000000 +0100
++++ rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/context.rs	2021-03-22 01:10:58.371213482 +0100
+@@ -104,6 +104,10 @@ fn strip_x86_address_spaces(data_layout:
      data_layout.replace("-p270:32:32-p271:32:32-p272:64:64-", "-")
  }
  
@@ -84,11 +56,10 @@ index 3ddc742420202..9f6a2ae3ca1b7 100644
  
      // Ensure the data-layout values hardcoded remain the defaults.
      if sess.target.is_builtin {
-diff --git a/compiler/rustc_codegen_llvm/src/llvm/ffi.rs b/compiler/rustc_codegen_llvm/src/llvm/ffi.rs
-index 8c1740d8f25f0..9eac7ad17b046 100644
---- a/compiler/rustc_codegen_llvm/src/llvm/ffi.rs
-+++ b/compiler/rustc_codegen_llvm/src/llvm/ffi.rs
-@@ -239,6 +239,7 @@ pub enum TypeKind {
+diff -up rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/llvm/ffi.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/llvm/ffi.rs
+--- rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/llvm/ffi.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/llvm/ffi.rs	2021-03-22 01:10:58.371213482 +0100
+@@ -238,6 +238,7 @@ pub enum TypeKind {
      Token = 16,
      ScalableVector = 17,
      BFloat = 18,
@@ -96,7 +67,7 @@ index 8c1740d8f25f0..9eac7ad17b046 100644
  }
  
  impl TypeKind {
-@@ -263,6 +264,7 @@ impl TypeKind {
+@@ -262,6 +263,7 @@ impl TypeKind {
              TypeKind::Token => rustc_codegen_ssa::common::TypeKind::Token,
              TypeKind::ScalableVector => rustc_codegen_ssa::common::TypeKind::ScalableVector,
              TypeKind::BFloat => rustc_codegen_ssa::common::TypeKind::BFloat,
@@ -104,7 +75,7 @@ index 8c1740d8f25f0..9eac7ad17b046 100644
          }
      }
  }
-@@ -1073,6 +1075,7 @@ extern "C" {
+@@ -1070,6 +1072,7 @@ extern "C" {
      pub fn LLVMRustAddDereferenceableAttr(Fn: &Value, index: c_uint, bytes: u64);
      pub fn LLVMRustAddDereferenceableOrNullAttr(Fn: &Value, index: c_uint, bytes: u64);
      pub fn LLVMRustAddByValAttr(Fn: &Value, index: c_uint, ty: &Type);
@@ -112,7 +83,7 @@ index 8c1740d8f25f0..9eac7ad17b046 100644
      pub fn LLVMRustAddFunctionAttribute(Fn: &Value, index: c_uint, attr: Attribute);
      pub fn LLVMRustAddFunctionAttrStringValue(
          Fn: &Value,
-@@ -1108,6 +1111,7 @@ extern "C" {
+@@ -1104,6 +1107,7 @@ extern "C" {
      pub fn LLVMRustAddDereferenceableCallSiteAttr(Instr: &Value, index: c_uint, bytes: u64);
      pub fn LLVMRustAddDereferenceableOrNullCallSiteAttr(Instr: &Value, index: c_uint, bytes: u64);
      pub fn LLVMRustAddByValCallSiteAttr(Instr: &Value, index: c_uint, ty: &Type);
@@ -120,10 +91,9 @@ index 8c1740d8f25f0..9eac7ad17b046 100644
  
      // Operations on load/store instructions (only)
      pub fn LLVMSetVolatile(MemoryAccessInst: &Value, volatile: Bool);
-diff --git a/compiler/rustc_codegen_ssa/src/common.rs b/compiler/rustc_codegen_ssa/src/common.rs
-index 780b1d2cd9433..afd83bfcb5692 100644
---- a/compiler/rustc_codegen_ssa/src/common.rs
-+++ b/compiler/rustc_codegen_ssa/src/common.rs
+diff -up rustc-1.50.0-src/compiler/rustc_codegen_ssa/src/common.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_codegen_ssa/src/common.rs
+--- rustc-1.50.0-src/compiler/rustc_codegen_ssa/src/common.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/compiler/rustc_codegen_ssa/src/common.rs	2021-03-22 01:10:58.371213482 +0100
 @@ -95,6 +95,7 @@ pub enum TypeKind {
      Token,
      ScalableVector,
@@ -132,10 +102,9 @@ index 780b1d2cd9433..afd83bfcb5692 100644
  }
  
  // FIXME(mw): Anything that is produced via DepGraph::with_task() must implement
-diff --git a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
-index 5263d5dcf3e8f..79babd27a304f 100644
---- a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
-+++ b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+diff -up rustc-1.50.0-src/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp.llvm12~ rustc-1.50.0-src/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+--- rustc-1.50.0-src/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp	2021-03-22 01:10:58.371213482 +0100
 @@ -5,6 +5,7 @@
  
  #include "LLVMWrapper.h"
@@ -144,7 +113,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
  #include "llvm/Analysis/TargetLibraryInfo.h"
  #include "llvm/Analysis/TargetTransformInfo.h"
  #include "llvm/CodeGen/TargetSubtargetInfo.h"
-@@ -683,6 +684,25 @@ void LLVMSelfProfileInitializeCallbacks(
+@@ -676,6 +677,25 @@ void LLVMSelfProfileInitializeCallbacks(
      PassInstrumentationCallbacks& PIC, void* LlvmSelfProfiler,
      LLVMRustSelfProfileBeforePassCallback BeforePassCallback,
      LLVMRustSelfProfileAfterPassCallback AfterPassCallback) {
@@ -170,7 +139,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
    PIC.registerBeforePassCallback([LlvmSelfProfiler, BeforePassCallback](
                                       StringRef Pass, llvm::Any Ir) {
      std::string PassName = Pass.str();
-@@ -700,6 +720,7 @@ void LLVMSelfProfileInitializeCallbacks(
+@@ -693,6 +713,7 @@ void LLVMSelfProfileInitializeCallbacks(
        [LlvmSelfProfiler, AfterPassCallback](StringRef Pass) {
          AfterPassCallback(LlvmSelfProfiler);
        });
@@ -178,7 +147,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
  
    PIC.registerBeforeAnalysisCallback([LlvmSelfProfiler, BeforePassCallback](
                                           StringRef Pass, llvm::Any Ir) {
-@@ -760,8 +781,15 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -751,8 +772,15 @@ LLVMRustOptimizeWithNewPassManager(
    PTO.LoopVectorization = LoopVectorize;
    PTO.SLPVectorization = SLPVectorize;
  
@@ -194,7 +163,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
    SI.registerCallbacks(PIC);
  
    if (LlvmSelfProfiler){
-@@ -777,10 +805,12 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -768,10 +796,12 @@ LLVMRustOptimizeWithNewPassManager(
      PGOOpt = PGOOptions(PGOUsePath, "", "", PGOOptions::IRUse);
    }
  
@@ -209,7 +178,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
    LoopAnalysisManager LAM(DebugPassManager);
    FunctionAnalysisManager FAM(DebugPassManager);
    CGSCCAnalysisManager CGAM(DebugPassManager);
-@@ -802,7 +832,8 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -793,7 +823,8 @@ LLVMRustOptimizeWithNewPassManager(
  
    // We manually collect pipeline callbacks so we can apply them at O0, where the
    // PassBuilder does not create a pipeline.
@@ -219,7 +188,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
  #if LLVM_VERSION_GE(11, 0)
    std::vector<std::function<void(ModulePassManager &, PassBuilder::OptimizationLevel)>>
        OptimizerLastEPCallbacks;
-@@ -812,9 +843,11 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -803,9 +834,11 @@ LLVMRustOptimizeWithNewPassManager(
  #endif
  
    if (VerifyIR) {
@@ -233,7 +202,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
    }
  
    if (SanitizerOptions) {
-@@ -832,9 +865,11 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -823,9 +856,11 @@ LLVMRustOptimizeWithNewPassManager(
        );
  #else
  #if LLVM_VERSION_GE(10, 0)
@@ -248,7 +217,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
  #endif
        OptimizerLastEPCallbacks.push_back(
          [Options](FunctionPassManager &FPM, PassBuilder::OptimizationLevel Level) {
-@@ -854,9 +889,11 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -845,9 +880,11 @@ LLVMRustOptimizeWithNewPassManager(
        );
  #else
  #if LLVM_VERSION_GE(10, 0)
@@ -263,7 +232,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
  #endif
        OptimizerLastEPCallbacks.push_back(
          [](FunctionPassManager &FPM, PassBuilder::OptimizationLevel Level) {
-@@ -879,9 +916,11 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -870,9 +907,11 @@ LLVMRustOptimizeWithNewPassManager(
          }
        );
  #else
@@ -278,7 +247,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
        OptimizerLastEPCallbacks.push_back(
          [SanitizerOptions](FunctionPassManager &FPM, PassBuilder::OptimizationLevel Level) {
            FPM.addPass(AddressSanitizerPass(
-@@ -890,7 +929,7 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -881,7 +920,7 @@ LLVMRustOptimizeWithNewPassManager(
          }
        );
        PipelineStartEPCallbacks.push_back(
@@ -287,16 +256,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
            MPM.addPass(ModuleAddressSanitizerPass(
                /*CompileKernel=*/false, SanitizerOptions->SanitizeAddressRecover));
          }
-@@ -907,7 +946,7 @@ LLVMRustOptimizeWithNewPassManager(
-       );
- #else
-       PipelineStartEPCallbacks.push_back(
--        [SanitizerOptions](ModulePassManager &MPM) {
-+        [SanitizerOptions](ModulePassManager &MPM, PassBuilder::OptimizationLevel Level) {
-           MPM.addPass(HWAddressSanitizerPass(
-               /*CompileKernel=*/false, SanitizerOptions->SanitizeHWAddressRecover));
-         }
-@@ -917,35 +956,53 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -891,35 +930,53 @@ LLVMRustOptimizeWithNewPassManager(
    }
  
    ModulePassManager MPM(DebugPassManager);
@@ -355,7 +315,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
        if (OptStage != LLVMRustOptStage::PreLinkThinLTO) {
          for (const auto &C : OptimizerLastEPCallbacks)
            PB.registerOptimizerLastEPCallback(C);
-@@ -956,7 +1013,12 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -930,7 +987,12 @@ LLVMRustOptimizeWithNewPassManager(
          MPM = PB.buildPerModuleDefaultPipeline(OptLevel, DebugPassManager);
          break;
        case LLVMRustOptStage::PreLinkThinLTO:
@@ -368,7 +328,7 @@ index 5263d5dcf3e8f..79babd27a304f 100644
  #if LLVM_VERSION_GE(11, 0)
          for (const auto &C : OptimizerLastEPCallbacks)
            C(MPM, OptLevel);
-@@ -970,21 +1032,34 @@ LLVMRustOptimizeWithNewPassManager(
+@@ -944,21 +1006,34 @@ LLVMRustOptimizeWithNewPassManager(
  #endif
          break;
        case LLVMRustOptStage::PreLinkFatLTO:
@@ -404,11 +364,10 @@ index 5263d5dcf3e8f..79babd27a304f 100644
      MPM.addPass(CanonicalizeAliasesPass());
      MPM.addPass(NameAnonGlobalPass());
    }
-diff --git a/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
-index 45835990cecbb..09dfba292e431 100644
---- a/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
-+++ b/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
-@@ -263,6 +263,17 @@ extern "C" void LLVMRustAddByValCallSiteAttr(LLVMValueRef Instr, unsigned Index,
+diff -up rustc-1.50.0-src/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp.llvm12~ rustc-1.50.0-src/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
+--- rustc-1.50.0-src/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp	2021-03-22 01:48:06.718249030 +0100
+@@ -253,6 +253,17 @@ extern "C" void LLVMRustAddByValCallSite
    Call->addAttribute(Index, Attr);
  }
  
@@ -426,7 +385,7 @@ index 45835990cecbb..09dfba292e431 100644
  extern "C" void LLVMRustAddFunctionAttribute(LLVMValueRef Fn, unsigned Index,
                                               LLVMRustAttribute RustAttr) {
    Function *A = unwrap<Function>(Fn);
-@@ -304,6 +315,17 @@ extern "C" void LLVMRustAddByValAttr(LLVMValueRef Fn, unsigned Index,
+@@ -294,6 +305,17 @@ extern "C" void LLVMRustAddByValAttr(LLV
    F->addAttribute(Index, Attr);
  }
  
@@ -444,13 +403,15 @@ index 45835990cecbb..09dfba292e431 100644
  extern "C" void LLVMRustAddFunctionAttrStringValue(LLVMValueRef Fn,
                                                     unsigned Index,
                                                     const char *Name,
-@@ -1007,12 +1029,19 @@ LLVMRustDICompositeTypeReplaceArrays(LLVMRustDIBuilderRef Builder,
+@@ -995,14 +1017,22 @@ LLVMRustDICompositeTypeReplaceArrays(LLV
  
  extern "C" LLVMMetadataRef
- LLVMRustDIBuilderCreateDebugLocation(unsigned Line, unsigned Column,
--                                     LLVMMetadataRef Scope,
-+                                     LLVMMetadataRef ScopeRef,
+ LLVMRustDIBuilderCreateDebugLocation(LLVMContextRef ContextRef, unsigned Line,
+-                                     unsigned Column, LLVMMetadataRef Scope,
++                                     unsigned Column, LLVMMetadataRef ScopeRef,
                                       LLVMMetadataRef InlinedAt) {
+   LLVMContext &Context = *unwrap(ContextRef);
+ 
 -  DebugLoc debug_loc = DebugLoc::get(Line, Column, unwrapDIPtr<MDNode>(Scope),
 +#if LLVM_VERSION_GE(12, 0)
 +  MDNode *Scope = unwrapDIPtr<MDNode>(ScopeRef);
@@ -461,24 +422,24 @@ index 45835990cecbb..09dfba292e431 100644
 +#else
 +  DebugLoc debug_loc = DebugLoc::get(Line, Column, unwrapDIPtr<MDNode>(ScopeRef),
                                       unwrapDIPtr<MDNode>(InlinedAt));
--
+ 
    return wrap(debug_loc.getAsMDNode());
 +#endif
  }
  
  extern "C" int64_t LLVMRustDIBuilderCreateOpDeref() {
-@@ -1262,6 +1291,10 @@ extern "C" LLVMTypeKind LLVMRustGetTypeKind(LLVMTypeRef Ty) {
-     return LLVMScalableVectorTypeKind;
+@@ -1253,6 +1283,10 @@ extern "C" LLVMTypeKind LLVMRustGetTypeK
    case Type::BFloatTyID:
      return LLVMBFloatTypeKind;
-+#endif
+ #endif
 +#if LLVM_VERSION_GE(12, 0)
 +  case Type::X86_AMXTyID:
 +    return LLVMX86_AMXTypeKind;
- #endif
++#endif
    }
    report_fatal_error("Unhandled TypeID.");
-@@ -1708,11 +1741,23 @@ LLVMRustBuildVectorReduceMax(LLVMBuilderRef B, LLVMValueRef Src, bool IsSigned)
+ }
+@@ -1698,11 +1732,23 @@ LLVMRustBuildVectorReduceMax(LLVMBuilder
  }
  extern "C" LLVMValueRef
  LLVMRustBuildVectorReduceFMin(LLVMBuilderRef B, LLVMValueRef Src, bool NoNaN) {
@@ -503,49 +464,9 @@ index 45835990cecbb..09dfba292e431 100644
  }
  
  extern "C" LLVMValueRef
-diff --git a/compiler/rustc_target/src/spec/powerpc64_unknown_linux_gnu.rs b/compiler/rustc_target/src/spec/powerpc64_unknown_linux_gnu.rs
-index 751022c124baa..9db880b0e53ca 100644
---- a/compiler/rustc_target/src/spec/powerpc64_unknown_linux_gnu.rs
-+++ b/compiler/rustc_target/src/spec/powerpc64_unknown_linux_gnu.rs
-@@ -14,7 +14,7 @@ pub fn target() -> Target {
-     Target {
-         llvm_target: "powerpc64-unknown-linux-gnu".to_string(),
-         pointer_width: 64,
--        data_layout: "E-m:e-i64:64-n32:64".to_string(),
-+        data_layout: "E-m:e-i64:64-n32:64-v256:256:256-v512:512:512".to_string(),
-         arch: "powerpc64".to_string(),
-         options: TargetOptions { endian: Endian::Big, mcount: "_mcount".to_string(), ..base },
-     }
-diff --git a/compiler/rustc_target/src/spec/powerpc64_unknown_linux_musl.rs b/compiler/rustc_target/src/spec/powerpc64_unknown_linux_musl.rs
-index 546dfbab6c701..8767f86b00bb4 100644
---- a/compiler/rustc_target/src/spec/powerpc64_unknown_linux_musl.rs
-+++ b/compiler/rustc_target/src/spec/powerpc64_unknown_linux_musl.rs
-@@ -10,7 +10,7 @@ pub fn target() -> Target {
-     Target {
-         llvm_target: "powerpc64-unknown-linux-musl".to_string(),
-         pointer_width: 64,
--        data_layout: "E-m:e-i64:64-n32:64".to_string(),
-+        data_layout: "E-m:e-i64:64-n32:64-v256:256:256-v512:512:512".to_string(),
-         arch: "powerpc64".to_string(),
-         options: TargetOptions { endian: Endian::Big, mcount: "_mcount".to_string(), ..base },
-     }
-diff --git a/compiler/rustc_target/src/spec/powerpc64_wrs_vxworks.rs b/compiler/rustc_target/src/spec/powerpc64_wrs_vxworks.rs
-index bb55872109c33..2f28a8562472d 100644
---- a/compiler/rustc_target/src/spec/powerpc64_wrs_vxworks.rs
-+++ b/compiler/rustc_target/src/spec/powerpc64_wrs_vxworks.rs
-@@ -10,7 +10,7 @@ pub fn target() -> Target {
-     Target {
-         llvm_target: "powerpc64-unknown-linux-gnu".to_string(),
-         pointer_width: 64,
--        data_layout: "E-m:e-i64:64-n32:64".to_string(),
-+        data_layout: "E-m:e-i64:64-n32:64-v256:256:256-v512:512:512".to_string(),
-         arch: "powerpc64".to_string(),
-         options: TargetOptions { endian: Endian::Big, ..base },
-     }
-diff --git a/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_gnu.rs b/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_gnu.rs
-index 07e0bf81bc72f..4cbd99765088f 100644
---- a/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_gnu.rs
-+++ b/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_gnu.rs
+diff -up rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_gnu.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_gnu.rs
+--- rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_gnu.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_gnu.rs	2021-03-22 01:10:58.372213485 +0100
 @@ -9,7 +9,7 @@ pub fn target() -> Target {
      Target {
          llvm_target: "powerpc64le-unknown-linux-gnu".to_string(),
@@ -555,10 +476,9 @@ index 07e0bf81bc72f..4cbd99765088f 100644
          arch: "powerpc64".to_string(),
          options: TargetOptions { mcount: "_mcount".to_string(), ..base },
      }
-diff --git a/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_musl.rs b/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_musl.rs
-index 41c78a5f27633..efdc9ad7517d1 100644
---- a/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_musl.rs
-+++ b/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_musl.rs
+diff -up rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_musl.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_musl.rs
+--- rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_musl.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64le_unknown_linux_musl.rs	2021-03-22 01:10:58.372213485 +0100
 @@ -9,7 +9,7 @@ pub fn target() -> Target {
      Target {
          llvm_target: "powerpc64le-unknown-linux-musl".to_string(),
@@ -568,10 +488,45 @@ index 41c78a5f27633..efdc9ad7517d1 100644
          arch: "powerpc64".to_string(),
          options: TargetOptions { mcount: "_mcount".to_string(), ..base },
      }
-diff --git a/src/test/assembly/asm/riscv-types.rs b/src/test/assembly/asm/riscv-types.rs
-index 67dda1024fc24..47518cdcf1671 100644
---- a/src/test/assembly/asm/riscv-types.rs
-+++ b/src/test/assembly/asm/riscv-types.rs
+diff -up rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_unknown_linux_gnu.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_unknown_linux_gnu.rs
+--- rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_unknown_linux_gnu.rs.llvm12~	2021-03-22 01:10:58.372213485 +0100
++++ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_unknown_linux_gnu.rs	2021-03-22 01:54:00.973361251 +0100
+@@ -13,7 +13,7 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "powerpc64-unknown-linux-gnu".to_string(),
+         pointer_width: 64,
+-        data_layout: "E-m:e-i64:64-n32:64".to_string(),
++        data_layout: "E-m:e-i64:64-n32:64-v256:256:256-v512:512:512".to_string(),
+         arch: "powerpc64".to_string(),
+         options: TargetOptions { endian: "big".to_string(), mcount: "_mcount".to_string(), ..base },
+     }
+diff -up rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_unknown_linux_musl.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_unknown_linux_musl.rs
+--- rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_unknown_linux_musl.rs.llvm12~	2021-03-22 01:10:58.372213485 +0100
++++ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_unknown_linux_musl.rs	2021-03-22 01:53:28.541260452 +0100
+@@ -9,7 +9,7 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "powerpc64-unknown-linux-musl".to_string(),
+         pointer_width: 64,
+-        data_layout: "E-m:e-i64:64-n32:64".to_string(),
++        data_layout: "E-m:e-i64:64-n32:64-v256:256:256-v512:512:512".to_string(),
+         arch: "powerpc64".to_string(),
+         options: TargetOptions { endian: "big".to_string(), mcount: "_mcount".to_string(), ..base },
+     }
+diff -up rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_wrs_vxworks.rs.llvm12~ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_wrs_vxworks.rs
+--- rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_wrs_vxworks.rs.llvm12~	2021-03-22 01:10:58.372213485 +0100
++++ rustc-1.50.0-src/compiler/rustc_target/src/spec/powerpc64_wrs_vxworks.rs	2021-03-22 01:52:47.091131360 +0100
+@@ -9,7 +9,7 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "powerpc64-unknown-linux-gnu".to_string(),
+         pointer_width: 64,
+-        data_layout: "E-m:e-i64:64-n32:64".to_string(),
++        data_layout: "E-m:e-i64:64-n32:64-v256:256:256-v512:512:512".to_string(),
+         arch: "powerpc64".to_string(),
+         options: TargetOptions { endian: "big".to_string(), ..base },
+     }
+diff -up rustc-1.50.0-src/src/test/assembly/asm/riscv-types.rs.llvm12~ rustc-1.50.0-src/src/test/assembly/asm/riscv-types.rs
+--- rustc-1.50.0-src/src/test/assembly/asm/riscv-types.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/src/test/assembly/asm/riscv-types.rs	2021-03-22 01:10:58.372213485 +0100
 @@ -5,6 +5,7 @@
  //[riscv32] compile-flags: --target riscv32imac-unknown-none-elf
  // compile-flags: -C target-feature=+d
@@ -686,10 +641,9 @@ index 67dda1024fc24..47518cdcf1671 100644
  // CHECK: #NO_APP
  check_reg!(a0_ptr ptr "a0" "mv");
  
-diff --git a/src/test/codegen/function-arguments.rs b/src/test/codegen/function-arguments.rs
-index 3511c7c5185ee..a1da4faf5d85a 100644
---- a/src/test/codegen/function-arguments.rs
-+++ b/src/test/codegen/function-arguments.rs
+diff -up rustc-1.50.0-src/src/test/codegen/function-arguments.rs.llvm12~ rustc-1.50.0-src/src/test/codegen/function-arguments.rs
+--- rustc-1.50.0-src/src/test/codegen/function-arguments.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/src/test/codegen/function-arguments.rs	2021-03-22 01:10:58.372213485 +0100
 @@ -1,5 +1,6 @@
  // compile-flags: -C no-prepopulate-passes
  // ignore-tidy-linelength
@@ -706,10 +660,9 @@ index 3511c7c5185ee..a1da4faf5d85a 100644
  #[no_mangle]
  pub fn struct_return() -> S {
    S {
-diff --git a/src/test/codegen/packed.rs b/src/test/codegen/packed.rs
-index f3f5202206ced..c31e8457dcded 100644
---- a/src/test/codegen/packed.rs
-+++ b/src/test/codegen/packed.rs
+diff -up rustc-1.50.0-src/src/test/codegen/packed.rs.llvm12~ rustc-1.50.0-src/src/test/codegen/packed.rs
+--- rustc-1.50.0-src/src/test/codegen/packed.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/src/test/codegen/packed.rs	2021-03-22 01:10:58.372213485 +0100
 @@ -52,7 +52,7 @@ pub struct BigPacked2 {
  #[no_mangle]
  pub fn call_pkd1(f: fn() -> Array) -> BigPacked1 {
@@ -719,7 +672,7 @@ index f3f5202206ced..c31e8457dcded 100644
  // CHECK: call void @llvm.memcpy.{{.*}}(i8* align 1 %{{.*}}, i8* align 4 %{{.*}}, i{{[0-9]+}} 32, i1 false)
      // check that calls whose destination is a field of a packed struct
      // go through an alloca rather than calling the function with an
-@@ -64,7 +64,7 @@ pub fn call_pkd1(f: fn() -> Array) -> BigPacked1 {
+@@ -64,7 +64,7 @@ pub fn call_pkd1(f: fn() -> Array) -> Bi
  #[no_mangle]
  pub fn call_pkd2(f: fn() -> Array) -> BigPacked2 {
  // CHECK: [[ALLOCA:%[_a-z0-9]+]] = alloca %Array
@@ -728,10 +681,9 @@ index f3f5202206ced..c31e8457dcded 100644
  // CHECK: call void @llvm.memcpy.{{.*}}(i8* align 2 %{{.*}}, i8* align 4 %{{.*}}, i{{[0-9]+}} 32, i1 false)
      // check that calls whose destination is a field of a packed struct
      // go through an alloca rather than calling the function with an
-diff --git a/src/test/codegen/repr-transparent-aggregates-1.rs b/src/test/codegen/repr-transparent-aggregates-1.rs
-index 2b8d3c8bc1d22..847b94fac78ce 100644
---- a/src/test/codegen/repr-transparent-aggregates-1.rs
-+++ b/src/test/codegen/repr-transparent-aggregates-1.rs
+diff -up rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-1.rs.llvm12~ rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-1.rs
+--- rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-1.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-1.rs	2021-03-22 01:57:12.884954779 +0100
 @@ -1,7 +1,7 @@
  // compile-flags: -C no-prepopulate-passes
  // ignore-tidy-linelength
@@ -748,22 +700,22 @@ index 2b8d3c8bc1d22..847b94fac78ce 100644
 -// CHECK: define void @test_BigS(%BigS* [[BIGS_RET_ATTRS:.*]], %BigS* [[BIGS_ARG_ATTRS1:.*]] byval(%BigS) [[BIGS_ARG_ATTRS2:.*]])
 +// CHECK: define void @test_BigS(%BigS* [[BIGS_RET_ATTRS1:.*]] sret(%BigS) [[BIGS_RET_ATTRS2:.*]], %BigS* [[BIGS_ARG_ATTRS1:.*]] byval(%BigS) [[BIGS_ARG_ATTRS2:.*]])
  #[no_mangle]
- pub extern "C" fn test_BigS(_: BigS) -> BigS { loop {} }
+ pub extern fn test_BigS(_: BigS) -> BigS { loop {} }
  
 -// CHECK: define void @test_TsBigS(%TsBigS* [[BIGS_RET_ATTRS]], %TsBigS* [[BIGS_ARG_ATTRS1]] byval(%TsBigS) [[BIGS_ARG_ATTRS2:.*]])
 +// CHECK: define void @test_TsBigS(%TsBigS* [[BIGS_RET_ATTRS1]] sret(%TsBigS) [[BIGS_RET_ATTRS2]], %TsBigS* [[BIGS_ARG_ATTRS1]] byval(%TsBigS) [[BIGS_ARG_ATTRS2:.*]])
  #[no_mangle]
- pub extern "C" fn test_TsBigS(_: TsBigS) -> TsBigS { loop {} }
+ pub extern fn test_TsBigS(_: TsBigS) -> TsBigS { loop {} }
  
 -// CHECK: define void @test_TuBigS(%TuBigS* [[BIGS_RET_ATTRS]], %TuBigS* [[BIGS_ARG_ATTRS1]] byval(%TuBigS) [[BIGS_ARG_ATTRS2:.*]])
 +// CHECK: define void @test_TuBigS(%TuBigS* [[BIGS_RET_ATTRS1]] sret(%TuBigS) [[BIGS_RET_ATTRS2]], %TuBigS* [[BIGS_ARG_ATTRS1]] byval(%TuBigS) [[BIGS_ARG_ATTRS2:.*]])
  #[no_mangle]
- pub extern "C" fn test_TuBigS(_: TuBigS) -> TuBigS { loop {} }
+ pub extern fn test_TuBigS(_: TuBigS) -> TuBigS { loop {} }
  
 -// CHECK: define void @test_TeBigS(%"TeBigS::Variant"* [[BIGS_RET_ATTRS]], %"TeBigS::Variant"* [[BIGS_ARG_ATTRS1]] byval(%"TeBigS::Variant") [[BIGS_ARG_ATTRS2]])
 +// CHECK: define void @test_TeBigS(%"TeBigS::Variant"* [[BIGS_RET_ATTRS1]] sret(%"TeBigS::Variant") [[BIGS_RET_ATTRS2]], %"TeBigS::Variant"* [[BIGS_ARG_ATTRS1]] byval(%"TeBigS::Variant") [[BIGS_ARG_ATTRS2]])
  #[no_mangle]
- pub extern "C" fn test_TeBigS(_: TeBigS) -> TeBigS { loop {} }
+ pub extern fn test_TeBigS(_: TeBigS) -> TeBigS { loop {} }
  
 @@ -70,18 +70,18 @@ pub enum TeBigU {
      Variant(BigU),
@@ -772,26 +724,25 @@ index 2b8d3c8bc1d22..847b94fac78ce 100644
 -// CHECK: define void @test_BigU(%BigU* [[BIGU_RET_ATTRS:.*]], %BigU* [[BIGU_ARG_ATTRS1:.*]] byval(%BigU) [[BIGU_ARG_ATTRS2:.*]])
 +// CHECK: define void @test_BigU(%BigU* [[BIGU_RET_ATTRS1:.*]] sret(%BigU) [[BIGU_RET_ATTRS2:.*]], %BigU* [[BIGU_ARG_ATTRS1:.*]] byval(%BigU) [[BIGU_ARG_ATTRS2:.*]])
  #[no_mangle]
- pub extern "C" fn test_BigU(_: BigU) -> BigU { loop {} }
+ pub extern fn test_BigU(_: BigU) -> BigU { loop {} }
  
 -// CHECK: define void @test_TsBigU(%TsBigU* [[BIGU_RET_ATTRS:.*]], %TsBigU* [[BIGU_ARG_ATTRS1]] byval(%TsBigU) [[BIGU_ARG_ATTRS2]])
 +// CHECK: define void @test_TsBigU(%TsBigU* [[BIGU_RET_ATTRS1:.*]] sret(%TsBigU) [[BIGU_RET_ATTRS2:.*]], %TsBigU* [[BIGU_ARG_ATTRS1]] byval(%TsBigU) [[BIGU_ARG_ATTRS2]])
  #[no_mangle]
- pub extern "C" fn test_TsBigU(_: TsBigU) -> TsBigU { loop {} }
+ pub extern fn test_TsBigU(_: TsBigU) -> TsBigU { loop {} }
  
 -// CHECK: define void @test_TuBigU(%TuBigU* [[BIGU_RET_ATTRS]], %TuBigU* [[BIGU_ARG_ATTRS1]] byval(%TuBigU) [[BIGU_ARG_ATTRS2]])
 +// CHECK: define void @test_TuBigU(%TuBigU* [[BIGU_RET_ATTRS1]] sret(%TuBigU) [[BIGU_RET_ATTRS2:.*]], %TuBigU* [[BIGU_ARG_ATTRS1]] byval(%TuBigU) [[BIGU_ARG_ATTRS2]])
  #[no_mangle]
- pub extern "C" fn test_TuBigU(_: TuBigU) -> TuBigU { loop {} }
+ pub extern fn test_TuBigU(_: TuBigU) -> TuBigU { loop {} }
  
 -// CHECK: define void @test_TeBigU(%"TeBigU::Variant"* [[BIGU_RET_ATTRS]], %"TeBigU::Variant"* [[BIGU_ARG_ATTRS1]] byval(%"TeBigU::Variant") [[BIGU_ARG_ATTRS2]])
 +// CHECK: define void @test_TeBigU(%"TeBigU::Variant"* [[BIGU_RET_ATTRS1]] sret(%"TeBigU::Variant") [[BIGU_RET_ATTRS2:.*]], %"TeBigU::Variant"* [[BIGU_ARG_ATTRS1]] byval(%"TeBigU::Variant") [[BIGU_ARG_ATTRS2]])
  #[no_mangle]
- pub extern "C" fn test_TeBigU(_: TeBigU) -> TeBigU { loop {} }
-diff --git a/src/test/codegen/repr-transparent-aggregates-2.rs b/src/test/codegen/repr-transparent-aggregates-2.rs
-index 07e5af11f3577..1fb12d92bd135 100644
---- a/src/test/codegen/repr-transparent-aggregates-2.rs
-+++ b/src/test/codegen/repr-transparent-aggregates-2.rs
+ pub extern fn test_TeBigU(_: TeBigU) -> TeBigU { loop {} }
+diff -up rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-2.rs.llvm12~ rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-2.rs
+--- rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-2.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-2.rs	2021-03-22 01:10:58.372213485 +0100
 @@ -1,5 +1,7 @@
  // compile-flags: -C no-prepopulate-passes
 +// ignore-tidy-linelength
@@ -847,10 +798,9 @@ index 07e5af11f3577..1fb12d92bd135 100644
 +// CHECK: define void @test_TeBigU(%"TeBigU::Variant"* [[BIGU_RET_ATTRS1]] sret(%"TeBigU::Variant") [[BIGU_RET_ATTRS2]], [16 x i32]
  #[no_mangle]
  pub extern fn test_TeBigU(_: TeBigU) -> TeBigU { loop {} }
-diff --git a/src/test/codegen/repr-transparent-aggregates-3.rs b/src/test/codegen/repr-transparent-aggregates-3.rs
-index e538be687801e..3381764bfc818 100644
---- a/src/test/codegen/repr-transparent-aggregates-3.rs
-+++ b/src/test/codegen/repr-transparent-aggregates-3.rs
+diff -up rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-3.rs.llvm12~ rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-3.rs
+--- rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-3.rs.llvm12~	2021-02-10 18:36:44.000000000 +0100
++++ rustc-1.50.0-src/src/test/codegen/repr-transparent-aggregates-3.rs	2021-03-22 01:10:58.372213485 +0100
 @@ -1,5 +1,7 @@
  // compile-flags: -C no-prepopulate-passes
 +// ignore-tidy-linelength
@@ -906,15 +856,14 @@ index e538be687801e..3381764bfc818 100644
 +// CHECK: define void @test_TeBigU(%"TeBigU::Variant"* [[BIGU_RET_ATTRS1]] sret(%"TeBigU::Variant") [[BIGU_RET_ATTRS2]], [8 x i64]
  #[no_mangle]
  pub extern fn test_TeBigU(_: TeBigU) -> TeBigU { loop {} }
-diff --git a/src/test/run-make-fulldeps/split-dwarf/Makefile b/src/test/run-make-fulldeps/split-dwarf/Makefile
-index e89cc1b2ede9b..f56b4168b2d66 100644
---- a/src/test/run-make-fulldeps/split-dwarf/Makefile
-+++ b/src/test/run-make-fulldeps/split-dwarf/Makefile
-@@ -4,6 +4,6 @@
- # min-llvm-version: 11.0
+diff -up rustc-1.50.0-src/src/test/run-make-fulldeps/split-dwarf/Makefile.llvm12~ rustc-1.50.0-src/src/test/run-make-fulldeps/split-dwarf/Makefile
+--- rustc-1.50.0-src/src/test/run-make-fulldeps/split-dwarf/Makefile.llvm12~	2021-03-22 01:10:58.372213485 +0100
++++ rustc-1.50.0-src/src/test/run-make-fulldeps/split-dwarf/Makefile	2021-03-22 01:58:13.538141507 +0100
+@@ -3,6 +3,6 @@
+ # only-linux
  
  all:
--	$(RUSTC) -Z unstable-options -C split-debuginfo=packed foo.rs -g
-+	$(RUSTC) -Z unstable-options -C split-debuginfo=packed -C debuginfo=2 foo.rs -g
+-	$(RUSTC) -Z split-dwarf=split foo.rs
++	$(RUSTC) -Z split-dwarf=split -C debuginfo=2 foo.rs -g
  	rm $(TMPDIR)/foo.dwp
  	rm $(TMPDIR)/$(call BIN,foo)
