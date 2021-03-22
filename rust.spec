@@ -153,6 +153,7 @@ BuildRequires:  cmake >= 2.8.11
 %global llvm llvm
 %global llvm_root %{_prefix}
 BuildRequires:  %{llvm}-devel >= 7.0
+BuildRequires:	cmake(Polly)
 %if %with llvm_static
 BuildRequires:  %{llvm}-static
 BuildRequires:  libffi-devel
