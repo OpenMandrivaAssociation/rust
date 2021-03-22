@@ -8,7 +8,7 @@ diff -up rustc-1.50.0-src/compiler/rustc_codegen_llvm/src/llvm_util.rs.omv~ rust
 +pub fn get_version() -> (u32, u32, u32) {
 +    // Can be called without initializing LLVM
 +    unsafe {
-+        (llvm::LLVMRustVersionMajor(), llvm::LLVMRustVersionMinor(), llvm::LLVMRustVersionPatch())
++        (llvm::LLVMRustVersionMajor(), llvm::LLVMRustVersionMinor(), 0)
 +    }
 +}
 +
