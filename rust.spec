@@ -11,9 +11,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.49.0
-%global bootstrap_cargo 1.49.0
-%global bootstrap_channel 1.49.0
+%global bootstrap_rust 1.51.0
+%global bootstrap_cargo 1.51.0
+%global bootstrap_channel 1.51.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
