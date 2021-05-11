@@ -11,9 +11,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.49.0
-%global bootstrap_cargo 1.49.0
-%global bootstrap_channel 1.49.0
+%global bootstrap_rust 1.51.0
+%global bootstrap_cargo 1.51.0
+%global bootstrap_channel 1.51.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -40,7 +40,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.50.0
+Version:        1.52.1
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -61,13 +61,7 @@ Source100:	openssl3.tar.gz
 Patch1:         rust-pr57840-llvm7-debuginfo-variants.patch
 Patch2:		rust-pr70163-prepare-for-llvm-10-upgrade.patch
 Patch3:		rust-1.49-lock.patch
-# LLVM 12 support
-Patch4:		https://github.com/rust-lang/rust/commit/55f345f32505c2095966a5dc46c4ae3290dbf7a1.patch
-Patch5:		https://github.com/rust-lang/rust/commit/9a8acea78355b604dbeb29bc38bd4dbf7bfce95f.patch
-Patch6:		https://github.com/rust-lang/rust/commit/65ed23c2827a5771718fe72762bca345dde6ec79.patch
-Patch7:		https://github.com/rust-lang/rust/commit/8357e573466d583991edd28e52433417b49dc4ae.patch
-# Used by patches 4 to 7
-Patch8:		rustc-1.50.0-llvm_util-add-get_version.patch
+
 %{lua: function rust_triple(arch)
   local abi = "gnu"
   if arch == "armv7hnl" then
@@ -381,12 +375,6 @@ test -f '%{local_rust_root}/bin/rustc'
 #patch2 -p1
 %patch3 -p1
 
-%patch4 -p1 -b .llvm12_1~
-%patch5 -p1 -b .llvm12_2~
-%patch6 -p1 -b .llvm12_3~
-%patch7 -p1 -b .llvm12_4~
-%patch8 -p1 -b .llvm12_5~
-
 pushd vendor
 rm -Rf openssl openssl-sys
 tar xvf %SOURCE100
@@ -566,6 +554,8 @@ rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-APACHE
 rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-MIT
 rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-THIRD-PARTY
 rm -f %{buildroot}%{_docdir}/%{name}/*.old
+rm -f %{buildroot}%{_docdir}/%{name}/html/FiraSans-Medium.woff2
+rm -f %{buildroot}%{_docdir}/%{name}/html/FiraSans-Regular.woff2
 
 # Sanitize the HTML documentation
 find %{buildroot}%{_docdir}/%{name}/html -empty -delete
