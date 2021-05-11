@@ -40,7 +40,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.50.0
+Version:        1.52.1
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
