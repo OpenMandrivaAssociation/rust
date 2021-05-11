@@ -566,6 +566,8 @@ rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-APACHE
 rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-MIT
 rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-THIRD-PARTY
 rm -f %{buildroot}%{_docdir}/%{name}/*.old
+rm -f %{buildroot}%{_docdir}/%{name}/html/FiraSans-Medium.woff2
+rm -f %{buildroot}%{_docdir}/%{name}/html/FiraSans-Regular.woff2
 
 # Sanitize the HTML documentation
 find %{buildroot}%{_docdir}/%{name}/html -empty -delete
