@@ -11,9 +11,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.51.0
-%global bootstrap_cargo 1.51.0
-%global bootstrap_channel 1.51.0
+%global bootstrap_rust 1.53.0
+%global bootstrap_cargo 1.53.0
+%global bootstrap_channel 1.53.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -40,8 +40,8 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.52.1
-Release:        2
+Version:        1.54.0
+Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -54,8 +54,7 @@ ExclusiveArch:  %{rust_arches}
 %global rustc_package rustc-%{channel}-src
 %endif
 Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
-# update from openssl-300 branch at https://github.com/sfackler/rust-openssl
-Source100:	openssl3.tar.gz
+Source100:	rust-openssl-openssl-v0.10.36.tar.gz
 # Revert https://github.com/rust-lang/rust/pull/57840
 # We do have the necessary fix in our LLVM 7.
 Patch1:         rust-pr57840-llvm7-debuginfo-variants.patch
@@ -373,13 +372,13 @@ test -f '%{local_rust_root}/bin/rustc'
 
 #patch1 -p1 -R
 #patch2 -p1
-%patch3 -p1
 
 pushd vendor
 rm -Rf openssl openssl-sys
-tar xvf %SOURCE100
-#sed -i -e 's/0.10.30/0.10.30-omv/' -e 's/0.9.58/0.9.58-omv/' ../Cargo.lock
+tar xvf %SOURCE100 --strip-components=1 rust-openssl-openssl-v0.10.36/openssl rust-openssl-openssl-v0.10.36/openssl-sys
 popd
+
+%patch3 -p1
 
 %if "%{python}" == "python3"
 sed -i.try-py3 -e '/try python2.7/i try python3 "$@"' ./configure
