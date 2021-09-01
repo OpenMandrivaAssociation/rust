@@ -141,7 +141,7 @@ BuildRequires:  %{python}
 %if %with bundled_llvm
 BuildRequires:  cmake >= 3.4.3
 BuildRequires:	ninja
-Provides:       bundled(llvm) = 9.0.0
+Provides:       bundled(llvm) = 12.0.0
 %else
 BuildRequires:  cmake >= 2.8.11
 %global llvm llvm
@@ -466,6 +466,11 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 %define codegen_units_std --set rust.codegen-units-std=1
 %endif
 
+%if %{with bundled_llvm}
+export CC=gcc
+export CXX=g++
+%endif
+
 %configure --disable-option-checking \
   --libdir=%{common_libdir} \
   --build=%{rust_triple} --host=%{rust_triple} --target=%{rust_triple} \
@@ -506,6 +511,11 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 
 %{?cmake_path:export PATH=%{cmake_path}:$PATH}
 %{?rustflags:export RUSTFLAGS="%{rustflags}"}
+
+%if %{with bundled_llvm}
+export CC=gcc
+export CXX=g++
+%endif
 
 DESTDIR=%{buildroot} %{python} ./x.py install
 
@@ -579,6 +589,11 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %check
 %{?cmake_path:export PATH=%{cmake_path}:$PATH}
 %{?rustflags:export RUSTFLAGS="%{rustflags}"}
+
+%if %{with bundled_llvm}
+export CC=gcc
+export CXX=g++
+%endif
 
 # The results are not stable on koji, so mask errors and just log it.
 %{python} ./x.py test --no-fail-fast || :
