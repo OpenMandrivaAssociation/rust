@@ -140,6 +140,7 @@ BuildRequires:  %{python}
 
 %if %with bundled_llvm
 BuildRequires:  cmake >= 3.4.3
+BuildRequires:	ninja
 Provides:       bundled(llvm) = 9.0.0
 %else
 BuildRequires:  cmake >= 2.8.11
