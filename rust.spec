@@ -470,6 +470,9 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 %if %{with bundled_llvm}
 export CC="gcc -fuse-ld=lld"
 export CXX="g++ -fuse-ld=lld"
+export max_cpus=2
+%else
+export max_cpus=4
 %endif
 
 %configure --disable-option-checking \
@@ -491,8 +494,9 @@ export CXX="g++ -fuse-ld=lld"
 
 cpus=$(nproc)
 
-if [[ $cpus -gt 4 ]]; then
-  cpus=4
+
+if [[ $cpus -gt $max_cpus ]]; then
+  cpus=$max_cpus
 fi
 
 %{python} ./x.py build -j "$cpus" --stage 2
