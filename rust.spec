@@ -468,6 +468,8 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 %endif
 
 %if %{with bundled_llvm}
+%define _enable_debug_packages %{nil}
+%define debug_package          %{nil}
 export CC="gcc -fuse-ld=lld"
 export CXX="g++ -fuse-ld=lld"
 export max_cpus=2
