@@ -514,8 +514,8 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 %{?rustflags:export RUSTFLAGS="%{rustflags}"}
 
 %if %{with bundled_llvm}
-export CC=gcc
-export CXX=g++
+export CC="gcc -fuse-ld=lld"
+export CXX="g++ -fuse-ld=lld"
 %endif
 
 DESTDIR=%{buildroot} %{python} ./x.py install
@@ -592,8 +592,8 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %{?rustflags:export RUSTFLAGS="%{rustflags}"}
 
 %if %{with bundled_llvm}
-export CC=gcc
-export CXX=g++
+export CC="gcc -fuse-ld=lld"
+export CXX="g++ -fuse-ld=lld"
 %endif
 
 # The results are not stable on koji, so mask errors and just log it.
