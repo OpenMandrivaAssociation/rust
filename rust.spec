@@ -468,8 +468,8 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 %endif
 
 %if %{with bundled_llvm}
-export CC=gcc
-export CXX=g++
+export CC="gcc -fuse-ld=lld"
+export CXX=g++ -fuse-ld=lld"
 %endif
 
 %configure --disable-option-checking \
