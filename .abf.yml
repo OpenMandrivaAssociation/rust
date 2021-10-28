@@ -5,6 +5,6 @@ sources:
   rust-1.55.0-powerpc64-unknown-linux-gnu.tar.gz: 1ca341f9315846a581443eae2d814ebeb654834c
   rust-1.55.0-powerpc64le-unknown-linux-gnu.tar.gz: 7b267139ab3905d138ecbf24b05caf0d19258c1a
   rust-1.55.0-riscv64gc-unknown-linux-gnu.tar.gz: 391eaa05e96c0021979a0447c8d6f5f6b6dfc6f7
-  rust-1.53.0-x86_64-unknown-linux-gnu.tar.gz: 6487bf4cc7ab26f96903e3fb3d17ba7249c35c9b
+  rust-1.55.0-x86_64-unknown-linux-gnu.tar.gz: 6487bf4cc7ab26f96903e3fb3d17ba7249c35c9b
   rust-openssl-openssl-v0.10.36.tar.gz: b74267d43e07b91ed7380cee6959c0709895bd52
   rustc-1.56.0-src.tar.xz: 02343112d31dfc40c2c46724375377636c77cd3e
