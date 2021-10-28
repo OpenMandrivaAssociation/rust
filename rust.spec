@@ -55,12 +55,12 @@ ExclusiveArch:  %{rust_arches}
 %global rustc_package rustc-%{channel}-src
 %endif
 Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
-Source100:	rust-openssl-openssl-v0.10.36.tar.gz
+#Source100:	rust-openssl-openssl-v0.10.36.tar.gz
 # Revert https://github.com/rust-lang/rust/pull/57840
 # We do have the necessary fix in our LLVM 7.
 Patch1:         rust-pr57840-llvm7-debuginfo-variants.patch
 Patch2:		rust-pr70163-prepare-for-llvm-10-upgrade.patch
-Patch3:		rust-1.49-lock.patch
+#Patch3:		rust-1.49-lock.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
@@ -375,12 +375,12 @@ test -f '%{local_rust_root}/bin/rustc'
 #patch1 -p1 -R
 #patch2 -p1
 
-pushd vendor
-rm -Rf openssl openssl-sys
-tar xvf %SOURCE100 --strip-components=1 rust-openssl-openssl-v0.10.36/openssl rust-openssl-openssl-v0.10.36/openssl-sys
-popd
+#pushd vendor
+#rm -Rf openssl openssl-sys
+#tar xvf %SOURCE100 --strip-components=1 rust-openssl-openssl-v0.10.36/openssl rust-openssl-openssl-v0.10.36/openssl-sys
+#popd
 
-%patch3 -p1
+#patch3 -p1
 
 %if "%{python}" == "python3"
 sed -i.try-py3 -e '/try python2.7/i try python3 "$@"' ./configure
