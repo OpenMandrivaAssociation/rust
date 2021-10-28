@@ -572,6 +572,12 @@ rm -f %{buildroot}%{_docdir}/%{name}/LICENSE-THIRD-PARTY
 rm -f %{buildroot}%{_docdir}/%{name}/*.old
 rm -f %{buildroot}%{_docdir}/%{name}/html/FiraSans-Medium.woff2
 rm -f %{buildroot}%{_docdir}/%{name}/html/FiraSans-Regular.woff2
+rm -f %{buildroot}%{_docdir}/%{name}/html/SourceCodePro-It.ttf.woff2
+rm -f %{buildroot}%{_docdir}/%{name}/html/SourceCodePro-Regular.ttf.woff2
+rm -f %{buildroot}%{_docdir}/%{name}/html/SourceCodePro-Semibold.ttf.woff2
+rm -f %{buildroot}%{_docdir}/%{name}/html//SourceSerif4-Bold.ttf.woff2
+rm -f %{buildroot}%{_docdir}/%{name}/html/SourceSerif4-It.ttf.woff2
+rm -f %{buildroot}%{_docdir}/%{name}/html/SourceSerif4-Regular.ttf.woff2
 
 # Sanitize the HTML documentation
 find %{buildroot}%{_docdir}/%{name}/html -empty -delete
