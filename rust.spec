@@ -652,6 +652,7 @@ export CXX="g++ -fuse-ld=lld"
 %{_docdir}/%{name}/html/*.png
 %{_docdir}/%{name}/html/*.svg
 %{_docdir}/%{name}/html/*.woff
+%{_docdir}/%{name}/html/*.woff2
 %license %{_docdir}/%{name}/html/*.txt
 %license %{_docdir}/%{name}/html/*.md
 
