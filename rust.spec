@@ -12,9 +12,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.57.0
-%global bootstrap_cargo 1.57.0
-%global bootstrap_channel 1.57.0
+%global bootstrap_rust 1.58.1
+%global bootstrap_cargo 1.58.1
+%global bootstrap_channel 1.58.1
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -41,7 +41,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.58.1
+Version:        1.59.0
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -605,7 +605,6 @@ export CXX="g++ -fuse-ld=lld"
 %doc README.md
 %{_bindir}/rustc
 %{_bindir}/rustdoc
-%{_prefix}/lib/rustlib/*/bin/rust-llvm-dwp
 %{_libdir}/*.so
 %{_mandir}/man1/rustc.1*
 %{_mandir}/man1/rustdoc.1*
