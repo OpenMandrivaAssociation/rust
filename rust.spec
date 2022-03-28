@@ -92,10 +92,14 @@ end}
                           .."/rust-%{bootstrap_channel}")
   local target_arch = rpm.expand("%{_target_cpu}")
   for i, arch in ipairs(bootstrap_arches) do
-    print(string.format("Source%d: %s-%s.tar.gz\n",
-                        i, base, rust_triple(arch)))
-    if arch == target_arch then
-      rpm.define("bootstrap_source "..i)
+    -- rust doesn't make a difference between x86_64/znver1 or armv7hl/armv7hnl
+    -- don't add the same source twice
+    if arch~="znver1" and arch~="armv7hl" then
+      print(string.format("Source%d: %s-%s.tar.gz\n",
+                          i, base, rust_triple(arch)))
+      if arch == target_arch or (target_arch=="znver1" and arch=="x86_64") or (target_arch=="armv7hl" and arch=="armv7hnl") then
+        rpm.define("bootstrap_source "..i)
+      end
     end
   end
 end}
