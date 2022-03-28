@@ -1,5 +1,6 @@
 sources:
   rust-1.58.1-aarch64-unknown-linux-gnu.tar.gz: 1e2f81b947c9b93c9953f20e7eab220a03c64ce3
+  rust-1.58.1-armv7-unknown-linux-gnueabihf.tar.gz: effa430703f20d22afc5b72d0558db0652b8dd22
   rust-1.58.1-i686-unknown-linux-gnu.tar.gz: 419bdf5deb068cdb88fe1dce3d3a5e9cb6d68452
   rust-1.58.1-powerpc64le-unknown-linux-gnu.tar.gz: 08e044161b7e76d94a042ec441f3282490a58f00
   rust-1.58.1-powerpc64-unknown-linux-gnu.tar.gz: a06681d937ef036ee07c2ca1294248f932bbc458
