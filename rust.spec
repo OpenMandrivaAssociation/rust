@@ -124,6 +124,8 @@ BuildRequires:  pkgconfig(libcurl)
 BuildRequires:  pkgconfig(liblzma)
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(zlib)
+BuildRequires:  stdc++-static-devel
+BuildRequires:  stdc++-devel
 
 %if %without bundled_libgit2
 BuildRequires:  pkgconfig(libgit2) >= 0.27
