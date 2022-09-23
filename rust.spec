@@ -706,3 +706,4 @@ export CXX="g++ -fuse-ld=lld"
 
 %files analysis
 %{rustlibdir}/%{rust_triple}/analysis/
+%{_prefix}/libexec/rust-analyzer-proc-macro-srv
