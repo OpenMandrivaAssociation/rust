@@ -24,7 +24,7 @@
 
 # We can also choose to just use Rust's bundled LLVM, in case the system LLVM
 # is insufficient.  Rust currently requires LLVM 7.0+.
-%bcond_without bundled_llvm
+%bcond_with bundled_llvm
 
 # libgit2-sys expects to use its bundled library, which is sometimes just a
 # snapshot of libgit2's master branch.  This can mean the FFI declarations
@@ -42,7 +42,7 @@
 
 Name:           rust
 Version:        1.64.0
-Release:        1
+Release:        2
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -142,12 +142,12 @@ BuildRequires:  %{python}
 %if %with bundled_llvm
 BuildRequires:  cmake >= 3.4.3
 BuildRequires:	ninja
-Provides:       bundled(llvm) = 12.0.0
+Provides:       bundled(llvm) = 14.0.0
 %else
 BuildRequires:  cmake >= 2.8.11
 %global llvm llvm
 %global llvm_root %{_prefix}
-BuildRequires:  %{llvm}-devel >= 7.0
+BuildRequires:  %{llvm}-devel >= 14.0
 BuildRequires:	cmake(Polly)
 %if %with llvm_static
 BuildRequires:  %{llvm}-static
@@ -471,7 +471,7 @@ export max_cpus=4
   --build=%{rust_triple} --host=%{rust_triple} --target=%{rust_triple} \
   --python=%{python} \
   --local-rust-root=%{local_rust_root} \
-  %{!?with_bundled_llvm: --llvm-root=%{llvm_root} \
+  %{!?with_bundled_llvm: --llvm-root=%{llvm_root} --llvm-config=%{_bindir}/llvm-config \
   %{!?llvm_has_filecheck: --disable-codegen-tests} \
   %{!?with_llvm_static: --enable-llvm-link-shared } } \
   --disable-rpath \
