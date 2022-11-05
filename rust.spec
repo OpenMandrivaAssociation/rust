@@ -304,29 +304,6 @@ Provides:       rustfmt-preview = %{version}-%{release}
 A tool for formatting Rust code according to style guidelines.
 
 
-%package -n rls
-Summary:        Rust Language Server for IDE integration
-%if %with bundled_libgit2
-Provides:       bundled(libgit2) = 0.28.2
-%endif
-%if %with bundled_libssh2
-Provides:       bundled(libssh2) = 1.8.1~dev
-%endif
-Requires:       rust-analysis
-# /usr/bin/rls is dynamically linked against internal rustc libs
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-# The component/package was rls-preview until Rust 1.31.
-Obsoletes:      rls-preview < 1.31.6
-Provides:       rls-preview = %{version}-%{release}
-
-%description -n rls
-The Rust Language Server provides a server that runs in the background,
-providing IDEs, editors, and other tools with information about Rust programs.
-It supports functionality such as 'goto definition', symbol search,
-reformatting, and code completion, and enables renaming and refactorings.
-
-
 %package -n clippy
 Summary:        Lints to catch common mistakes and improve your Rust code
 Requires:       cargo
@@ -353,6 +330,7 @@ useful as a reference for code completion tools in various editors.
 %package analysis
 Summary:        Compiler analysis data for the Rust standard library
 Requires:       rust-std-static%{?_isa} = %{version}-%{release}
+Obsoletes:      rls < 1.65.0
 
 %description analysis
 This package contains analysis data files produced with rustc's -Zsave-analysis
@@ -684,12 +662,6 @@ export CXX="g++ -fuse-ld=lld"
 %{_bindir}/cargo-fmt
 %doc src/tools/rustfmt/{README,CHANGELOG,Configurations}.md
 %license src/tools/rustfmt/LICENSE-{APACHE,MIT}
-
-
-%files -n rls
-%{_bindir}/rls
-%doc src/tools/rls/{README.md,COPYRIGHT,debugging.md}
-%license src/tools/rls/LICENSE-{APACHE,MIT}
 
 
 %files -n clippy
