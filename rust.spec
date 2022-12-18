@@ -118,7 +118,7 @@ BuildRequires:  (%{name} >= %{bootstrap_rust} with %{name} <= %{version})
 BuildRequires:  make
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
-BuildRequires:  ncurses-devel
+BuildRequires:  pkgconfig(ncursesw)
 BuildRequires:  curl
 BuildRequires:  pkgconfig(libcurl)
 BuildRequires:  pkgconfig(liblzma)
@@ -141,17 +141,17 @@ BuildRequires:  %{python}
 
 %if %with bundled_llvm
 BuildRequires:  cmake >= 3.4.3
-BuildRequires:	ninja
+BuildRequires:  ninja
 Provides:       bundled(llvm) = 14.0.0
 %else
 BuildRequires:  cmake >= 2.8.11
 %global llvm llvm
 %global llvm_root %{_prefix}
 BuildRequires:  %{llvm}-devel >= 14.0
-BuildRequires:	cmake(Polly)
+BuildRequires:  cmake(Polly)
 %if %with llvm_static
 BuildRequires:  %{llvm}-static
-BuildRequires:  libffi-devel
+BuildRequires:  pkgconfig(libffi)
 %endif
 %endif
 
@@ -203,7 +203,6 @@ segfaults, and guarantees thread safety.
 
 This package includes the Rust compiler and documentation generator.
 
-
 %package std-static
 Summary:        Standard library for Rust
 
@@ -211,14 +210,12 @@ Summary:        Standard library for Rust
 This package includes the standard libraries for building applications
 written in Rust.
 
-
 %package debugger-common
 Summary:        Common debugger pretty printers for Rust
 BuildArch:      noarch
 
 %description debugger-common
 This package includes the common functionality for %{name}-gdb and %{name}-lldb.
-
 
 %package gdb
 Summary:        GDB pretty printers for Rust
@@ -230,9 +227,7 @@ Requires:       %{name}-debugger-common = %{version}-%{release}
 This package includes the rust-gdb script, which allows easier debugging of Rust
 programs.
 
-
 %if %with lldb
-
 %package lldb
 Summary:        LLDB pretty printers for Rust
 BuildArch:      noarch
@@ -242,9 +237,7 @@ Requires:       %{name}-debugger-common = %{version}-%{release}
 %description lldb
 This package includes the rust-lldb script, which allows easier debugging of Rust
 programs.
-
 %endif
-
 
 %package doc
 Summary:        Documentation for Rust
@@ -256,7 +249,6 @@ Summary:        Documentation for Rust
 %description doc
 This package includes HTML documentation for the Rust programming language and
 its standard library.
-
 
 %package -n cargo
 Summary:        Rust's package manager and build tool
@@ -280,7 +272,6 @@ Provides:       cargo-vendor = %{version}-%{release}
 Cargo is a tool that allows Rust projects to declare their various dependencies
 and ensure that you'll always get a repeatable build.
 
-
 %package -n cargo-doc
 Summary:        Documentation for Cargo
 BuildArch:      noarch
@@ -290,7 +281,6 @@ Requires:       rust-doc = %{version}-%{release}
 
 %description -n cargo-doc
 This package includes HTML documentation for Cargo.
-
 
 %package -n rustfmt
 Summary:        Tool to find and fix Rust formatting issues
@@ -302,7 +292,6 @@ Provides:       rustfmt-preview = %{version}-%{release}
 
 %description -n rustfmt
 A tool for formatting Rust code according to style guidelines.
-
 
 %package -n clippy
 Summary:        Lints to catch common mistakes and improve your Rust code
@@ -317,7 +306,6 @@ Provides:       clippy-preview = %{version}-%{release}
 %description -n clippy
 A collection of lints to catch common mistakes and improve your Rust code.
 
-
 %package src
 Summary:        Sources for the Rust standard library
 BuildArch:      noarch
@@ -325,7 +313,6 @@ BuildArch:      noarch
 %description src
 This package includes source files for the Rust standard library.  It may be
 useful as a reference for code completion tools in various editors.
-
 
 %package analysis
 Summary:        Compiler analysis data for the Rust standard library
@@ -336,7 +323,6 @@ Obsoletes:      rls < 1.65.0
 This package contains analysis data files produced with rustc's -Zsave-analysis
 feature for the Rust standard library. The RLS (Rust Language Server) uses this
 data to provide information about the Rust standard library.
-
 
 %prep
 
@@ -361,8 +347,11 @@ mkdir -p src/llvm-project/libunwind/
 
 # Remove other unused vendored libraries
 rm -rf vendor/curl-sys/curl/
-rm -rf vendor/jemalloc-sys/jemalloc/
+rm -rf vendor/*jemalloc-sys*/jemalloc/
+rm -rf vendor/libmimalloc-sys/c_src/mimalloc/
+rm -rf vendor/libssh2-sys/libssh2/
 rm -rf vendor/libz-sys/src/zlib/
+rm -rf vendor/libz-sys/src/zlib-ng/
 rm -rf vendor/lzma-sys/xz-*/
 rm -rf vendor/openssl-src/openssl/
 
@@ -399,7 +388,6 @@ find vendor -name .cargo-checksum.json \
 # Sometimes Rust sources start with #![...] attributes, and "smart" editors think
 # it's a shebang and make them executable. Then brp-mangle-shebangs gets upset...
 find -name '*.rs' -type f -perm /111 -exec chmod -v -x '{}' '+'
-
 
 %build
 %if %without bundled_libgit2
@@ -452,12 +440,14 @@ export max_cpus=4
   %{!?with_bundled_llvm: --llvm-root=%{llvm_root} --llvm-config=%{_bindir}/llvm-config \
   %{!?llvm_has_filecheck: --disable-codegen-tests} \
   %{!?with_llvm_static: --enable-llvm-link-shared } } \
+  --disable-llvm-static-stdcpp \
   --disable-rpath \
   %{enable_debuginfo} \
   --enable-extended \
   --tools=analysis,cargo,clippy,rls,rustfmt,src \
   --enable-vendor \
   --enable-verbose-tests \
+  --dist-compression-formats=gz,xz \
   %{?codegen_units_std} \
   --release-channel=%{channel}
 
@@ -583,20 +573,18 @@ export CXX="g++ -fuse-ld=lld"
 %{python} ./x.py test --no-fail-fast rustfmt || :
 %endif
 
-
 %files
 %license COPYRIGHT LICENSE-APACHE LICENSE-MIT
 %doc README.md
 %{_bindir}/rustc
 %{_bindir}/rustdoc
 %{_libdir}/*.so
-%{_mandir}/man1/rustc.1*
-%{_mandir}/man1/rustdoc.1*
+%doc %{_mandir}/man1/rustc.1*
+%doc %{_mandir}/man1/rustdoc.1*
 %dir %{rustlibdir}
 %dir %{rustlibdir}/%{rust_triple}
 %dir %{rustlibdir}/%{rust_triple}/lib
 %{rustlibdir}/%{rust_triple}/lib/*.so
-
 
 %files std-static
 %dir %{rustlibdir}
@@ -604,25 +592,21 @@ export CXX="g++ -fuse-ld=lld"
 %dir %{rustlibdir}/%{rust_triple}/lib
 %{rustlibdir}/%{rust_triple}/lib/*.rlib
 
-
 %files debugger-common
 %dir %{rustlibdir}
 %dir %{rustlibdir}/etc
 %{rustlibdir}/etc/rust_types.py
-
 
 %files gdb
 %{_bindir}/rust-gdb
 %{rustlibdir}/etc/gdb_*.py*
 %exclude %{_bindir}/rust-gdbgui
 
-
 %if %with lldb
 %files lldb
 %{_bindir}/rust-lldb
 %{rustlibdir}/etc/lldb_*
 %endif
-
 
 %files doc
 %docdir %{_docdir}/%{name}
@@ -638,24 +622,21 @@ export CXX="g++ -fuse-ld=lld"
 %license %{_docdir}/%{name}/html/*.txt
 %license %{_docdir}/%{name}/html/*.md
 
-
 %files -n cargo
 %license src/tools/cargo/LICENSE-APACHE src/tools/cargo/LICENSE-MIT src/tools/cargo/LICENSE-THIRD-PARTY
 %doc src/tools/cargo/README.md
 %{_bindir}/cargo
-%{_mandir}/man1/cargo*.1*
+%doc %{_mandir}/man1/cargo*.1*
 %{_sysconfdir}/bash_completion.d/cargo
 %{_libexecdir}/cargo-credential-1password
 %{_datadir}/zsh/site-functions/_cargo
 %dir %{_datadir}/cargo
 %dir %{_datadir}/cargo/registry
 
-
 %files -n cargo-doc
 %docdir %{_docdir}/cargo
 %dir %{_docdir}/cargo
 %{_docdir}/cargo/html
-
 
 %files -n rustfmt
 %{_bindir}/rustfmt
@@ -663,18 +644,15 @@ export CXX="g++ -fuse-ld=lld"
 %doc src/tools/rustfmt/{README,CHANGELOG,Configurations}.md
 %license src/tools/rustfmt/LICENSE-{APACHE,MIT}
 
-
 %files -n clippy
 %{_bindir}/cargo-clippy
 %{_bindir}/clippy-driver
 %doc src/tools/clippy/{README.md,CHANGELOG.md}
 %license src/tools/clippy/LICENSE-{APACHE,MIT}
 
-
 %files src
 %dir %{rustlibdir}
 %{rustlibdir}/src
-
 
 %files analysis
 %{rustlibdir}/%{rust_triple}/analysis/
