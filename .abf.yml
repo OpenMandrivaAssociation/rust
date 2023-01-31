@@ -1,9 +1,9 @@
 sources:
-  rust-1.65.0-aarch64-unknown-linux-gnu.tar.gz: 3a73532b781e728dc381654b6cebb4d634bda590
-  rust-1.65.0-armv7-unknown-linux-gnueabihf.tar.gz: 340c56c5942cdbd751296148b08554576da5de26
-  rust-1.65.0-i686-unknown-linux-gnu.tar.gz: 0439d99feec36e77677da327287a67a4e69dbf2e
-  rust-1.65.0-powerpc64-unknown-linux-gnu.tar.gz: d98328fb976805a3acd0b3ba2c3e4e91ffc12b85
-  rust-1.65.0-powerpc64le-unknown-linux-gnu.tar.gz: 2d6b545791668e254722c656e3f67c3b46a2e79c
-  rust-1.65.0-riscv64gc-unknown-linux-gnu.tar.gz: dc078e864a3bf8d4cfa845ef2ce81a3760ca77f3
-  rust-1.65.0-x86_64-unknown-linux-gnu.tar.gz: e1dab372b4af3c4adb22bca1edddfe8b2a37d37a
-  rustc-1.66.1-src.tar.xz: a8cc02cc11a942bddf67f1cfdcdd2bd867296f8e
+  rust-1.66.1-aarch64-unknown-linux-gnu.tar.gz: 485942d69960918b73a7d6aaaffbc2717a777f54
+  rust-1.66.1-armv7-unknown-linux-gnueabihf.tar.gz: 56dc2c0284b9877a2a236681270233c9d7ec7e14
+  rust-1.66.1-i686-unknown-linux-gnu.tar.gz: 35a9d12a78ee25c50d737ad7ef3f89c86b7a9bbf
+  rust-1.66.1-powerpc64-unknown-linux-gnu.tar.gz: 030eb79672b4a601993100ce2326d6599701b0f1
+  rust-1.66.1-powerpc64le-unknown-linux-gnu.tar.gz: 719fa09eff0ae5f2a3b43cced19cf57a7119db7e
+  rust-1.66.1-riscv64gc-unknown-linux-gnu.tar.gz: 4e7be8619f92cdf9976419fa97e134b4237cc089
+  rust-1.66.1-x86_64-unknown-linux-gnu.tar.gz: a4474cd67906aa44604c7a2684d0d5a9c598c641
+  rustc-1.67.0-src.tar.xz: 126d8ef4084f1ffe1c0ad0c5596e50b6db36da74
