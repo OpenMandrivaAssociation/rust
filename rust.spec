@@ -42,7 +42,7 @@
 
 Name:           rust
 Version:        1.68.0
-Release:        2
+Release:        3
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
