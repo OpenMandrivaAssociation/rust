@@ -314,15 +314,15 @@ BuildArch:      noarch
 This package includes source files for the Rust standard library.  It may be
 useful as a reference for code completion tools in various editors.
 
-%package analysis
-Summary:        Compiler analysis data for the Rust standard library
-Requires:       rust-std-static%{?_isa} = %{version}-%{release}
-Obsoletes:      rls < 1.65.0
+#package analysis
+#Summary:        Compiler analysis data for the Rust standard library
+#Requires:       rust-std-static%{?_isa} = %{version}-%{release}
+#Obsoletes:      rls < 1.65.0
 
-%description analysis
-This package contains analysis data files produced with rustc's -Zsave-analysis
-feature for the Rust standard library. The RLS (Rust Language Server) uses this
-data to provide information about the Rust standard library.
+#description analysis
+#This package contains analysis data files produced with rustc's -Zsave-analysis
+#feature for the Rust standard library. The RLS (Rust Language Server) uses this
+#data to provide information about the Rust standard library.
 
 %prep
 
@@ -654,6 +654,6 @@ export CXX="g++ -fuse-ld=lld"
 %dir %{rustlibdir}
 %{rustlibdir}/src
 
-%files analysis
-%{rustlibdir}/%{rust_triple}/analysis/
-%{_prefix}/libexec/rust-analyzer-proc-macro-srv
+#files analysis
+#{rustlibdir}/%{rust_triple}/analysis/
+#{_prefix}/libexec/rust-analyzer-proc-macro-srv
