@@ -24,7 +24,7 @@
 
 # We can also choose to just use Rust's bundled LLVM, in case the system LLVM
 # is insufficient.  Rust currently requires LLVM 7.0+.
-%bcond_with bundled_llvm
+%bcond_without bundled_llvm
 
 # libgit2-sys expects to use its bundled library, which is sometimes just a
 # snapshot of libgit2's master branch.  This can mean the FFI declarations
@@ -42,7 +42,7 @@
 
 Name:           rust
 Version:        1.69.0
-Release:        1
+Release:        2
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
