@@ -334,11 +334,7 @@ test -f '%{local_rust_root}/bin/cargo'
 test -f '%{local_rust_root}/bin/rustc'
 %endif
 
-%setup -q -n %{rustc_package}
-
-%if "%{python}" == "python3"
-sed -i.try-py3 -e '/try python2.7/i try python3 "$@"' ./configure
-%endif
+%autosetup -p1 -n %{rustc_package}
 
 %if %without bundled_llvm
 rm -rf src/llvm-project/
@@ -365,12 +361,6 @@ rm -rf vendor/libssh2-sys/libssh2/
 
 # This only affects the transient rust-installer, but let it use our dynamic xz-libs
 sed -i.lzma -e '/LZMA_API_STATIC/d' src/bootstrap/tool.rs
-
-%if %{with bundled_llvm} && 0%{?epel}
-mkdir -p cmake-bin
-ln -s /usr/bin/cmake3 cmake-bin/cmake
-%global cmake_path $PWD/cmake-bin
-%endif
 
 %if %{without bundled_llvm} && %{with llvm_static}
 # Static linking to distro LLVM needs to add -lffi
@@ -435,21 +425,27 @@ export max_cpus=4
 %configure --disable-option-checking \
   --libdir=%{common_libdir} \
   --build=%{rust_triple} --host=%{rust_triple} --target=%{rust_triple} \
+  --set target.%{rust_triple}.linker="%{__cc}" \
+  --set target.%{rust_triple}.cc="%{__cc}" \
+  --set target.%{rust_triple}.cxx="%{__cxx}" \
+  --set target.%{rust_triple}.ar="%{__ar}" \
+  --set target.%{rust_triple}.ranlib="%{__ranlib}" \
   --python=%{python} \
   --local-rust-root=%{local_rust_root} \
   %{!?with_bundled_llvm: --llvm-root=%{llvm_root} --llvm-config=%{_bindir}/llvm-config \
   %{!?llvm_has_filecheck: --disable-codegen-tests} \
   %{!?with_llvm_static: --enable-llvm-link-shared } } \
   --disable-llvm-static-stdcpp \
-  --disable-rpath \
   %{enable_debuginfo} \
   --enable-extended \
-  --tools=analysis,cargo,clippy,rls,rustfmt,src \
+  --tools=cargo,clippy,rls,rust-analyzer,rustfmt,src \
   --enable-vendor \
   --enable-verbose-tests \
   --dist-compression-formats=gz,xz \
   %{?codegen_units_std} \
-  --release-channel=%{channel}
+  --release-channel=%{channel} \
+  --release-description="OpenMandriva %{version}-%{release}" \
+  --enable-rpath
 
 cpus=$(nproc)
 
@@ -458,11 +454,14 @@ if [[ $cpus -gt $max_cpus ]]; then
   cpus=$max_cpus
 fi
 
-%{python} ./x.py build -j "$cpus" --stage 2
-%{python} ./x.py doc --stage 2
+%{python} ./x.py build -j "$cpus"
+%{python} ./x.py doc
 
 
 %install
+# Make sure we can see librustc_driver-*.so
+export LD_LIBRARY_PATH=$(pwd)/build/%{rust_triple}/stage2/lib:$LD_LIBRARY_PATH
+
 %if %without bundled_libgit2
 # convince libgit2-sys to use the distro libgit2
 export LIBGIT2_SYS_USE_PKG_CONFIG=1
@@ -554,6 +553,12 @@ rm -f %{buildroot}%{_bindir}/rust-lldb
 rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %endif
 
+# We don't need the old versions...
+rm %{buildroot}%{_bindir}/*.old
+
+# And this is definitely installed in the wrong location
+mv %{buildroot}%{_prefix}/src/etc %{buildroot}/
+
 
 %if %{with tests}
 %check
@@ -578,6 +583,7 @@ export CXX="g++ -fuse-ld=lld"
 %doc README.md
 %{_bindir}/rustc
 %{_bindir}/rustdoc
+%{_bindir}/rust-analyzer
 %{_libdir}/*.so
 %doc %{_mandir}/man1/rustc.1*
 %doc %{_mandir}/man1/rustdoc.1*
@@ -585,6 +591,7 @@ export CXX="g++ -fuse-ld=lld"
 %dir %{rustlibdir}/%{rust_triple}
 %dir %{rustlibdir}/%{rust_triple}/lib
 %{rustlibdir}/%{rust_triple}/lib/*.so
+%{_libexecdir}/rust-analyzer-proc-macro-srv
 
 %files std-static
 %dir %{rustlibdir}
@@ -627,11 +634,11 @@ export CXX="g++ -fuse-ld=lld"
 %doc src/tools/cargo/README.md
 %{_bindir}/cargo
 %doc %{_mandir}/man1/cargo*.1*
-%{_sysconfdir}/bash_completion.d/cargo
 %{_libexecdir}/cargo-credential-1password
 %{_datadir}/zsh/site-functions/_cargo
 %dir %{_datadir}/cargo
 %dir %{_datadir}/cargo/registry
+%{_sysconfdir}/bash_completion.d/cargo
 
 %files -n cargo-doc
 %docdir %{_docdir}/cargo
@@ -641,14 +648,10 @@ export CXX="g++ -fuse-ld=lld"
 %files -n rustfmt
 %{_bindir}/rustfmt
 %{_bindir}/cargo-fmt
-%doc src/tools/rustfmt/{README,CHANGELOG,Configurations}.md
-%license src/tools/rustfmt/LICENSE-{APACHE,MIT}
 
 %files -n clippy
 %{_bindir}/cargo-clippy
 %{_bindir}/clippy-driver
-%doc src/tools/clippy/{README.md,CHANGELOG.md}
-%license src/tools/clippy/LICENSE-{APACHE,MIT}
 
 %files src
 %dir %{rustlibdir}
