@@ -6,4 +6,4 @@ sources:
   rust-1.70.0-powerpc64-unknown-linux-gnu.tar.gz: f0bf39eebbbf14f53daac0d5511d6df4c03f6059
   rust-1.70.0-riscv64gc-unknown-linux-gnu.tar.gz: 9155b181df7d1a997a5ffb0d07c38431935c45f7
   rust-1.70.0-x86_64-unknown-linux-gnu.tar.gz: 03ae9deaa9b2d85fcad3a1ed11a3fdf2b3e5e315
-  rustc-1.71.0-src.tar.xz: f994450392cb957ada9238cbc9bab7f7ae233340
+  rustc-1.71.1-src.tar.xz: ffa03139b447604322d689eefe4e157a49c39f51
