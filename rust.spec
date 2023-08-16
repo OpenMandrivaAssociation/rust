@@ -42,12 +42,14 @@
 
 Name:           rust
 Version:        1.71.1
-Release:        1
+Release:        2
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
 URL:            https://www.rust-lang.org
 ExclusiveArch:  %{rust_arches}
+
+Patch0:		rustc-1.71.0-fix-pkgconf-calls.patch
 
 %if "%{channel}" == "stable"
 %global rustc_package rustc-%{version}-src
