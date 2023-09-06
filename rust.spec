@@ -49,8 +49,6 @@ License:        (ASL 2.0 or MIT) and (BSD and MIT)
 URL:            https://www.rust-lang.org
 ExclusiveArch:  %{rust_arches}
 
-Patch0:		rustc-1.71.0-fix-pkgconf-calls.patch
-
 %if "%{channel}" == "stable"
 %global rustc_package rustc-%{version}-src
 %else
