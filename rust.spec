@@ -41,7 +41,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.72.0
+Version:        1.72.1
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -345,7 +345,6 @@ mkdir -p src/llvm-project/libunwind/
 rm -rf vendor/curl-sys/curl/
 rm -rf vendor/*jemalloc-sys*/jemalloc/
 rm -rf vendor/libmimalloc-sys/c_src/mimalloc/
-rm -rf vendor/libssh2-sys/libssh2/
 rm -rf vendor/libz-sys/src/zlib/
 rm -rf vendor/libz-sys/src/zlib-ng/
 rm -rf vendor/lzma-sys/xz-*/
