@@ -402,7 +402,12 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 # https://github.com/rust-lang/rust/issues/45854
 %define enable_debuginfo --debuginfo-level=0 --debuginfo-level-std=2
 %else
+%ifarch znver1
+# builder runs out of space causing rpm to be unable to correctly produce requires
+%define enable_debuginfo --debuginfo-level=0 --debuginfo-level-std=2
+%else
 %define enable_debuginfo --debuginfo-level=2
+%endif
 %endif
 
 # We want the best optimization for std, but it caused problems for rpm-ostree
