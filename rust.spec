@@ -638,7 +638,6 @@ export CXX="g++ -fuse-ld=lld"
 %doc src/tools/cargo/README.md
 %{_bindir}/cargo
 %doc %{_mandir}/man1/cargo*.1*
-%{_libexecdir}/cargo-credential-1password
 %{_datadir}/zsh/site-functions/_cargo
 %dir %{_datadir}/cargo
 %dir %{_datadir}/cargo/registry
