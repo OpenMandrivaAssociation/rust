@@ -5,5 +5,5 @@ sources:
   rust-1.73.0-powerpc64-unknown-linux-gnu.tar.gz: 3138f88e9b62127ce344a48988db758462273581
   rust-1.73.0-powerpc64le-unknown-linux-gnu.tar.gz: e28c643c6ddbde8ce95441d2594e388bee35abf9
   rust-1.73.0-riscv64gc-unknown-linux-gnu.tar.gz: 1d649459b6fc06027802cd02dd6f60ba27cfe0ae
-  ust-1.73.0-x86_64-unknown-linux-gnu.tar.gz: 564e398601c0108849b8a921719ce959f59cfafe
+  rust-1.73.0-x86_64-unknown-linux-gnu.tar.gz: 564e398601c0108849b8a921719ce959f59cfafe
   rustc-1.74.0-src.tar.xz: 9be36f292354842c6f5eac8fdbda5f6d39d1b759
