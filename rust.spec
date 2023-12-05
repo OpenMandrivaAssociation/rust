@@ -42,7 +42,7 @@
 
 Name:           rust
 Version:        1.74.0
-Release:        1
+Release:        2
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -55,6 +55,9 @@ ExclusiveArch:  %{rust_arches}
 %global rustc_package rustc-%{channel}-src
 %endif
 Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
+# Remove lock file check, it breaks vendoring tagged git
+# (see amdgpu_top package)
+Patch0:		rust-1.74.0-cargo-drop-lockfile-check.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
