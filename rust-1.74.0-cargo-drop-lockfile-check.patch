@@ -1,6 +1,6 @@
-diff -up rustc-1.74.0-src/src/tools/cargo/src/cargo/sources/config.rs.omv~ rustc-1.74.0-src/src/tools/cargo/src/cargo/sources/config.rs
---- rustc-1.74.0-src/src/tools/cargo/src/cargo/sources/config.rs.omv~	2023-12-05 19:23:23.304216314 +0100
-+++ rustc-1.74.0-src/src/tools/cargo/src/cargo/sources/config.rs	2023-12-05 19:24:49.881090843 +0100
+diff -up rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs.1~ rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs
+--- rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs.1~	2023-12-21 17:56:13.000000000 +0100
++++ rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs	2023-12-29 04:23:38.561888236 +0100
 @@ -199,6 +199,9 @@ a lock file compatible with `{orig}` can
              );
          }
@@ -8,7 +8,7 @@ diff -up rustc-1.74.0-src/src/tools/cargo/src/cargo/sources/config.rs.omv~ rustc
 +        // OpenMandriva: Remove this check, it breaks vendoring tagged git
 +        // repoisoties (see amdgpu_top)
 +        /*
-         if old_src.requires_precise() && id.precise().is_none() {
+         if old_src.requires_precise() && !id.has_precise() {
              bail!(
                  "\
 @@ -211,6 +214,7 @@ restore the source replacement configura

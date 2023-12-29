@@ -41,7 +41,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.74.1
+Version:        1.75.0
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -362,7 +362,7 @@ rm -rf vendor/libssh2-sys/libssh2/
 %endif
 
 # This only affects the transient rust-installer, but let it use our dynamic xz-libs
-sed -i.lzma -e '/LZMA_API_STATIC/d' src/bootstrap/tool.rs
+sed -i.lzma -e '/LZMA_API_STATIC/d' src/bootstrap/src/core/build_steps/tool.rs
 
 %if %{without bundled_llvm} && %{with llvm_static}
 # Static linking to distro LLVM needs to add -lffi
