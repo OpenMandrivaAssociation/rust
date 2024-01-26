@@ -42,7 +42,7 @@
 
 Name:           rust
 Version:        1.75.0
-Release:        1
+Release:        2
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -58,6 +58,14 @@ Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
 # Remove lock file check, it breaks vendoring tagged git
 # (see amdgpu_top package)
 Patch0:		rust-1.74.0-cargo-drop-lockfile-check.patch
+# LLVM 18 support
+Patch1:		https://github.com/rust-lang/rust/commit/46a801559127.patch
+Patch2:		https://github.com/rust-lang/rust/commit/a0c5079889b1.patch
+Patch3:		https://github.com/rust-lang/rust/commit/984898da1727.patch
+Patch4:		https://github.com/rust-lang/rust/commit/7cde2cee35f1.patch
+Patch5:		https://github.com/rust-lang/rust/commit/0a285e8de7ee.patch
+Patch6:		https://github.com/rust-lang/rust/commit/e2c3e94be9c7.patch
+Patch7:		https://github.com/rust-lang/rust/pull/116672.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"

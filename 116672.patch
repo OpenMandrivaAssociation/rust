@@ -1,0 +1,971 @@
+From dbff90c2a7c751cf9d6843cd585429beb100c17d Mon Sep 17 00:00:00 2001
+From: Matthew Maurer <mmaurer@google.com>
+Date: Thu, 12 Oct 2023 17:36:01 +0000
+Subject: [PATCH 1/4] LLVM 18 x86 data layout update
+
+With https://reviews.llvm.org/D86310 LLVM now has i128 aligned to
+16-bytes on x86 based platforms. This will be in LLVM-18. This patch
+updates all our spec targets to be 16-byte aligned, and removes the
+alignment when speaking to older LLVM.
+
+This results in Rust overaligning things relative to LLVM on older LLVMs.
+
+This alignment change was discussed in rust-lang/compiler-team#683
+
+See #54341 for additional information about why this is happening and
+where this will be useful in the future.
+
+This *does not* stabilize `i128`/`u128` for FFI.
+---
+ compiler/rustc_ast/src/ast.rs                        |  8 ++++++--
+ compiler/rustc_codegen_llvm/src/context.rs           |  8 ++++++++
+ compiler/rustc_middle/src/mir/mod.rs                 | 12 +++++++++---
+ .../rustc_target/src/spec/targets/i386_apple_ios.rs  |  2 +-
+ .../src/spec/targets/i686_apple_darwin.rs            |  2 +-
+ .../src/spec/targets/i686_linux_android.rs           |  2 +-
+ .../src/spec/targets/i686_pc_windows_gnu.rs          |  2 +-
+ .../src/spec/targets/i686_pc_windows_gnullvm.rs      |  2 +-
+ .../src/spec/targets/i686_pc_windows_msvc.rs         |  2 +-
+ .../src/spec/targets/i686_unknown_freebsd.rs         |  2 +-
+ .../src/spec/targets/i686_unknown_haiku.rs           |  2 +-
+ .../src/spec/targets/i686_unknown_hurd_gnu.rs        |  2 +-
+ .../src/spec/targets/i686_unknown_linux_gnu.rs       |  2 +-
+ .../src/spec/targets/i686_unknown_linux_musl.rs      |  2 +-
+ .../src/spec/targets/i686_unknown_netbsd.rs          |  2 +-
+ .../src/spec/targets/i686_unknown_openbsd.rs         |  2 +-
+ .../src/spec/targets/i686_uwp_windows_gnu.rs         |  2 +-
+ .../src/spec/targets/i686_uwp_windows_msvc.rs        |  2 +-
+ .../src/spec/targets/i686_wrs_vxworks.rs             |  2 +-
+ .../src/spec/targets/x86_64_apple_darwin.rs          |  4 ++--
+ .../src/spec/targets/x86_64_apple_ios.rs             |  4 ++--
+ .../src/spec/targets/x86_64_apple_ios_macabi.rs      |  4 ++--
+ .../src/spec/targets/x86_64_apple_tvos.rs            |  4 ++--
+ .../src/spec/targets/x86_64_apple_watchos_sim.rs     |  4 ++--
+ .../src/spec/targets/x86_64_fortanix_unknown_sgx.rs  |  4 ++--
+ .../src/spec/targets/x86_64_linux_android.rs         |  4 ++--
+ .../src/spec/targets/x86_64_pc_nto_qnx710.rs         |  4 ++--
+ .../src/spec/targets/x86_64_pc_solaris.rs            |  4 ++--
+ .../src/spec/targets/x86_64_pc_windows_gnu.rs        |  4 ++--
+ .../src/spec/targets/x86_64_pc_windows_gnullvm.rs    |  4 ++--
+ .../src/spec/targets/x86_64_pc_windows_msvc.rs       |  4 ++--
+ .../src/spec/targets/x86_64_unikraft_linux_musl.rs   |  4 ++--
+ .../src/spec/targets/x86_64_unknown_dragonfly.rs     |  4 ++--
+ .../src/spec/targets/x86_64_unknown_freebsd.rs       |  4 ++--
+ .../src/spec/targets/x86_64_unknown_fuchsia.rs       |  4 ++--
+ .../src/spec/targets/x86_64_unknown_haiku.rs         |  4 ++--
+ .../src/spec/targets/x86_64_unknown_hermit.rs        |  4 ++--
+ .../src/spec/targets/x86_64_unknown_illumos.rs       |  4 ++--
+ .../src/spec/targets/x86_64_unknown_l4re_uclibc.rs   |  4 ++--
+ .../src/spec/targets/x86_64_unknown_linux_gnu.rs     |  4 ++--
+ .../src/spec/targets/x86_64_unknown_linux_musl.rs    |  4 ++--
+ .../src/spec/targets/x86_64_unknown_linux_ohos.rs    |  4 ++--
+ .../src/spec/targets/x86_64_unknown_netbsd.rs        |  4 ++--
+ .../src/spec/targets/x86_64_unknown_none.rs          |  4 ++--
+ .../src/spec/targets/x86_64_unknown_openbsd.rs       |  4 ++--
+ .../src/spec/targets/x86_64_unknown_redox.rs         |  4 ++--
+ .../src/spec/targets/x86_64_unknown_uefi.rs          |  4 ++--
+ .../src/spec/targets/x86_64_uwp_windows_gnu.rs       |  4 ++--
+ .../src/spec/targets/x86_64_uwp_windows_msvc.rs      |  4 ++--
+ .../src/spec/targets/x86_64_wrs_vxworks.rs           |  4 ++--
+ .../src/spec/targets/x86_64h_apple_darwin.rs         |  4 ++--
+ 51 files changed, 103 insertions(+), 85 deletions(-)
+
+diff --git a/compiler/rustc_ast/src/ast.rs b/compiler/rustc_ast/src/ast.rs
+index d0d98eb3d62d1..7f5213431f7d3 100644
+--- a/compiler/rustc_ast/src/ast.rs
++++ b/compiler/rustc_ast/src/ast.rs
+@@ -3304,9 +3304,13 @@ mod size_asserts {
+     static_assert_size!(Impl, 136);
+     static_assert_size!(Item, 136);
+     static_assert_size!(ItemKind, 64);
+-    static_assert_size!(LitKind, 24);
++    // This can be removed after i128:128 is in the bootstrap compiler's target.
++    #[cfg(not(bootstrap))]
++    static_assert_size!(LitKind, 32);
+     static_assert_size!(Local, 72);
+-    static_assert_size!(MetaItemLit, 40);
++    // This can be removed after i128:128 is in the bootstrap compiler's target.
++    #[cfg(not(bootstrap))]
++    static_assert_size!(MetaItemLit, 48);
+     static_assert_size!(Param, 40);
+     static_assert_size!(Pat, 72);
+     static_assert_size!(Path, 24);
+diff --git a/compiler/rustc_codegen_llvm/src/context.rs b/compiler/rustc_codegen_llvm/src/context.rs
+index 1d1b6e6148dd2..f3b2caf9b803a 100644
+--- a/compiler/rustc_codegen_llvm/src/context.rs
++++ b/compiler/rustc_codegen_llvm/src/context.rs
+@@ -145,6 +145,14 @@ pub unsafe fn create_module<'ll>(
+                 .replace("-Fi64", "");
+         }
+     }
++    if llvm_version < (18, 0, 0) {
++        if sess.target.arch == "x86" || sess.target.arch == "x86_64" {
++            // LLVM 18 adjusts i128 to be 128-bit aligned on x86 variants.
++            // Earlier LLVMs leave this as default alignment, so remove it.
++            // See https://reviews.llvm.org/D86310
++            target_data_layout = target_data_layout.replace("-i128:128", "");
++        }
++    }
+ 
+     // Ensure the data-layout values hardcoded remain the defaults.
+     if sess.target.is_builtin {
+diff --git a/compiler/rustc_middle/src/mir/mod.rs b/compiler/rustc_middle/src/mir/mod.rs
+index 36f5ba161d5f1..624ae8c22f9dc 100644
+--- a/compiler/rustc_middle/src/mir/mod.rs
++++ b/compiler/rustc_middle/src/mir/mod.rs
+@@ -1672,13 +1672,19 @@ mod size_asserts {
+     use super::*;
+     use rustc_data_structures::static_assert_size;
+     // tidy-alphabetical-start
+-    static_assert_size!(BasicBlockData<'_>, 136);
++    // This can be removed after i128:128 is in the bootstrap compiler's target.
++    #[cfg(not(bootstrap))]
++    static_assert_size!(BasicBlockData<'_>, 144);
+     static_assert_size!(LocalDecl<'_>, 40);
+     static_assert_size!(SourceScopeData<'_>, 72);
+     static_assert_size!(Statement<'_>, 32);
+     static_assert_size!(StatementKind<'_>, 16);
+-    static_assert_size!(Terminator<'_>, 104);
+-    static_assert_size!(TerminatorKind<'_>, 88);
++    // This can be removed after i128:128 is in the bootstrap compiler's target.
++    #[cfg(not(bootstrap))]
++    static_assert_size!(Terminator<'_>, 112);
++    // This can be removed after i128:128 is in the bootstrap compiler's target.
++    #[cfg(not(bootstrap))]
++    static_assert_size!(TerminatorKind<'_>, 96);
+     static_assert_size!(VarDebugInfo<'_>, 88);
+     // tidy-alphabetical-end
+ }
+diff --git a/compiler/rustc_target/src/spec/targets/i686_apple_darwin.rs b/compiler/rustc_target/src/spec/targets/i686_apple_darwin.rs
+index 59069fe4e3a92..25617b4436cb6 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_apple_darwin.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_apple_darwin.rs
+@@ -18,7 +18,7 @@ pub fn target() -> Target {
+         llvm_target: macos_llvm_target(Arch::I686).into(),
+         pointer_width: 32,
+         data_layout: "e-m:o-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:128-n8:16:32-S128"
++            i128:128-f64:32:64-f80:128-n8:16:32-S128"
+             .into(),
+         arch: arch.target_arch(),
+         options: TargetOptions { mcount: "\u{1}mcount".into(), ..base },
+diff --git a/compiler/rustc_target/src/spec/targets/i686_linux_android.rs b/compiler/rustc_target/src/spec/targets/i686_linux_android.rs
+index 79471040f0da2..12ebf0c72f839 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_linux_android.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_linux_android.rs
+@@ -17,7 +17,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-linux-android".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: TargetOptions { supported_sanitizers: SanitizerSet::ADDRESS, ..base },
+diff --git a/compiler/rustc_target/src/spec/targets/i686_pc_windows_gnu.rs b/compiler/rustc_target/src/spec/targets/i686_pc_windows_gnu.rs
+index 8d4a39b581143..1181803441437 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_pc_windows_gnu.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_pc_windows_gnu.rs
+@@ -19,7 +19,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-pc-windows-gnu".into(),
+         pointer_width: 32,
+         data_layout: "e-m:x-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            i64:64-f80:32-n8:16:32-a:0:32-S32"
++            i64:64-i128:128-f80:32-n8:16:32-a:0:32-S32"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_pc_windows_gnullvm.rs b/compiler/rustc_target/src/spec/targets/i686_pc_windows_gnullvm.rs
+index bb410cd8caf2f..f4e33b8817887 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_pc_windows_gnullvm.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_pc_windows_gnullvm.rs
+@@ -18,7 +18,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-pc-windows-gnu".into(),
+         pointer_width: 32,
+         data_layout: "e-m:x-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            i64:64-f80:32-n8:16:32-a:0:32-S32"
++            i64:64-i128:128-f80:32-n8:16:32-a:0:32-S32"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_pc_windows_msvc.rs b/compiler/rustc_target/src/spec/targets/i686_pc_windows_msvc.rs
+index 5abc3017bf80c..9f1c8f4676cb3 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_pc_windows_msvc.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_pc_windows_msvc.rs
+@@ -25,7 +25,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-pc-windows-msvc".into(),
+         pointer_width: 32,
+         data_layout: "e-m:x-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            i64:64-f80:128-n8:16:32-a:0:32-S32"
++            i64:64-i128:128-f80:128-n8:16:32-a:0:32-S32"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_unknown_freebsd.rs b/compiler/rustc_target/src/spec/targets/i686_unknown_freebsd.rs
+index 927b2ab877ddf..d90f481c68cf4 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_unknown_freebsd.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_unknown_freebsd.rs
+@@ -11,7 +11,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-freebsd".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_unknown_haiku.rs b/compiler/rustc_target/src/spec/targets/i686_unknown_haiku.rs
+index bc7fd6fbc68cd..330a390c9817d 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_unknown_haiku.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_unknown_haiku.rs
+@@ -11,7 +11,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-haiku".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_unknown_hurd_gnu.rs b/compiler/rustc_target/src/spec/targets/i686_unknown_hurd_gnu.rs
+index 6884e078c27e5..c32f7177c1a09 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_unknown_hurd_gnu.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_unknown_hurd_gnu.rs
+@@ -11,7 +11,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-hurd-gnu".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_unknown_linux_gnu.rs b/compiler/rustc_target/src/spec/targets/i686_unknown_linux_gnu.rs
+index 3b7be48dbbc56..9bc38a72f4d39 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_unknown_linux_gnu.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_unknown_linux_gnu.rs
+@@ -12,7 +12,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-linux-gnu".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_unknown_linux_musl.rs b/compiler/rustc_target/src/spec/targets/i686_unknown_linux_musl.rs
+index ef58b4fb45881..4a82e0986c72b 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_unknown_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_unknown_linux_musl.rs
+@@ -25,7 +25,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-linux-musl".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_unknown_netbsd.rs b/compiler/rustc_target/src/spec/targets/i686_unknown_netbsd.rs
+index 5f3afbe5afdcd..ea72656607e4a 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_unknown_netbsd.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_unknown_netbsd.rs
+@@ -11,7 +11,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-netbsdelf".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: TargetOptions { mcount: "__mcount".into(), ..base },
+diff --git a/compiler/rustc_target/src/spec/targets/i686_unknown_openbsd.rs b/compiler/rustc_target/src/spec/targets/i686_unknown_openbsd.rs
+index f44584a10be53..945dc0f896709 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_unknown_openbsd.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_unknown_openbsd.rs
+@@ -11,7 +11,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-openbsd".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_uwp_windows_gnu.rs b/compiler/rustc_target/src/spec/targets/i686_uwp_windows_gnu.rs
+index ec211a710eb07..0830033dc23d1 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_uwp_windows_gnu.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_uwp_windows_gnu.rs
+@@ -18,7 +18,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-pc-windows-gnu".into(),
+         pointer_width: 32,
+         data_layout: "e-m:x-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            i64:64-f80:32-n8:16:32-a:0:32-S32"
++            i64:64-i128:128-f80:32-n8:16:32-a:0:32-S32"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_uwp_windows_msvc.rs b/compiler/rustc_target/src/spec/targets/i686_uwp_windows_msvc.rs
+index 7cca2fc6b9f71..534dd6ee54fbb 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_uwp_windows_msvc.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_uwp_windows_msvc.rs
+@@ -9,7 +9,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-pc-windows-msvc".into(),
+         pointer_width: 32,
+         data_layout: "e-m:x-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            i64:64-f80:128-n8:16:32-a:0:32-S32"
++            i64:64-i128:128-f80:128-n8:16:32-a:0:32-S32"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/i686_wrs_vxworks.rs b/compiler/rustc_target/src/spec/targets/i686_wrs_vxworks.rs
+index ee501c5165e0e..30c2295e40210 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_wrs_vxworks.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_wrs_vxworks.rs
+@@ -11,7 +11,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-linux-gnu".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_apple_darwin.rs b/compiler/rustc_target/src/spec/targets/x86_64_apple_darwin.rs
+index 59df3937ea6ff..356c67218681e 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_apple_darwin.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_apple_darwin.rs
+@@ -17,8 +17,8 @@ pub fn target() -> Target {
+         // correctly, we do too.
+         llvm_target: macos_llvm_target(arch).into(),
+         pointer_width: 64,
+-        data_layout: "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: arch.target_arch(),
+         options: TargetOptions { mcount: "\u{1}mcount".into(), ..base },
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_fortanix_unknown_sgx.rs b/compiler/rustc_target/src/spec/targets/x86_64_fortanix_unknown_sgx.rs
+index f4117edc3ff5d..c38a1a08536b9 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_fortanix_unknown_sgx.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_fortanix_unknown_sgx.rs
+@@ -75,8 +75,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-elf".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: opts,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_linux_android.rs b/compiler/rustc_target/src/spec/targets/x86_64_linux_android.rs
+index 0e6d41abc9b40..30b1ee73630e8 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_linux_android.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_linux_android.rs
+@@ -16,8 +16,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-linux-android".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: TargetOptions { supported_sanitizers: SanitizerSet::ADDRESS, ..base },
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_pc_nto_qnx710.rs b/compiler/rustc_target/src/spec/targets/x86_64_pc_nto_qnx710.rs
+index 93aec4c425a2c..0ef015973998a 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_pc_nto_qnx710.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_pc_nto_qnx710.rs
+@@ -4,8 +4,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-pc-unknown".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: TargetOptions {
+             cpu: "x86-64".into(),
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_pc_solaris.rs b/compiler/rustc_target/src/spec/targets/x86_64_pc_solaris.rs
+index f15ad8dda63bc..ade4dd6d43190 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_pc_solaris.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_pc_solaris.rs
+@@ -13,8 +13,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-pc-solaris".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_gnu.rs b/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_gnu.rs
+index 6d3e072705176..9e964d248bf8f 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_gnu.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_gnu.rs
+@@ -16,8 +16,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-pc-windows-gnu".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_gnullvm.rs b/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_gnullvm.rs
+index a56ebfa585e2e..1facf9450cd2a 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_gnullvm.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_gnullvm.rs
+@@ -11,8 +11,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-pc-windows-gnu".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_msvc.rs b/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_msvc.rs
+index 3a4da91c2443f..357261073a8f7 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_msvc.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_pc_windows_msvc.rs
+@@ -10,8 +10,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-pc-windows-msvc".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unikraft_linux_musl.rs b/compiler/rustc_target/src/spec/targets/x86_64_unikraft_linux_musl.rs
+index e6159fca3aeaf..6c9d114754873 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unikraft_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unikraft_linux_musl.rs
+@@ -5,8 +5,8 @@ pub fn target() -> Target {
+         llvm_target: "x86_64-unknown-linux-musl".into(),
+         pointer_width: 64,
+         arch: "x86_64".into(),
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         options: TargetOptions {
+             cpu: "x86-64".into(),
+             plt_by_default: false,
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_dragonfly.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_dragonfly.rs
+index 80adb8fa2d951..ce682bb800560 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_dragonfly.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_dragonfly.rs
+@@ -11,8 +11,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-dragonfly".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_freebsd.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_freebsd.rs
+index fa32103536708..6d6940e7891cd 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_freebsd.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_freebsd.rs
+@@ -14,8 +14,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-freebsd".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_fuchsia.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_fuchsia.rs
+index 5b19ed1b5ff15..50139e5c1d833 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_fuchsia.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_fuchsia.rs
+@@ -12,8 +12,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-fuchsia".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_haiku.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_haiku.rs
+index 0f927be962bfb..c00c689f7ef79 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_haiku.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_haiku.rs
+@@ -13,8 +13,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-haiku".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_hermit.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_hermit.rs
+index df191f515bd68..fb46848ba8c0b 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_hermit.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_hermit.rs
+@@ -5,8 +5,8 @@ pub fn target() -> Target {
+         llvm_target: "x86_64-unknown-hermit".into(),
+         pointer_width: 64,
+         arch: "x86_64".into(),
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         options: TargetOptions {
+             cpu: "x86-64".into(),
+             features: "+rdrnd,+rdseed".into(),
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_illumos.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_illumos.rs
+index eb2b13cb5c26b..3e3f4921322c4 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_illumos.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_illumos.rs
+@@ -13,8 +13,8 @@ pub fn target() -> Target {
+         // so we still pass Solaris to it
+         llvm_target: "x86_64-pc-solaris".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_l4re_uclibc.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_l4re_uclibc.rs
+index 7b86fe738b1e3..646623668c6cb 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_l4re_uclibc.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_l4re_uclibc.rs
+@@ -10,8 +10,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-l4re-uclibc".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_gnu.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_gnu.rs
+index bf10f7e5d2de3..2296b58f45dc0 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_gnu.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_gnu.rs
+@@ -19,8 +19,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-linux-gnu".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_musl.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_musl.rs
+index 8dc5503e336a6..c71dc65670c28 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_musl.rs
+@@ -18,8 +18,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-linux-musl".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_ohos.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_ohos.rs
+index 35862656aa2fd..c25105f6e35cf 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_ohos.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_ohos.rs
+@@ -18,8 +18,8 @@ pub fn target() -> Target {
+         // LLVM 15 doesn't support OpenHarmony yet, use a linux target instead.
+         llvm_target: "x86_64-unknown-linux-musl".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_netbsd.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_netbsd.rs
+index e2cee0513babf..466498acb0b7b 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_netbsd.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_netbsd.rs
+@@ -19,8 +19,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-netbsd".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: TargetOptions { mcount: "__mcount".into(), ..base },
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_none.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_none.rs
+index 8f7655d8ccd35..ceded7790a643 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_none.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_none.rs
+@@ -30,8 +30,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-none-elf".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: opts,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_openbsd.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_openbsd.rs
+index 1133b50f3d223..b542a569bbd23 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_openbsd.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_openbsd.rs
+@@ -12,8 +12,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-openbsd".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_redox.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_redox.rs
+index c1f573112920d..550b7a3d28231 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_redox.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_redox.rs
+@@ -11,8 +11,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-redox".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_uefi.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_uefi.rs
+index 5abfb8162f709..95847e57a0fb0 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_uefi.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_uefi.rs
+@@ -32,8 +32,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-windows".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+ 
+         options: base,
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_uwp_windows_gnu.rs b/compiler/rustc_target/src/spec/targets/x86_64_uwp_windows_gnu.rs
+index a46d3a0e27bce..c2981ddbad69b 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_uwp_windows_gnu.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_uwp_windows_gnu.rs
+@@ -15,8 +15,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-pc-windows-gnu".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_uwp_windows_msvc.rs b/compiler/rustc_target/src/spec/targets/x86_64_uwp_windows_msvc.rs
+index a3bc27aa0650e..3f0702c7ad60e 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_uwp_windows_msvc.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_uwp_windows_msvc.rs
+@@ -9,8 +9,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-pc-windows-msvc".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_wrs_vxworks.rs b/compiler/rustc_target/src/spec/targets/x86_64_wrs_vxworks.rs
+index 765239bdd39c2..f7a78b48f95d6 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_wrs_vxworks.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_wrs_vxworks.rs
+@@ -12,8 +12,8 @@ pub fn target() -> Target {
+     Target {
+         llvm_target: "x86_64-unknown-linux-gnu".into(),
+         pointer_width: 64,
+-        data_layout: "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: "x86_64".into(),
+         options: base,
+     }
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64h_apple_darwin.rs b/compiler/rustc_target/src/spec/targets/x86_64h_apple_darwin.rs
+index 0c731e369ebc2..e0e4cb93e31e1 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64h_apple_darwin.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64h_apple_darwin.rs
+@@ -35,8 +35,8 @@ pub fn target() -> Target {
+         // correctly, we do too.
+         llvm_target: macos_llvm_target(arch).into(),
+         pointer_width: 64,
+-        data_layout: "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+-            .into(),
++        data_layout:
++            "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128".into(),
+         arch: arch.target_arch(),
+         options: TargetOptions { mcount: "\u{1}mcount".into(), ..base },
+     }
+
+From 7a0415ce3728cb29e313429118cd113405273745 Mon Sep 17 00:00:00 2001
+From: Nikita Popov <npopov@redhat.com>
+Date: Thu, 18 Jan 2024 14:34:17 +0100
+Subject: [PATCH 2/4] Add codegen test for ScalarPair with i128 on LLVM 17
+
+---
+ tests/codegen/i128-x86-align.rs | 101 ++++++++++++++++++++++++++++++++
+ 1 file changed, 101 insertions(+)
+ create mode 100644 tests/codegen/i128-x86-align.rs
+
+diff --git a/tests/codegen/i128-x86-align.rs b/tests/codegen/i128-x86-align.rs
+new file mode 100644
+index 0000000000000..ef1313ddb676f
+--- /dev/null
++++ b/tests/codegen/i128-x86-align.rs
+@@ -0,0 +1,101 @@
++// only-x86_64
++// compile-flags: -O -C no-prepopulate-passes --crate-type=lib
++
++// On LLVM 17 and earlier LLVM's own data layout specifies that i128 has 8 byte alignment,
++// while rustc wants it to have 16 byte alignment. This test checks that we handle this
++// correctly.
++
++// CHECK: %ScalarPair = type { i32, [3 x i32], i128 }
++// CHECK: %Struct = type { i32, i32, [2 x i32], i128 }
++
++#[repr(C)]
++#[derive(Clone, Copy)]
++pub struct ScalarPair {
++    a: i32,
++    b: i128,
++}
++
++#[no_mangle]
++pub fn load(x: &ScalarPair) -> ScalarPair {
++    // CHECK-LABEL: @load(
++    // CHECK-SAME: align 16 dereferenceable(32) %x
++    // CHECK:      [[A:%.*]] = load i32, ptr %x, align 16
++    // CHECK-NEXT: [[GEP:%.*]] = getelementptr inbounds i8, ptr %x, i64 16
++    // CHECK-NEXT: [[B:%.*]] = load i128, ptr [[GEP]], align 16
++    // CHECK-NEXT: [[IV1:%.*]] = insertvalue { i32, i128 } poison, i32 [[A]], 0
++    // CHECK-NEXT: [[IV2:%.*]] = insertvalue { i32, i128 } [[IV1]], i128 [[B]], 1
++    // CHECK-NEXT: ret { i32, i128 } [[IV2]]
++    *x
++}
++
++#[no_mangle]
++pub fn store(x: &mut ScalarPair) {
++    // CHECK-LABEL: @store(
++    // CHECK-SAME: align 16 dereferenceable(32) %x
++    // CHECK:      store i32 1, ptr %x, align 16
++    // CHECK-NEXT: [[GEP:%.*]] = getelementptr inbounds i8, ptr %x, i64 16
++    // CHECK-NEXT: store i128 2, ptr [[GEP]], align 16
++    *x = ScalarPair { a: 1, b: 2 };
++}
++
++#[no_mangle]
++pub fn alloca() {
++    // CHECK-LABEL: @alloca(
++    // CHECK:      [[X:%.*]] = alloca %ScalarPair, align 16
++    // CHECK:      store i32 1, ptr %x, align 16
++    // CHECK-NEXT: [[GEP:%.*]] = getelementptr inbounds i8, ptr %x, i64 16
++    // CHECK-NEXT: store i128 2, ptr [[GEP]], align 16
++    let mut x = ScalarPair { a: 1, b: 2 };
++    store(&mut x);
++}
++
++#[no_mangle]
++pub fn load_volatile(x: &ScalarPair) -> ScalarPair {
++    // CHECK-LABEL: @load_volatile(
++    // CHECK-SAME: align 16 dereferenceable(32) %x
++    // CHECK:      [[TMP:%.*]] = alloca %ScalarPair, align 16
++    // CHECK:      [[LOAD:%.*]] = load volatile %ScalarPair, ptr %x, align 16
++    // CHECK-NEXT: store %ScalarPair [[LOAD]], ptr [[TMP]], align 16
++    // CHECK-NEXT: [[A:%.*]] = load i32, ptr [[TMP]], align 16
++    // CHECK-NEXT: [[GEP:%.*]] = getelementptr inbounds i8, ptr [[TMP]], i64 16
++    // CHECK-NEXT: [[B:%.*]] = load i128, ptr [[GEP]], align 16
++    unsafe { std::ptr::read_volatile(x) }
++}
++
++#[no_mangle]
++pub fn transmute(x: ScalarPair) -> (std::mem::MaybeUninit<i128>, i128) {
++    // CHECK-LABEL: define { i128, i128 } @transmute(i32 noundef %x.0, i128 noundef %x.1)
++    // CHECK:       [[TMP:%.*]] = alloca { i128, i128 }, align 16
++    // CHECK-NEXT:  store i32 %x.0, ptr [[TMP]], align 16
++    // CHECK-NEXT:  [[GEP:%.*]] = getelementptr inbounds i8, ptr [[TMP]], i64 16
++    // CHECK-NEXT:  store i128 %x.1, ptr [[GEP]], align 16
++    // CHECK-NEXT:  [[LOAD1:%.*]] = load i128, ptr %_0, align 16
++    // CHECK-NEXT:  [[GEP2:%.*]] = getelementptr inbounds i8, ptr [[TMP]], i64 16
++    // CHECK-NEXT:  [[LOAD2:%.*]] = load i128, ptr [[GEP2]], align 16
++    // CHECK-NEXT:  [[IV1:%.*]] = insertvalue { i128, i128 } poison, i128 [[LOAD1]], 0
++    // CHECK-NEXT:  [[IV2:%.*]] = insertvalue { i128, i128 } [[IV1]], i128 [[LOAD2]], 1
++    // CHECK-NEXT:  ret { i128, i128 } [[IV2]]
++    unsafe { std::mem::transmute(x) }
++}
++
++#[repr(C)]
++#[derive(Clone, Copy)]
++pub struct Struct {
++    a: i32,
++    b: i32,
++    c: i128,
++}
++
++#[no_mangle]
++pub fn store_struct(x: &mut Struct) {
++    // CHECK-LABEL: @store_struct(
++    // CHECK-SAME: align 16 dereferenceable(32) %x
++    // CHECK:      [[TMP:%.*]] = alloca %Struct, align 16
++    // CHECK:      store i32 1, ptr [[TMP]], align 16
++    // CHECK-NEXT: [[GEP1:%.*]] = getelementptr inbounds %Struct, ptr [[TMP]], i32 0, i32 1
++    // CHECK-NEXT: store i32 2, ptr [[GEP1]], align 4
++    // CHECK-NEXT: [[GEP2:%.*]] = getelementptr inbounds %Struct, ptr [[TMP]], i32 0, i32 3
++    // CHECK-NEXT: store i128 3, ptr [[GEP2]], align 16
++    // CHECK-NEXT: call void @llvm.memcpy.p0.p0.i64(ptr align 16 %x, ptr align 16 [[TMP]], i64 32, i1 false)
++    *x = Struct { a: 1, b: 2, c: 3 };
++}
+
+From ce2d91dccd48b1adc7224993829394682fd5ce19 Mon Sep 17 00:00:00 2001
+From: Nikita Popov <npopov@redhat.com>
+Date: Fri, 19 Jan 2024 09:28:42 +0100
+Subject: [PATCH 3/4] Directly use volatile_load intrinsic
+
+This makes the test work if libstd is compiled with debug assertions.
+---
+ tests/codegen/i128-x86-align.rs | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/tests/codegen/i128-x86-align.rs b/tests/codegen/i128-x86-align.rs
+index ef1313ddb676f..aaf5785dc9ff3 100644
+--- a/tests/codegen/i128-x86-align.rs
++++ b/tests/codegen/i128-x86-align.rs
+@@ -8,6 +8,8 @@
+ // CHECK: %ScalarPair = type { i32, [3 x i32], i128 }
+ // CHECK: %Struct = type { i32, i32, [2 x i32], i128 }
+ 
++#![feature(core_intrinsics)]
++
+ #[repr(C)]
+ #[derive(Clone, Copy)]
+ pub struct ScalarPair {
+@@ -59,7 +61,7 @@ pub fn load_volatile(x: &ScalarPair) -> ScalarPair {
+     // CHECK-NEXT: [[A:%.*]] = load i32, ptr [[TMP]], align 16
+     // CHECK-NEXT: [[GEP:%.*]] = getelementptr inbounds i8, ptr [[TMP]], i64 16
+     // CHECK-NEXT: [[B:%.*]] = load i128, ptr [[GEP]], align 16
+-    unsafe { std::ptr::read_volatile(x) }
++    unsafe { std::intrinsics::volatile_load(x) }
+ }
+ 
+ #[no_mangle]
+
+From ec55a05374d89d206be5140a4759af92f1b42f15 Mon Sep 17 00:00:00 2001
+From: Nikita Popov <npopov@redhat.com>
+Date: Fri, 19 Jan 2024 11:09:30 +0100
+Subject: [PATCH 4/4] Update more data layouts
+
+---
+ compiler/rustc_target/src/spec/targets/i586_pc_nto_qnx700.rs  | 2 +-
+ compiler/rustc_target/src/spec/targets/i586_unknown_netbsd.rs | 2 +-
+ compiler/rustc_target/src/spec/targets/i686_unknown_uefi.rs   | 2 +-
+ .../rustc_target/src/spec/targets/i686_win7_windows_msvc.rs   | 2 +-
+ .../src/spec/targets/x86_64_unknown_linux_gnux32.rs           | 2 +-
+ .../rustc_target/src/spec/targets/x86_64_win7_windows_msvc.rs | 4 ++--
+ 6 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/compiler/rustc_target/src/spec/targets/i586_pc_nto_qnx700.rs b/compiler/rustc_target/src/spec/targets/i586_pc_nto_qnx700.rs
+index 3ebf4bcf5231d..ea8b919e7480d 100644
+--- a/compiler/rustc_target/src/spec/targets/i586_pc_nto_qnx700.rs
++++ b/compiler/rustc_target/src/spec/targets/i586_pc_nto_qnx700.rs
+@@ -5,7 +5,7 @@ pub fn target() -> Target {
+         llvm_target: "i586-pc-unknown".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: TargetOptions {
+diff --git a/compiler/rustc_target/src/spec/targets/i586_unknown_netbsd.rs b/compiler/rustc_target/src/spec/targets/i586_unknown_netbsd.rs
+index 8375fa4c0c0fb..574dc658b78c5 100644
+--- a/compiler/rustc_target/src/spec/targets/i586_unknown_netbsd.rs
++++ b/compiler/rustc_target/src/spec/targets/i586_unknown_netbsd.rs
+@@ -10,7 +10,7 @@ pub fn target() -> Target {
+         llvm_target: "i586-unknown-netbsdelf".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            f64:32:64-f80:32-n8:16:32-S128"
++            i128:128-f64:32:64-f80:32-n8:16:32-S128"
+             .into(),
+         arch: "x86".into(),
+         options: TargetOptions { mcount: "__mcount".into(), ..base },
+diff --git a/compiler/rustc_target/src/spec/targets/i686_unknown_uefi.rs b/compiler/rustc_target/src/spec/targets/i686_unknown_uefi.rs
+index 25315e19cddb8..37d57c1cdf304 100644
+--- a/compiler/rustc_target/src/spec/targets/i686_unknown_uefi.rs
++++ b/compiler/rustc_target/src/spec/targets/i686_unknown_uefi.rs
+@@ -80,7 +80,7 @@ pub fn target() -> Target {
+         llvm_target: "i686-unknown-windows-gnu".into(),
+         pointer_width: 32,
+         data_layout: "e-m:x-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            i64:64-f80:32-n8:16:32-a:0:32-S32"
++            i64:64-i128:128-f80:32-n8:16:32-a:0:32-S32"
+             .into(),
+         arch: "x86".into(),
+ 
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_gnux32.rs b/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_gnux32.rs
+index 1856c6afd52be..d4b6519262e98 100644
+--- a/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_gnux32.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_unknown_linux_gnux32.rs
+@@ -16,7 +16,7 @@ pub fn target() -> Target {
+         llvm_target: "x86_64-unknown-linux-gnux32".into(),
+         pointer_width: 32,
+         data_layout: "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-\
+-            i64:64-f80:128-n8:16:32:64-S128"
++            i64:64-i128:128-f80:128-n8:16:32:64-S128"
+             .into(),
+         arch: "x86_64".into(),
+         options: base,

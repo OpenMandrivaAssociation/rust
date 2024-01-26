@@ -1,0 +1,27 @@
+From a0c5079889b1f86dd9e246d8863a5c8b44fbdb78 Mon Sep 17 00:00:00 2001
+From: Krasimir Georgiev <krasimir@google.com>
+Date: Mon, 11 Dec 2023 09:27:09 +0000
+Subject: [PATCH] llvm-wrapper: adapt for LLVM API change
+
+LLVM commit https://github.com/llvm/llvm-project/commit/1d608fc755a3e15d0020f61c9535c9b730ab9dec
+renamed the pass.
+---
+ compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+index 55e1c84c8a208..2601d96b8c869 100644
+--- a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
++++ b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+@@ -841,7 +841,11 @@ LLVMRustOptimize(
+         // cargo run tests in multhreading mode by default
+         // so use atomics for coverage counters
+         Options.Atomic = true;
++#if LLVM_VERSION_GE(18, 0)
++        MPM.addPass(InstrProfilingLoweringPass(Options, false));
++#else
+         MPM.addPass(InstrProfiling(Options, false));
++#endif
+       }
+     );
+   }

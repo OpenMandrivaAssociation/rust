@@ -1,0 +1,27 @@
+From 46a801559127441675f2341bd1d684809a47def1 Mon Sep 17 00:00:00 2001
+From: Krasimir Georgiev <krasimir@google.com>
+Date: Tue, 12 Dec 2023 12:28:02 +0000
+Subject: [PATCH] llvm-wrapper: adapt for LLVM API change
+
+LLVM commit https://github.com/llvm/llvm-project/commit/f09cf34d00625e57dea5317a3ac0412c07292148 moved some functions to a different header:
+
+https://buildkite.com/llvm-project/rust-llvm-integrate-prototype/builds/24416#018c5de6-b9c9-4b22-9473-6070d99dcfa7/233-537
+---
+ compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+index 2601d96b8c869..556dc890a8429 100644
+--- a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
++++ b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+@@ -37,7 +37,9 @@
+ #include "llvm/Transforms/Utils/FunctionImportUtils.h"
+ #include "llvm/LTO/LTO.h"
+ #include "llvm/Bitcode/BitcodeWriter.h"
+-
++#if LLVM_VERSION_GE(18, 0)
++#include "llvm/TargetParser/Host.h"
++#endif
+ #include "llvm/Transforms/Instrumentation.h"
+ #include "llvm/Transforms/Instrumentation/AddressSanitizer.h"
+ #include "llvm/Support/TimeProfiler.h"

@@ -1,0 +1,28 @@
+From 7cde2cee35f17c9c7dac7cce8550aba167c63440 Mon Sep 17 00:00:00 2001
+From: Arthur Eubanks <aeubanks@google.com>
+Date: Wed, 15 Nov 2023 14:42:53 -0800
+Subject: [PATCH] llvm-wrapper: Pass newly added param to
+ DIBuilder::createEnumerationType()
+
+Added in LLVM in https://github.com/llvm/llvm-project/pull/72011.
+---
+ compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
+index 4390486b0deb1..edea09b163490 100644
+--- a/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
++++ b/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
+@@ -1105,7 +1105,11 @@ extern "C" LLVMMetadataRef LLVMRustDIBuilderCreateEnumerationType(
+       unwrapDI<DIDescriptor>(Scope), StringRef(Name, NameLen),
+       unwrapDI<DIFile>(File), LineNumber,
+       SizeInBits, AlignInBits, DINodeArray(unwrapDI<MDTuple>(Elements)),
+-      unwrapDI<DIType>(ClassTy), "", IsScoped));
++      unwrapDI<DIType>(ClassTy),
++#if LLVM_VERSION_GE(18, 0)
++      /* RunTimeLang */ 0,
++#endif
++      "", IsScoped));
+ }
+ 
+ extern "C" LLVMMetadataRef LLVMRustDIBuilderCreateUnionType(

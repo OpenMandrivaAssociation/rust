@@ -1,0 +1,24 @@
+From 0a285e8de7eec36e1de68c83764d23f2522a4274 Mon Sep 17 00:00:00 2001
+From: Krasimir Georgiev <krasimir@google.com>
+Date: Thu, 14 Dec 2023 15:02:23 +0000
+Subject: [PATCH] llvm-wrapper: adapt for LLVM API changes
+
+Adapt for https://github.com/llvm/llvm-project/commit/8ecbb0404d740d1ab173554e47cef39cd5e3ef8c.
+---
+ compiler/rustc_llvm/llvm-wrapper/CoverageMappingWrapper.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/compiler/rustc_llvm/llvm-wrapper/CoverageMappingWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/CoverageMappingWrapper.cpp
+index d61ec0b641c9d..373bc5cc58185 100644
+--- a/compiler/rustc_llvm/llvm-wrapper/CoverageMappingWrapper.cpp
++++ b/compiler/rustc_llvm/llvm-wrapper/CoverageMappingWrapper.cpp
+@@ -139,6 +139,9 @@ extern "C" void LLVMRustCoverageWriteMappingToBuffer(
+            RustMappingRegions, NumMappingRegions)) {
+     MappingRegions.emplace_back(
+         fromRust(Region.Count), fromRust(Region.FalseCount),
++#if LLVM_VERSION_GE(18, 0)
++        coverage::CounterMappingRegion::MCDCParameters{},
++#endif
+         Region.FileID, Region.ExpandedFileID,
+         Region.LineStart, Region.ColumnStart, Region.LineEnd, Region.ColumnEnd,
+         fromRust(Region.Kind));
