@@ -42,7 +42,7 @@
 
 Name:           rust
 Version:        1.75.0
-Release:        2
+Release:        3
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -445,6 +445,7 @@ export max_cpus=4
   --set target.%{rust_triple}.cxx="%{__cxx}" \
   --set target.%{rust_triple}.ar="%{__ar}" \
   --set target.%{rust_triple}.ranlib="%{__ranlib}" \
+  --set target.%{rust_triple}.profiler="$(ls %{_libdir}/clang/*/lib/%{_arch}-*-linux%{_gnu}/libclang_rt.profile.a |head -n1)" \
   --python=%{python} \
   --local-rust-root=%{local_rust_root} \
   %{!?with_bundled_llvm: --llvm-root=%{llvm_root} --llvm-config=%{_bindir}/llvm-config \
