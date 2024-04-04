@@ -438,6 +438,7 @@ export max_cpus=4
   --set target.%{rust_triple}.ar="%{__ar}" \
   --set target.%{rust_triple}.ranlib="%{__ranlib}" \
   --set target.%{rust_triple}.profiler="$(ls %{_libdir}/clang/*/lib/%{_arch}-*-linux%{_gnu}/libclang_rt.profile.a |head -n1)" \
+  --set build.optimized-compiler-builtins=false \
   --python=%{python} \
   --local-rust-root=%{local_rust_root} \
   %{!?with_bundled_llvm: --llvm-root=%{llvm_root} --llvm-config=%{_bindir}/llvm-config \
