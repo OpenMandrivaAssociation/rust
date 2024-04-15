@@ -1,0 +1,62 @@
+From 8eb48b4f4c6e3d48f2600159a75184ec4d74b249 Mon Sep 17 00:00:00 2001
+From: Nikita Popov <npopov@redhat.com>
+Date: Wed, 31 Jan 2024 15:08:08 +0100
+Subject: [PATCH] Update data layouts in custom target tests for LLVM 18
+
+Fixes https://github.com/rust-lang/rust/issues/120492.
+---
+ tests/run-make/rust-lld-custom-target/custom-target.json        | 2 +-
+ tests/run-make/rustdoc-target-spec-json-path/target.json        | 2 +-
+ tests/run-make/target-specs/my-awesome-platform.json            | 2 +-
+ .../target-specs/my-x86_64-unknown-linux-gnu-platform.json      | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tests/run-make/rust-lld-custom-target/custom-target.json b/tests/run-make/rust-lld-custom-target/custom-target.json
+index 7828a99f235c1..e2c64cbdb43c2 100644
+--- a/tests/run-make/rust-lld-custom-target/custom-target.json
++++ b/tests/run-make/rust-lld-custom-target/custom-target.json
+@@ -2,7 +2,7 @@
+   "arch": "x86_64",
+   "cpu": "x86-64",
+   "crt-static-respected": true,
+-  "data-layout": "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128",
++  "data-layout": "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128",
+   "dynamic-linking": true,
+   "env": "gnu",
+   "has-rpath": true,
+diff --git a/tests/run-make/rustdoc-target-spec-json-path/target.json b/tests/run-make/rustdoc-target-spec-json-path/target.json
+index 34357182c205e..c478f1196fae0 100644
+--- a/tests/run-make/rustdoc-target-spec-json-path/target.json
++++ b/tests/run-make/rustdoc-target-spec-json-path/target.json
+@@ -2,7 +2,7 @@
+   "arch": "x86_64",
+   "cpu": "x86-64",
+   "crt-static-respected": true,
+-  "data-layout": "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128",
++  "data-layout": "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128",
+   "dynamic-linking": true,
+   "env": "gnu",
+   "executables": true,
+diff --git a/tests/run-make/target-specs/my-awesome-platform.json b/tests/run-make/target-specs/my-awesome-platform.json
+index 00de3de05f07a..1673ef7bd54d1 100644
+--- a/tests/run-make/target-specs/my-awesome-platform.json
++++ b/tests/run-make/target-specs/my-awesome-platform.json
+@@ -1,5 +1,5 @@
+ {
+-    "data-layout": "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-f64:32:64-f80:32-n8:16:32-S128",
++    "data-layout": "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-i128:128-f64:32:64-f80:32-n8:16:32-S128",
+     "linker-flavor": "gcc",
+     "llvm-target": "i686-unknown-linux-gnu",
+     "target-endian": "little",
+diff --git a/tests/run-make/target-specs/my-x86_64-unknown-linux-gnu-platform.json b/tests/run-make/target-specs/my-x86_64-unknown-linux-gnu-platform.json
+index 6d5e964ed4fee..0cafce15a9fef 100644
+--- a/tests/run-make/target-specs/my-x86_64-unknown-linux-gnu-platform.json
++++ b/tests/run-make/target-specs/my-x86_64-unknown-linux-gnu-platform.json
+@@ -1,6 +1,6 @@
+ {
+     "pre-link-args": {"gcc": ["-m64"]},
+-    "data-layout": "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128",
++    "data-layout": "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128",
+     "linker-flavor": "gcc",
+     "llvm-target": "x86_64-unknown-linux-gnu",
+     "target-endian": "little",
