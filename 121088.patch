@@ -1,0 +1,55 @@
+From 369fff6c0640fe89be9b915adaa83e66a022e00d Mon Sep 17 00:00:00 2001
+From: Nikita Popov <npopov@redhat.com>
+Date: Wed, 14 Feb 2024 16:26:20 +0100
+Subject: [PATCH] Implicitly enable evex512 if avx512 is enabled
+
+LLVM 18 requires the evex512 feature to allow use of zmm registers.
+LLVM automatically sets it when using a generic CPU, but not when
+`-C target-cpu` is specified. This will result either in backend
+legalization crashes, or code unexpectedly using ymm instead of
+zmm registers.
+
+For now, make sure that `avx512*` features imply `evex512`. Long
+term we'll probably have to deal with the AVX10 mess somehow.
+---
+ compiler/rustc_codegen_llvm/src/llvm_util.rs    |  4 ++++
+ tests/ui/asm/x86_64/evex512-implicit-feature.rs | 15 +++++++++++++++
+ 2 files changed, 19 insertions(+)
+ create mode 100644 tests/ui/asm/x86_64/evex512-implicit-feature.rs
+
+diff --git a/compiler/rustc_codegen_llvm/src/llvm_util.rs b/compiler/rustc_codegen_llvm/src/llvm_util.rs
+index e48479c8da279..54e8ed85e3250 100644
+--- a/compiler/rustc_codegen_llvm/src/llvm_util.rs
++++ b/compiler/rustc_codegen_llvm/src/llvm_util.rs
+@@ -266,6 +266,10 @@ pub fn to_llvm_features<'a>(sess: &Session, s: &'a str) -> LLVMFeature<'a> {
+         ("riscv32" | "riscv64", "fast-unaligned-access") if get_version().0 <= 17 => {
+             LLVMFeature::new("unaligned-scalar-mem")
+         }
++        // For LLVM 18, enable the evex512 target feature if a avx512 target feature is enabled.
++        ("x86", s) if get_version().0 >= 18 && s.starts_with("avx512") => {
++            LLVMFeature::with_dependency(s, TargetFeatureFoldStrength::EnableOnly("evex512"))
++        }
+         (_, s) => LLVMFeature::new(s),
+     }
+ }
+diff --git a/tests/ui/asm/x86_64/evex512-implicit-feature.rs b/tests/ui/asm/x86_64/evex512-implicit-feature.rs
+new file mode 100644
+index 0000000000000..a15060857eccb
+--- /dev/null
++++ b/tests/ui/asm/x86_64/evex512-implicit-feature.rs
+@@ -0,0 +1,15 @@
++// build-pass
++// only-x86_64
++// compile-flags: --crate-type=lib -C target-cpu=skylake
++
++#![feature(avx512_target_feature)]
++#![feature(stdarch_x86_avx512)]
++
++use std::arch::x86_64::*;
++
++#[target_feature(enable = "avx512f")]
++#[no_mangle]
++pub unsafe fn test(res: *mut f64, p: *const f64) {
++    let arg = _mm512_load_pd(p);
++    _mm512_store_pd(res, _mm512_fmaddsub_pd(arg, arg, arg));
++}
