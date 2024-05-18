@@ -12,9 +12,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.76.0
-%global bootstrap_cargo 1.76.0
-%global bootstrap_channel 1.76.0
+%global bootstrap_rust 1.77.0
+%global bootstrap_cargo 1.77.0
+%global bootstrap_channel 1.77.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -41,7 +41,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.77.2
+Version:        1.78.0
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -102,7 +102,7 @@ end}
     -- rust doesn't make a difference between x86_64/znver1 or armv7hl/armv7hnl
     -- don't add the same source twice
     if arch~="znver1" and arch~="armv7hl" then
-      print(string.format("Source%d: %s-%s.tar.gz\n",
+      print(string.format("Source%d: %s-%s.tar.xz\n",
                           i, base, rust_triple(arch)))
       if arch == target_arch or (target_arch=="znver1" and arch=="x86_64") or (target_arch=="armv7hl" and arch=="armv7hnl") then
         rpm.define("bootstrap_source "..i)
