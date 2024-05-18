@@ -567,7 +567,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %endif
 
 # We don't need the old versions...
-rm %{buildroot}%{_bindir}/*.old
+#rm %{buildroot}%{_bindir}/*.old
 
 # And this is definitely installed in the wrong location
 #mv %{buildroot}%{_prefix}/src/etc %{buildroot}/
