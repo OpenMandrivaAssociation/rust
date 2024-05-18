@@ -61,7 +61,7 @@ Patch0:		rust-1.74.0-cargo-drop-lockfile-check.patch
 
 # Backports of fixes for LLVM 18 compatibility
 #Patch7:         120529.patch
-Patch8:         121088.patch
+#Patch8:         121088.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
