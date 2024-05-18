@@ -550,8 +550,8 @@ rm -f %{buildroot}%{_docdir}/%{name}/html/SourceSerif4-It.ttf.woff2
 rm -f %{buildroot}%{_docdir}/%{name}/html/SourceSerif4-Regular.ttf.woff2
 
 # Sanitize the HTML documentation
-find %{buildroot}%{_docdir}/%{name}/html -empty -delete
-find %{buildroot}%{_docdir}/%{name}/html -type f -exec chmod -x '{}' '+'
+#find %{buildroot}%{_docdir}/%{name}/html -empty -delete
+#find %{buildroot}%{_docdir}/%{name}/html -type f -exec chmod -x '{}' '+'
 
 # Create the path for crate-devel packages
 mkdir -p %{buildroot}%{_datadir}/cargo/registry
