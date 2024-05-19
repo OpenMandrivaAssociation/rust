@@ -12,9 +12,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.75.0
-%global bootstrap_cargo 1.75.0
-%global bootstrap_channel 1.75.0
+%global bootstrap_rust 1.77.0
+%global bootstrap_cargo 1.77.0
+%global bootstrap_channel 1.77.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -41,8 +41,8 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.76.0
-Release:        2
+Version:        1.78.0
+Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -58,8 +58,6 @@ Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
 # Remove lock file check, it breaks vendoring tagged git
 # (see amdgpu_top package)
 Patch0:		rust-1.74.0-cargo-drop-lockfile-check.patch
-# LLVM 18 support
-Patch1:		https://github.com/rust-lang/rust/pull/116672.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
@@ -100,7 +98,7 @@ end}
     -- rust doesn't make a difference between x86_64/znver1 or armv7hl/armv7hnl
     -- don't add the same source twice
     if arch~="znver1" and arch~="armv7hl" then
-      print(string.format("Source%d: %s-%s.tar.gz\n",
+      print(string.format("Source%d: %s-%s.tar.xz\n",
                           i, base, rust_triple(arch)))
       if arch == target_arch or (target_arch=="znver1" and arch=="x86_64") or (target_arch=="armv7hl" and arch=="armv7hnl") then
         rpm.define("bootstrap_source "..i)
@@ -440,6 +438,7 @@ export max_cpus=4
   --set target.%{rust_triple}.ar="%{__ar}" \
   --set target.%{rust_triple}.ranlib="%{__ranlib}" \
   --set target.%{rust_triple}.profiler="$(ls %{_libdir}/clang/*/lib/%{_arch}-*-linux%{_gnu}/libclang_rt.profile.a |head -n1)" \
+  --set build.optimized-compiler-builtins=false \
   --python=%{python} \
   --local-rust-root=%{local_rust_root} \
   %{!?with_bundled_llvm: --llvm-root=%{llvm_root} --llvm-config=%{_bindir}/llvm-config \
@@ -547,8 +546,8 @@ rm -f %{buildroot}%{_docdir}/%{name}/html/SourceSerif4-It.ttf.woff2
 rm -f %{buildroot}%{_docdir}/%{name}/html/SourceSerif4-Regular.ttf.woff2
 
 # Sanitize the HTML documentation
-find %{buildroot}%{_docdir}/%{name}/html -empty -delete
-find %{buildroot}%{_docdir}/%{name}/html -type f -exec chmod -x '{}' '+'
+#find %{buildroot}%{_docdir}/%{name}/html -empty -delete
+#find %{buildroot}%{_docdir}/%{name}/html -type f -exec chmod -x '{}' '+'
 
 # Create the path for crate-devel packages
 mkdir -p %{buildroot}%{_datadir}/cargo/registry
@@ -564,7 +563,7 @@ rm -f %{buildroot}%{rustlibdir}/etc/lldb_*
 %endif
 
 # We don't need the old versions...
-rm %{buildroot}%{_bindir}/*.old
+#rm %{buildroot}%{_bindir}/*.old
 
 # And this is definitely installed in the wrong location
 #mv %{buildroot}%{_prefix}/src/etc %{buildroot}/
@@ -626,15 +625,11 @@ export CXX="g++ -fuse-ld=lld"
 %endif
 
 %files doc
-%docdir %{_docdir}/%{name}
-%dir %{_docdir}/%{name}
-%dir %{_docdir}/%{name}/html
-%{_docdir}/%{name}/html/*/
-%{_docdir}/%{name}/html/*.html
-%{_docdir}/%{name}/html/*.css
-%{_docdir}/%{name}/html/*.js
-%doc %{_datadir}/doc/rust/html/releases.md
-%license %{_docdir}/%{name}/html/*.txt
+%doc %{_datadir}/doc/docs/html/
+%doc %{_datadir}/doc/clippy/
+%doc %{_datadir}/doc/rust-analyzer/
+%doc %{_datadir}/doc/rustc/
+%doc %{_datadir}/doc/rustfmt/
 
 %files -n cargo
 %license src/tools/cargo/LICENSE-APACHE src/tools/cargo/LICENSE-MIT src/tools/cargo/LICENSE-THIRD-PARTY
@@ -647,6 +642,7 @@ export CXX="g++ -fuse-ld=lld"
 %{_sysconfdir}/bash_completion.d/cargo
 
 %files -n cargo-doc
+%doc %{_datadir}/doc/cargo/LICENSE*
 %docdir %{_docdir}/cargo
 %dir %{_docdir}/cargo
 %{_docdir}/cargo/html
