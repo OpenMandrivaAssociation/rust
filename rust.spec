@@ -629,15 +629,15 @@ export CXX="g++ -fuse-ld=lld"
 %endif
 
 %files doc
-%docdir %{_docdir}/%{name}
-%dir %{_docdir}/%{name}
-%dir %{_docdir}/%{name}/html
-%{_docdir}/%{name}/html/*/
-%{_docdir}/%{name}/html/*.html
-%{_docdir}/%{name}/html/*.css
-%{_docdir}/%{name}/html/*.js
-%doc %{_datadir}/doc/rust/html/releases.md
-%license %{_docdir}/%{name}/html/*.txt
+#docdir %{_docdir}/%{name}
+#dir %{_docdir}/%{name}
+#dir %{_docdir}/%{name}/html
+#{_docdir}/%{name}/html/*/
+#{_docdir}/%{name}/html/*.html
+#{_docdir}/%{name}/html/*.css
+#{_docdir}/%{name}/html/*.js
+#doc %{_datadir}/doc/rust/html/releases.md
+#license %{_docdir}/%{name}/html/*.txt
 
 %files -n cargo
 %license src/tools/cargo/LICENSE-APACHE src/tools/cargo/LICENSE-MIT src/tools/cargo/LICENSE-THIRD-PARTY
