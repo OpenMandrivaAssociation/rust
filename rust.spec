@@ -629,15 +629,11 @@ export CXX="g++ -fuse-ld=lld"
 %endif
 
 %files doc
-#docdir %{_docdir}/%{name}
-#dir %{_docdir}/%{name}
-#dir %{_docdir}/%{name}/html
-#{_docdir}/%{name}/html/*/
-#{_docdir}/%{name}/html/*.html
-#{_docdir}/%{name}/html/*.css
-#{_docdir}/%{name}/html/*.js
-#doc %{_datadir}/doc/rust/html/releases.md
-#license %{_docdir}/%{name}/html/*.txt
+%doc %{_datadir}/doc/docs/html/
+%doc %{_datadir}/doc/clippy/
+%doc %{_datadir}/doc/rust-analyzer/
+%doc %{_datadir}/doc/rustc/
+%doc %{_datadir}/doc/rustfmt/
 
 %files -n cargo
 %license src/tools/cargo/LICENSE-APACHE src/tools/cargo/LICENSE-MIT src/tools/cargo/LICENSE-THIRD-PARTY
@@ -650,6 +646,7 @@ export CXX="g++ -fuse-ld=lld"
 %{_sysconfdir}/bash_completion.d/cargo
 
 %files -n cargo-doc
+%doc %{_datadir}/doc/cargo/LICENSE*
 %docdir %{_docdir}/cargo
 %dir %{_docdir}/cargo
 %{_docdir}/cargo/html
