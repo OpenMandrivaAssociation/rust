@@ -26,9 +26,9 @@
 # is insufficient.  Rust currently requires LLVM 7.0+.
 %bcond_with bundled_llvm
 # Use bundled llvm on aarch64 to workaround build failures on Rust 1.78.0 and Clang18
-#ifarch %{aarch64}
-#bcond_without bundled_llvm
-#endif
+%ifarch %{aarch64}
+%bcond_without bundled_llvm
+%endif
 
 # libgit2-sys expects to use its bundled library, which is sometimes just a
 # snapshot of libgit2's master branch.  This can mean the FFI declarations
