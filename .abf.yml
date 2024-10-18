@@ -1,9 +1,9 @@
 sources:
-  rust-1.79.0-aarch64-unknown-linux-gnu.tar.xz: 4ead31343c70eb103be4d8150c9eb2caec0f583e
-  rust-1.79.0-armv7-unknown-linux-gnueabihf.tar.xz: 5fa50a885899c2a49a66910aae18d31a57bd429e
-  rust-1.79.0-i686-unknown-linux-gnu.tar.xz: a00bc1a385dd98f3a918755916d1f8f14cd68e0e
-  rust-1.79.0-powerpc64-unknown-linux-gnu.tar.xz: 5d4fc40c1690c167bc74c20fdba58d8024c51c42
-  rust-1.79.0-powerpc64le-unknown-linux-gnu.tar.xz: 0867333fd1f58459c9d61464451db92bfb2c3f74
-  rust-1.79.0-riscv64gc-unknown-linux-gnu.tar.xz: eee680392382639b7a7e32e39911f8225e6d6e03
-  rust-1.79.0-x86_64-unknown-linux-gnu.tar.xz: c4362f0258fedb63c12f0d920ea69a2c7ca195b0
-  rustc-1.80.1-src.tar.xz: 3b72a3caac06ff91557cc33545a5ebec12ec7f92
+  rust-1.81.0-aarch64-unknown-linux-gnu.tar.xz: 685a6f96c8d3e57409a13ea0ed54c28296a26532
+  rust-1.81.0-armv7-unknown-linux-gnueabihf.tar.xz: 9d2e65af2cd34271ad9faea467cbc92ab28131f5
+  rust-1.81.0-i686-unknown-linux-gnu.tar.xz: 24b9c438adcaaa7ad1ce88b4c7bf9a256971fbb6
+  rust-1.81.0-powerpc64-unknown-linux-gnu.tar.xz: 43571e3f7e1df1fda1b9ac5fdd256a6334f1f0cd
+  rust-1.81.0-powerpc64le-unknown-linux-gnu.tar.xz: 8d9d2cf02ac533b81dd075d351e747b0f1a7d4ae
+  rust-1.81.0-riscv64gc-unknown-linux-gnu.tar.xz: fa4643894e5cdc953b65ac21fd66bebd97ade737
+  rust-1.81.0-x86_64-unknown-linux-gnu.tar.xz: 8cce2d23c08988975646dab34b812c6315cb1f4f
+  rustc-1.82.0-src.tar.xz: eaa11a8e936e36aabed6602b97f17770f3a7d6fb
