@@ -1,19 +1,35 @@
-diff -up rustc-1.80.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs.2~ rustc-1.80.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs
---- rustc-1.80.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs.2~	2006-07-24 03:21:28.000000000 +0200
-+++ rustc-1.80.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs	2024-08-02 00:26:42.205247951 +0200
-@@ -768,6 +768,7 @@ impl<'a> Linker for GccLinker<'a> {
-             self.linker_arg("--nxcompat");
-         } else if self.is_gnu {
-             self.linker_args(&["-z", "noexecstack"]);
-+            self.linker_args(&["-z", "nostart-stop-gc"]);
+diff -up rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs.2~ rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs
+--- rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs.2~	2024-10-28 20:10:52.943753592 +0100
++++ rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs	2024-10-28 20:15:15.616729235 +0100
+@@ -636,6 +636,7 @@ impl<'a> Linker for GccLinker<'a> {
+         // reduction.
+         } else if (self.is_gnu || self.sess.target.is_like_wasm) && !keep_metadata {
+             self.link_arg("--gc-sections");
++            self.link_arg("-z,nostart-stop-gc");
          }
      }
  
-@@ -1252,6 +1253,7 @@ impl<'a> Linker for WasmLd<'a> {
+@@ -846,6 +847,7 @@ impl<'a> Linker for GccLinker<'a> {
+             self.link_arg("--nxcompat");
+         } else if self.is_gnu {
+             self.link_args(&["-z", "noexecstack"]);
++            self.link_args(&["-z", "nostart-stop-gc"]);
+         }
+     }
+ 
+@@ -1335,6 +1337,7 @@ impl<'a> Linker for WasmLd<'a> {
  
      fn gc_sections(&mut self, _keep_metadata: bool) {
-         self.cmd.arg("--gc-sections");
-+        self.cmd.arg("-z,nostart-stop-gc");
+         self.link_arg("--gc-sections");
++        self.link_arg("-z,nostart-stop-gc");
      }
  
      fn no_gc_sections(&mut self) {
+@@ -1478,6 +1481,7 @@ impl<'a> Linker for L4Bender<'a> {
+     fn gc_sections(&mut self, keep_metadata: bool) {
+         if !keep_metadata {
+             self.link_arg("--gc-sections");
++            self.link_arg("-z,nostart-stop-gc");
+         }
+     }
+ 

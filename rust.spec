@@ -58,6 +58,7 @@ Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
 # Remove lock file check, it breaks vendoring tagged git
 # (see amdgpu_top package)
 Patch0:		rust-1.74.0-cargo-drop-lockfile-check.patch
+Patch1:		rust-1.80-ldflags.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
