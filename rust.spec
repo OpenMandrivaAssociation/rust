@@ -12,9 +12,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.82.0
-%global bootstrap_cargo 1.82.0
-%global bootstrap_channel 1.82.0
+%global bootstrap_rust 1.83.0
+%global bootstrap_cargo 1.83.0
+%global bootstrap_channel 1.83.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -41,7 +41,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.83.0
+Version:        1.84.0
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -60,7 +60,7 @@ Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
 Patch0:		rust-1.74.0-cargo-drop-lockfile-check.patch
 Patch1:		rust-1.80-ldflags.patch
 # https://github.com/rust-lang/rust/issues/131944
-Patch2:		https://github.com/rust-lang/rust/commit/1dc106121b62562ead6e7d612fa136dc4b35cd5d.patch
+#Patch2:		https://github.com/rust-lang/rust/commit/1dc106121b62562ead6e7d612fa136dc4b35cd5d.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
