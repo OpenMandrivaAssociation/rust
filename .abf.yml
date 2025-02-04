@@ -6,4 +6,4 @@ sources:
   rust-1.83.0-powerpc64le-unknown-linux-gnu.tar.xz: 477346a03a5a4ed5bf5fc95ed42b0a1eaba3d236
   rust-1.83.0-riscv64gc-unknown-linux-gnu.tar.xz: 6411ffe71d9454de5de59f77287470875eedad57
   rust-1.83.0-x86_64-unknown-linux-gnu.tar.xz: 5730f55ff0c8e5fb07bd3c3e886fd6a8ff7351fd
-  rustc-1.84.0-src.tar.xz: f3211002484e7a392d27dc3901ee72151a0fe0d4
+  rustc-1.84.1-src.tar.xz: 787899153e848b012d8bbd6ec0baf0ed5e189831
