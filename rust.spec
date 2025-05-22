@@ -62,6 +62,8 @@ Patch1:		rust-1.80-ldflags.patch
 # https://github.com/rust-lang/rust/issues/131944
 #Patch2:		https://github.com/rust-lang/rust/commit/1dc106121b62562ead6e7d612fa136dc4b35cd5d.patch
 
+Patch2:    0001-Fix-profiler_builtins-build-script-to-handle-full-pa.patch
+
 %{lua: function rust_triple(arch)
   local abi = "gnu"
   if arch == "armv7hnl" then
@@ -440,7 +442,7 @@ export max_cpus=4
   --set target.%{rust_triple}.cxx="%{__cxx}" \
   --set target.%{rust_triple}.ar="%{__ar}" \
   --set target.%{rust_triple}.ranlib="%{__ranlib}" \
-  --set target.%{rust_triple}.profiler=/usr/lib64/clang/19/lib/i386-pc-linux-gnu/libclang_rt.profile.a \
+  --set target.%{rust_triple}.profiler="$(ls %{_libdir}/clang/*/lib/%{_arch}-*-linux%{_gnu}/libclang_rt.profile.a |head -n1)" \
   --set build.optimized-compiler-builtins=false \
   --python=%{python} \
   --local-rust-root=%{local_rust_root} \
