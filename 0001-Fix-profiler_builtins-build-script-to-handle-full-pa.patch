@@ -1,0 +1,42 @@
+From dc0fbcab7e0673afe62b3e8e74905d9e5f5b74a4 Mon Sep 17 00:00:00 2001
+From: Jesus Checa Hidalgo <jchecahi@redhat.com>
+Date: Fri, 11 Apr 2025 16:57:38 +0200
+Subject: [PATCH] Fix profiler_builtins build script to handle full path to
+ profiler lib
+
+LLVM_PROFILER_RT_LIB may be set to an absolute path (e.g., in Fedora builds),
+but `-l` expects a library name, not a path. After #138273, this caused builds
+to fail with a "could not find native static library" error.
+
+This patch updates the build script to split the path into directory and
+filename, using `cargo::rustc-link-search` for the directory and
+`cargo::rustc-link-lib=+verbatim` for the file. This allows profiler_builtins to
+correctly link the static library even when an absolute path is provided.
+---
+ library/profiler_builtins/build.rs | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/library/profiler_builtins/build.rs b/library/profiler_builtins/build.rs
+index dd85239fa8c..fc1a9ecc1ec 100644
+--- a/library/profiler_builtins/build.rs
++++ b/library/profiler_builtins/build.rs
+@@ -9,8 +9,14 @@
+ 
+ fn main() {
+     if let Ok(rt) = tracked_env_var("LLVM_PROFILER_RT_LIB") {
+-        println!("cargo::rustc-link-lib=static:+verbatim={rt}");
+-        return;
++        let rt = PathBuf::from(rt);
++        if let Some(lib) = rt.file_name() {
++            if let Some(dir) = rt.parent() {
++                println!("cargo::rustc-link-search=native={}", dir.display());
++            }
++            println!("cargo::rustc-link-lib=static:+verbatim={}", lib.to_str().unwrap());
++            return;
++        }
+     }
+ 
+     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS was not set");
+-- 
+2.49.0
+
