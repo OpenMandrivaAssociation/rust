@@ -62,7 +62,7 @@ Patch1:		rust-1.80-ldflags.patch
 # https://github.com/rust-lang/rust/issues/131944
 #Patch2:		https://github.com/rust-lang/rust/commit/1dc106121b62562ead6e7d612fa136dc4b35cd5d.patch
 
-Patch2:    0001-Fix-profiler_builtins-build-script-to-handle-full-pa.patch
+#Patch2:    0001-Fix-profiler_builtins-build-script-to-handle-full-pa.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
