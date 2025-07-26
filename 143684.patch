@@ -1,0 +1,59 @@
+From 8b8e1c5606335e458f7552403be447bb5ed201bb Mon Sep 17 00:00:00 2001
+From: Nikita Popov <npopov@redhat.com>
+Date: Thu, 17 Jul 2025 14:25:53 +0200
+Subject: [PATCH 2/3] Updating host toolchain
+
+Necessary to avoid a bolt-related crash.
+---
+ src/ci/docker/scripts/build-clang.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ci/docker/scripts/build-clang.sh b/src/ci/docker/scripts/build-clang.sh
+index 536991cc06b7d..ee1a48a5b2f1f 100755
+--- a/src/ci/docker/scripts/build-clang.sh
++++ b/src/ci/docker/scripts/build-clang.sh
+@@ -5,7 +5,7 @@ set -ex
+ source shared.sh
+ 
+ # Try to keep the LLVM version here in sync with src/ci/scripts/install-clang.sh
+-LLVM=llvmorg-20.1.0-rc2
++LLVM=llvmorg-21.1.0-rc1
+ 
+ mkdir llvm-project
+ cd llvm-project
+
+From 4f246e4f8a9a1e29062773a3a4b46d9f11c54438 Mon Sep 17 00:00:00 2001
+From: Nikita Popov <npopov@redhat.com>
+Date: Tue, 22 Jul 2025 14:18:46 +0200
+Subject: [PATCH 3/3] Fix nvptx-safe-naming.rs test on LLVM 21
+
+This is now printed on the same line. Use NEXT/SAME depending on
+the LLVM version.
+---
+ tests/assembly/nvptx-safe-naming.rs | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/tests/assembly/nvptx-safe-naming.rs b/tests/assembly/nvptx-safe-naming.rs
+index d7b46aadd9cc1..6a6659a4e3047 100644
+--- a/tests/assembly/nvptx-safe-naming.rs
++++ b/tests/assembly/nvptx-safe-naming.rs
+@@ -1,6 +1,9 @@
+ //@ assembly-output: ptx-linker
+ //@ compile-flags: --crate-type cdylib -Z unstable-options -Clinker-flavor=llbc
+ //@ only-nvptx64
++//@ revisions: LLVM20 LLVM21
++//@ [LLVM21] min-llvm-version: 21
++//@ [LLVM20] max-llvm-major-version: 20
+ 
+ #![feature(abi_ptx)]
+ #![no_std]
+@@ -15,7 +18,8 @@ extern crate breakpoint_panic_handler;
+ #[no_mangle]
+ pub unsafe extern "ptx-kernel" fn top_kernel(a: *const u32, b: *mut u32) {
+     // CHECK:      call.uni (retval0),
+-    // CHECK-NEXT: [[IMPL_FN]]
++    // LLVM20-NEXT: [[IMPL_FN]]
++    // LLVM21-SAME: [[IMPL_FN]]
+     *b = deep::private::MyStruct::new(*a).square();
+ }
+ 

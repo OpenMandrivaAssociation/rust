@@ -1,0 +1,44 @@
+From c2daa280209b5a72a4393cee9214fc773f13c6c7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jakub=20Ber=C3=A1nek?= <berykubik@gmail.com>
+Date: Mon, 30 Jun 2025 22:04:15 +0200
+Subject: [PATCH] Do not enable LLD by default in the dist profile
+
+---
+ src/bootstrap/defaults/bootstrap.dist.toml | 1 -
+ src/bootstrap/src/utils/change_tracker.rs  | 5 +++++
+ src/ci/run.sh                              | 7 +++----
+ 3 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/src/bootstrap/defaults/bootstrap.dist.toml b/src/bootstrap/defaults/bootstrap.dist.toml
+index f0cb34eb45856..9daf9faac14a2 100644
+--- a/src/bootstrap/defaults/bootstrap.dist.toml
++++ b/src/bootstrap/defaults/bootstrap.dist.toml
+@@ -20,7 +20,6 @@ download-ci-llvm = false
+ channel = "auto-detect"
+ # Never download a rustc, distributions must build a fresh compiler.
+ download-rustc = false
+-lld = true
+ # Build the llvm-bitcode-linker
+ llvm-bitcode-linker = true
+ 
+diff --git a/src/ci/run.sh b/src/ci/run.sh
+index a6721a818b303..f58a067041dd8 100755
+--- a/src/ci/run.sh
++++ b/src/ci/run.sh
+@@ -86,13 +86,12 @@ fi
+ # space required for CI artifacts.
+ RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --dist-compression-formats=xz"
+ 
+-if [ "$EXTERNAL_LLVM" = "1" ]; then
+-  RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.lld=false"
+-fi
+-
+ # Enable the `c` feature for compiler_builtins, but only when the `compiler-rt` source is available
+ # (to avoid spending a lot of time cloning llvm)
+ if [ "$EXTERNAL_LLVM" = "" ]; then
++  # Enable building & shipping lld
++  RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.lld=true"
++
+   RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set build.optimized-compiler-builtins"
+   # Likewise, only demand we test all LLVM components if we know we built LLVM with them
+   export COMPILETEST_REQUIRE_ALL_LLVM_COMPONENTS=1
