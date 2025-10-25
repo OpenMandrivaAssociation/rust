@@ -1,7 +1,7 @@
-diff -up rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs.2~ rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs
---- rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs.2~	2024-10-28 20:10:52.943753592 +0100
-+++ rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs	2024-10-28 20:15:15.616729235 +0100
-@@ -636,6 +636,7 @@ impl<'a> Linker for GccLinker<'a> {
+diff -uraN rustc-1.90.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs omv-rustc-1.90.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs
+--- rustc-1.90.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs	2025-09-14 17:05:11.000000000 +0200
++++ omv-rustc-1.90.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs	2025-10-25 21:16:32.438926646 +0200
+@@ -684,6 +684,7 @@
          // reduction.
          } else if (self.is_gnu || self.sess.target.is_like_wasm) && !keep_metadata {
              self.link_arg("--gc-sections");
@@ -9,7 +9,7 @@ diff -up rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs.2~ rustc
          }
      }
  
-@@ -846,6 +847,7 @@ impl<'a> Linker for GccLinker<'a> {
+@@ -903,6 +904,7 @@
              self.link_arg("--nxcompat");
          } else if self.is_gnu {
              self.link_args(&["-z", "noexecstack"]);
@@ -17,15 +17,15 @@ diff -up rustc-1.82.0-src/compiler/rustc_codegen_ssa/src/back/linker.rs.2~ rustc
          }
      }
  
-@@ -1335,6 +1337,7 @@ impl<'a> Linker for WasmLd<'a> {
+@@ -1401,6 +1403,7 @@
  
      fn gc_sections(&mut self, _keep_metadata: bool) {
          self.link_arg("--gc-sections");
 +        self.link_arg("-z,nostart-stop-gc");
      }
  
-     fn no_gc_sections(&mut self) {
-@@ -1478,6 +1481,7 @@ impl<'a> Linker for L4Bender<'a> {
+     fn optimize(&mut self) {
+@@ -1545,6 +1548,7 @@
      fn gc_sections(&mut self, keep_metadata: bool) {
          if !keep_metadata {
              self.link_arg("--gc-sections");
