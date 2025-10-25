@@ -60,8 +60,8 @@ Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
 Patch0:		rust-1.74.0-cargo-drop-lockfile-check.patch
 Patch1:		rust-1.80-ldflags.patch
 #Patch2:    0001-Fix-profiler_builtins-build-script-to-handle-full-pa.patch
-Patch3:		https://github.com/rust-lang/rust/pull/143684.patch
-Patch4:		https://github.com/rust-lang/rust/pull/143255.patch
+#Patch3:		https://github.com/rust-lang/rust/pull/143684.patch
+#Patch4:		https://github.com/rust-lang/rust/pull/143255.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
