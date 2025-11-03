@@ -606,6 +606,7 @@ export CXX="g++ -fuse-ld=lld"
 %{rustlibdir}/%{rust_triple}/lib/*.so
 %{rustlibdir}/%{rust_triple}/bin/*
 %{_libexecdir}/rust-analyzer-proc-macro-srv
+%exclude %{_sysconfdir}/target-spec-json-schema.json
 
 %files std-static
 %dir %{rustlibdir}
