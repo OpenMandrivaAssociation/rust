@@ -451,7 +451,7 @@ export max_cpus=4
   --disable-llvm-static-stdcpp \
   %{enable_debuginfo} \
   --enable-extended \
-  --tools=cargo,clippy,rls,rust-analyzer,rustfmt,src \
+  --tools=cargo,clippy,rls,rust-analyzer,rustdoc,rustfmt,src \
   --enable-vendor \
   --enable-verbose-tests \
   --dist-compression-formats=gz,xz \
