@@ -117,6 +117,10 @@ end}
 %global local_rust_root %{_builddir}/%{bootstrap_root}/usr
 Provides:       bundled(%{name}-bootstrap) = %{bootstrap_rust}
 %else
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
 BuildRequires:  cargo >= %{bootstrap_cargo}
 BuildRequires:  (%{name} >= %{bootstrap_rust} with %{name} <= %{version})
 %global local_rust_root %{_prefix}
