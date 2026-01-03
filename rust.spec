@@ -119,6 +119,7 @@ Provides:       bundled(%{name}-bootstrap) = %{bootstrap_rust}
 %else
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	libtool
 BuildRequires:	libtool-base
 BuildRequires:	slibtool
 BuildRequires:  cargo >= %{bootstrap_cargo}
