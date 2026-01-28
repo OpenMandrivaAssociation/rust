@@ -119,13 +119,14 @@ Provides:       bundled(%{name}-bootstrap) = %{bootstrap_rust}
 %else
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	libtool-base
-BuildRequires:	slibtool
+#moved libtool and slibtool for testing
 BuildRequires:  cargo >= %{bootstrap_cargo}
 BuildRequires:  (%{name} >= %{bootstrap_rust} with %{name} <= %{version})
 %global local_rust_root %{_prefix}
 %endif
 
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
 BuildRequires:  make
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
