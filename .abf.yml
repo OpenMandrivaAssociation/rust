@@ -6,4 +6,4 @@ sources:
   rust-1.92.0-powerpc64-unknown-linux-gnu.tar.xz: 95ef01d06a86b72a7f9e675d187b04b53a4e7bca
   rust-1.92.0-riscv64gc-unknown-linux-gnu.tar.xz: f7c0dbfbde9dc1fa60b209143bb5d0b07e5ba4c1
   rust-1.92.0-x86_64-unknown-linux-gnu.tar.xz: 3bc8abc3e3d356fdb2f0eaf48cb0cf4e49c87319
-  rustc-1.93.0-src.tar.xz: 917ba35237c86d85e1fa393e57821fd6042aaf4c
+  rustc-1.93.1-src.tar.xz: 7f41a6ccd00b8064dbef9a164776dcac1588b002

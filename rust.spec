@@ -41,7 +41,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.93.0
+Version:        1.93.1
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -55,13 +55,6 @@ ExclusiveArch:  %{rust_arches}
 %global rustc_package rustc-%{channel}-src
 %endif
 Source0:        https://static.rust-lang.org/dist/%{rustc_package}.tar.xz
-# Remove lock file check, it breaks vendoring tagged git
-# (see amdgpu_top package)
-Patch0:		rust-1.74.0-cargo-drop-lockfile-check.patch
-Patch1:		rust-1.80-ldflags.patch
-#Patch2:    0001-Fix-profiler_builtins-build-script-to-handle-full-pa.patch
-#Patch3:		https://github.com/rust-lang/rust/pull/143684.patch
-#Patch4:		https://github.com/rust-lang/rust/pull/143255.patch
 
 %{lua: function rust_triple(arch)
   local abi = "gnu"
@@ -208,6 +201,15 @@ Requires:       /usr/bin/cc
 %global llvm_has_filecheck 1
 %endif
 %endif
+
+%patchlist
+# Remove lock file check, it breaks vendoring tagged git
+# (see amdgpu_top package)
+rust-1.74.0-cargo-drop-lockfile-check.patch
+rust-1.80-ldflags.patch
+# LLVM 22.1 support
+https://github.com/rust-lang/rust/commit/0be66603ac37474fe884ad1b384510d1ddc37417.patch
+https://github.com/rust-lang/rust/commit/634251cba8edb4ebcd01e330c7241e14d76322a1.patch
 
 %description
 Rust is a systems programming language that runs blazingly fast, prevents
