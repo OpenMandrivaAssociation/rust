@@ -110,6 +110,7 @@ end}
 %global local_rust_root %{_builddir}/%{bootstrap_root}/usr
 Provides:       bundled(%{name}-bootstrap) = %{bootstrap_rust}
 %else
+BuildRequires:	gnu-config
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:  cargo >= %{bootstrap_cargo}
