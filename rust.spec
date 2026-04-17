@@ -1,5 +1,6 @@
 %define _disable_lto 1
 %define _disable_ld_no_undefined 1
+%undefine _debugsource_packages
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
