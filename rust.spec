@@ -12,9 +12,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.93.1
-%global bootstrap_cargo 1.93.1
-%global bootstrap_channel 1.93.1
+%global bootstrap_rust 1.94.0
+%global bootstrap_cargo 1.94.0
+%global bootstrap_channel 1.94.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -41,7 +41,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.94.1
+Version:        1.95.0
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -206,8 +206,6 @@ Requires:       /usr/bin/cc
 # (see amdgpu_top package)
 rust-1.74.0-cargo-drop-lockfile-check.patch
 rust-1.80-ldflags.patch
-# LLVM 22.1 support
-https://github.com/rust-lang/rust/commit/0be66603ac37474fe884ad1b384510d1ddc37417.patch
 
 %description
 Rust is a systems programming language that runs blazingly fast, prevents
