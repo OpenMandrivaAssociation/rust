@@ -1,5 +1,9 @@
 %define _disable_lto 1
 %define _disable_ld_no_undefined 1
+# znver failed with empty debug error
+%ifarch znver1
+%undefine _debugsource_packages
+%endif
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
