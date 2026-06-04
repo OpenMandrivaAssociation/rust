@@ -1,9 +1,9 @@
 sources:
-  rust-1.94.0-aarch64-unknown-linux-gnu.tar.xz: 88b87dc98080e91a3b7cce530e45128329bf596c
-  rust-1.94.0-armv7-unknown-linux-gnueabihf.tar.xz: 3120e3f1db9f3e2b47906f63b26e6fa887088e73
-  rust-1.94.0-i686-unknown-linux-gnu.tar.xz: 0a5c81c793f1d50f47a6fb667701c06176b5ff83
-  rust-1.94.0-powerpc64-unknown-linux-gnu.tar.xz: 62f9bc1c83eeeca87749187ebd2da47cdffdafb3
-  rust-1.94.0-powerpc64le-unknown-linux-gnu.tar.xz: 3d59dc3b2dc3c59ba2108de2bf652e4f4ab999b0
-  rust-1.94.0-riscv64gc-unknown-linux-gnu.tar.xz: 52882acc8cb0fe5f20a241148a6850fec8f857af
-  rust-1.94.0-x86_64-unknown-linux-gnu.tar.xz: bee02195ac66b92f8a85bad51f007406558ffa7c
-  rustc-1.95.0-src.tar.xz: e9e9182440c5c66e53f8a856306b576c585488d3
+  rust-1.95.0-aarch64-unknown-linux-gnu.tar.xz: d06e21fb0dfe16feb6db52188fdc0bd567fa9c00
+  rust-1.95.0-armv7-unknown-linux-gnueabihf.tar.xz: 79f44162714e18b3fbe4f0abf5c2a97f5cdffe55
+  rust-1.95.0-i686-unknown-linux-gnu.tar.xz: f9b03797b006512bc7e0fd3b66a2a8e294a4ebb0
+  rust-1.95.0-powerpc64-unknown-linux-gnu.tar.xz: 1021db71c126e1dd40a72898bf7ed12f5ae04d88
+  rust-1.95.0-powerpc64le-unknown-linux-gnu.tar.xz: 1f0cefe8a62341aa89a93a71a9c95f9ccd04c834
+  rust-1.95.0-riscv64gc-unknown-linux-gnu.tar.xz: 28692420b24347a80bde350b68063edebb3d2814
+  rust-1.95.0-x86_64-unknown-linux-gnu.tar.xz: 56b90718681dc955e4e726d205500706c3b95812
+  rustc-1.96.0-src.tar.xz: 90038f06b6e59845d1fa94f552853c561e611056
