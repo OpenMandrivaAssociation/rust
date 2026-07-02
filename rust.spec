@@ -210,6 +210,7 @@ Requires:       /usr/bin/cc
 # (see amdgpu_top package)
 rust-1.74.0-cargo-drop-lockfile-check.patch
 rust-1.80-ldflags.patch
+0001-openssl-4-support-2591.patch
 
 %description
 Rust is a systems programming language that runs blazingly fast, prevents
