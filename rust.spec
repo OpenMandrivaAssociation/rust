@@ -46,7 +46,7 @@
 
 Name:           rust
 Version:        1.97.1
-Release:        1
+Release:        2
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -210,6 +210,13 @@ Requires:       /usr/bin/cc
 # (see amdgpu_top package)
 rust-1.74.0-cargo-drop-lockfile-check.patch
 #rust-1.80-ldflags.patch
+# LLVM 23 support (SubtargetFeatureKV accessors, CfiFunctionIndex API)
+https://github.com/rust-lang/rust/commit/a60be48dff6b696a9b55c2878d0731fea26230a2.patch
+https://github.com/rust-lang/rust/commit/ca00de5a8aad4b6be672a260882460cee5fb8286.patch
+# LLVM 23 dropped AMX-TF32 (https://github.com/llvm/llvm-project/pull/207673)
+# Adapted from https://github.com/rust-lang/rust/commit/1a56799fef3e4746385da26590928c54a39520ca
+# and https://github.com/rust-lang/rust/commit/f7a6c996c5618a071ce07f7b29599dced5b52c50
+rust-1.97.1-llvm23-drop-amx-tf32.patch
 
 %description
 Rust is a systems programming language that runs blazingly fast, prevents

@@ -1,0 +1,34 @@
+From ca00de5a8aad4b6be672a260882460cee5fb8286 Mon Sep 17 00:00:00 2001
+From: Hans Wennborg <hans@chromium.org>
+Date: Fri, 5 Jun 2026 11:32:29 +0200
+Subject: [PATCH] Adopt to LLVM 23 CfiFunctionIndex change
+
+https://github.com/llvm/llvm-project/pull/201635 removed symbols()
+---
+ compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+index 8a6caa9b10854..aad4cbc11a417 100644
+--- a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
++++ b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+@@ -1512,12 +1512,19 @@ extern "C" void LLVMRustComputeLTOCacheKey(RustStringRef KeyOut,
+   DenseSet<GlobalValue::GUID> CfiFunctionDecls;
+ 
+   // Based on the 'InProcessThinBackend' constructor in LLVM
++#if LLVM_VERSION_GE(23, 0)
++  CfiFunctionDefs.insert_range(
++      Data->Index.cfiFunctionDefs().getExportedThinLTOGUIDs());
++  CfiFunctionDecls.insert_range(
++      Data->Index.cfiFunctionDecls().getExportedThinLTOGUIDs());
++#else
+   for (auto &Name : Data->Index.cfiFunctionDefs().symbols())
+     CfiFunctionDefs.insert(GlobalValue::getGUIDAssumingExternalLinkage(
+         GlobalValue::dropLLVMManglingEscape(Name)));
+   for (auto &Name : Data->Index.cfiFunctionDecls().symbols())
+     CfiFunctionDecls.insert(GlobalValue::getGUIDAssumingExternalLinkage(
+         GlobalValue::dropLLVMManglingEscape(Name)));
++#endif
+ 
+   Key = llvm::computeLTOCacheKey(conf, Data->Index, ModId, ImportList,
+                                  ExportList, ResolvedODR, DefinedGlobals,
