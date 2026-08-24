@@ -216,7 +216,7 @@ rust-1.74.0-cargo-drop-lockfile-check.patch
 # LLVM 23 dropped AMX-TF32 (https://github.com/llvm/llvm-project/pull/207673)
 # Adapted from https://github.com/rust-lang/rust/commit/1a56799fef3e4746385da26590928c54a39520ca
 # and https://github.com/rust-lang/rust/commit/f7a6c996c5618a071ce07f7b29599dced5b52c50
-#rust-1.97.1-llvm23-drop-amx-tf32.patch
+rust-1.97.1-llvm23-drop-amx-tf32.patch
 
 %description
 Rust is a systems programming language that runs blazingly fast, prevents
