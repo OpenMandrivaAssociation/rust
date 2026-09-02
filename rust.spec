@@ -16,9 +16,9 @@
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.96.0
-%global bootstrap_cargo 1.96.0
-%global bootstrap_channel 1.96.0
+%global bootstrap_rust 1.97.1
+%global bootstrap_cargo 1.97.1
+%global bootstrap_channel 1.97.1
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -45,8 +45,8 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.97.1
-Release:        2
+Version:        1.98.0
+Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -211,8 +211,8 @@ Requires:       /usr/bin/cc
 rust-1.74.0-cargo-drop-lockfile-check.patch
 #rust-1.80-ldflags.patch
 # LLVM 23 support (SubtargetFeatureKV accessors, CfiFunctionIndex API)
-https://github.com/rust-lang/rust/commit/a60be48dff6b696a9b55c2878d0731fea26230a2.patch
-https://github.com/rust-lang/rust/commit/ca00de5a8aad4b6be672a260882460cee5fb8286.patch
+#https://github.com/rust-lang/rust/commit/a60be48dff6b696a9b55c2878d0731fea26230a2.patch
+#https://github.com/rust-lang/rust/commit/ca00de5a8aad4b6be672a260882460cee5fb8286.patch
 # LLVM 23 dropped AMX-TF32 (https://github.com/llvm/llvm-project/pull/207673)
 # Adapted from https://github.com/rust-lang/rust/commit/1a56799fef3e4746385da26590928c54a39520ca
 # and https://github.com/rust-lang/rust/commit/f7a6c996c5618a071ce07f7b29599dced5b52c50
