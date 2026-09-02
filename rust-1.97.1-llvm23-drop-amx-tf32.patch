@@ -11,7 +11,7 @@ diff -uraN rustc-1.98.0-src/compiler/rustc_target/src/target_features.rs omv-rus
      ("avx", Stable, &["sse4.2"]),
 diff -uraN rustc-1.98.0-src/library/stdarch/crates/core_arch/src/x86_64/amx.rs omv-rustc-1.98.0-src/library/stdarch/crates/core_arch/src/x86_64/amx.rs
 --- rustc-1.98.0-src/library/stdarch/crates/core_arch/src/x86_64/amx.rs	2026-08-18 21:58:58.000000000 +0200
-+++ omv-rustc-1.98.0-src/library/stdarch/crates/core_arch/src/x86_64/amx.rs	2026-08-27 17:30:55.849843578 +0200
++++ omv-rustc-1.98.0-src/library/stdarch/crates/core_arch/src/x86_64/amx.rs	2026-09-02 14:37:04.401189011 +0200
 @@ -632,49 +632,6 @@
      (*dst).tile = tileloaddrst164_internal((*dst).rows, (*dst).colsb, base, stride as u64);
  }
@@ -71,10 +71,11 @@ diff -uraN rustc-1.98.0-src/library/stdarch/crates/core_arch/src/x86_64/amx.rs o
      #[link_name = "llvm.x86.tmmultf32ps.internal"]
      fn tmmultf32ps_internal(m: u16, n: u16, k: u16, dst: Tile, a: Tile, b: Tile) -> Tile;
  
-@@ -2369,52 +2324,6 @@
+@@ -2368,53 +2323,4 @@
+             }
          }
      }
- 
+-
 -    #[simd_test(enable = "amx-tf32")]
 -    fn test_tile_mmultf32ps() {
 -        unsafe {
@@ -100,8 +101,8 @@ diff -uraN rustc-1.98.0-src/library/stdarch/crates/core_arch/src/x86_64/amx.rs o
 -            let expected = array::from_fn(|i| array::from_fn(|j| 16.0 * i as f32 * j as f32));
 -            assert_eq!(res, expected);
 -        }
-     }
- 
+-    }
+-
 -    #[simd_test(enable = "amx-tf32")]
 -    fn test__tile_mmultf32ps() {
 -        unsafe {
@@ -123,7 +124,7 @@ diff -uraN rustc-1.98.0-src/library/stdarch/crates/core_arch/src/x86_64/amx.rs o
 -            assert_eq!(res, expected);
 -        }
 -    }
-- }
+ }
 diff -uraN rustc-1.98.0-src/library/stdarch/crates/stdarch-verify/tests/x86-intel.rs omv-rustc-1.98.0-src/library/stdarch/crates/stdarch-verify/tests/x86-intel.rs
 --- rustc-1.98.0-src/library/stdarch/crates/stdarch-verify/tests/x86-intel.rs	2026-08-18 21:58:58.000000000 +0200
 +++ omv-rustc-1.98.0-src/library/stdarch/crates/stdarch-verify/tests/x86-intel.rs	2026-08-27 17:31:46.936617744 +0200
