@@ -1,9 +1,9 @@
 %define _disable_lto 1
 %define _disable_ld_no_undefined 1
-# znver failed with empty debug error
-%ifarch znver1
+# rustc's DWARF has no source paths find-debuginfo can package, so
+# debugsourcefiles.list is empty and rpm errors. znver1 hit this first;
+# aarch64 1.99.1 did too with full debuginfo.
 %undefine _debugsource_packages
-%endif
 
 # Only x86_64 and i686 are Tier 1 platforms at this time.
 # https://forge.rust-lang.org/platform-support.html
@@ -51,6 +51,7 @@ Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
+Group:          Development/Other
 URL:            https://www.rust-lang.org
 ExclusiveArch:  %{rust_arches}
 
