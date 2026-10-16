@@ -1,7 +1,6 @@
-diff -up rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs.1~ rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs
---- rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs.1~	2023-12-21 17:56:13.000000000 +0100
-+++ rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs	2023-12-29 04:23:38.561888236 +0100
-@@ -199,6 +199,9 @@ a lock file compatible with `{orig}` can
+--- a/src/tools/cargo/src/sources/config.rs
++++ b/src/tools/cargo/src/sources/config.rs
+@@ -206,6 +206,9 @@
              );
          }
  
@@ -11,7 +10,7 @@ diff -up rustc-1.75.0-src/src/tools/cargo/src/cargo/sources/config.rs.1~ rustc-1
          if old_src.requires_precise() && !id.has_precise() {
              bail!(
                  "\
-@@ -211,6 +214,7 @@ restore the source replacement configura
+@@ -218,6 +221,7 @@
                  orig = orig_name
              );
          }

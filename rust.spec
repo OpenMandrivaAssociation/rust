@@ -12,13 +12,14 @@
 # The channel can be stable, beta, or nightly
 %{!?channel: %global channel stable}
 
-# To bootstrap from scratch, set the channel and date from src/stage0.json
+# To bootstrap from scratch, set the channel and date from src/stage0
 # e.g. 1.10.0 wants rustc: 1.9.0-2016-05-24
 # or nightly wants some beta-YYYY-MM-DD
 # Note that cargo matches the program version here, not its crate version.
-%global bootstrap_rust 1.97.1
-%global bootstrap_cargo 1.97.1
-%global bootstrap_channel 1.97.1
+# 1.99.1's src/stage0 compiler_version is 1.98.0 (2026-08-20).
+%global bootstrap_rust 1.98.0
+%global bootstrap_cargo 1.98.0
+%global bootstrap_channel 1.98.0
 
 # Only the specified arches will use bootstrap binaries.
 %global bootstrap_arches %%{rust_arches}
@@ -45,7 +46,7 @@
 %bcond_with tests
 
 Name:           rust
-Version:        1.98.1
+Version:        1.99.1
 Release:        1
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
@@ -213,10 +214,8 @@ rust-1.74.0-cargo-drop-lockfile-check.patch
 # LLVM 23 support (SubtargetFeatureKV accessors, CfiFunctionIndex API)
 #https://github.com/rust-lang/rust/commit/a60be48dff6b696a9b55c2878d0731fea26230a2.patch
 #https://github.com/rust-lang/rust/commit/ca00de5a8aad4b6be672a260882460cee5fb8286.patch
-# LLVM 23 dropped AMX-TF32 (https://github.com/llvm/llvm-project/pull/207673)
-# Adapted from https://github.com/rust-lang/rust/commit/1a56799fef3e4746385da26590928c54a39520ca
-# and https://github.com/rust-lang/rust/commit/f7a6c996c5618a071ce07f7b29599dced5b52c50
-rust-1.97.1-llvm23-drop-amx-tf32.patch
+# LLVM 23 dropped AMX-TF32. Upstream removed it in 1.99 (LLVM 23 update),
+# so rust-1.97.1-llvm23-drop-amx-tf32.patch is no longer applied.
 
 %description
 Rust is a systems programming language that runs blazingly fast, prevents
@@ -465,7 +464,7 @@ export max_cpus=4
   --disable-llvm-static-stdcpp \
   %{enable_debuginfo} \
   --enable-extended \
-  --tools=cargo,clippy,rls,rust-analyzer,rustdoc,rustfmt,src \
+  --tools=cargo,clippy,rust-analyzer,rustdoc,rustfmt,src \
   --enable-vendor \
   --enable-verbose-tests \
   --dist-compression-formats=gz,xz \
@@ -601,7 +600,6 @@ export CXX="g++ -fuse-ld=lld"
 %{python} ./x.py test --no-fail-fast || :
 %{python} ./x.py test --no-fail-fast cargo || :
 %{python} ./x.py test --no-fail-fast clippy || :
-%{python} ./x.py test --no-fail-fast rls || :
 %{python} ./x.py test --no-fail-fast rustfmt || :
 %endif
 
