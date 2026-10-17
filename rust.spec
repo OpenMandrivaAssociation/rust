@@ -47,7 +47,7 @@
 
 Name:           rust
 Version:        1.99.1
-Release:        1
+Release:        2
 Summary:        The Rust Programming Language
 License:        (ASL 2.0 or MIT) and (BSD and MIT)
 # ^ written as: (rust itself) and (bundled libraries)
@@ -418,17 +418,14 @@ export LIBSSH2_SYS_USE_PKG_CONFIG=1
 %global common_libdir %{_prefix}/lib
 %global rustlibdir %{common_libdir}/rustlib
 
-%ifarch %{arm} %{ix86} s390x
-# full debuginfo is exhausting memory; just do libstd for now
+%ifarch %{arm} %{ix86} s390x x86_64 znver1
+# Full debuginfo exhausts memory and disk. x86_64 rustc was SIGKILL'd
+# compiling rustc_hir_analysis with debuginfo=2. znver1 also runs out
+# of space and then rpm cannot produce requires. libstd keeps debuginfo.
 # https://github.com/rust-lang/rust/issues/45854
 %define enable_debuginfo --debuginfo-level=0 --debuginfo-level-std=2
 %else
-%ifarch znver1
-# builder runs out of space causing rpm to be unable to correctly produce requires
-%define enable_debuginfo --debuginfo-level=0 --debuginfo-level-std=2
-%else
 %define enable_debuginfo --debuginfo-level=2
-%endif
 %endif
 
 # We want the best optimization for std, but it caused problems for rpm-ostree
